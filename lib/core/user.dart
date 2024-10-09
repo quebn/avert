@@ -1,17 +1,17 @@
-//import "package:acqua/utils.dart";
-//import "package:crypto/crypto.dart";
-//import "dart:convert";
+import "package:acqua/utils.dart";
 
-// NOTE: Scraped for the mean time.
-// TODO: Implement later.
 class User {
-  User({required this.name});
+  User({
+    required this.name, 
+    //required this.password, 
+    required this.createdAt, 
+    required this.lastLoginAt
+  });
 
-  //final Document _document;
   String name;
+  //String password;
+  DateTime createdAt;
+  //DateTime modifiedAt;
+  DateTime lastLoginAt;
   
-  //static Digest hashPassword(String password) {
-  //  var bytes = utf8.encode(password);
-  //  return sha256.convert(bytes);
-  //}
 }

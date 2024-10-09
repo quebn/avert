@@ -9,10 +9,10 @@ class HomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<StatefulWidget> createState() => HomePageState();
+  State<StatefulWidget> createState() => _HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
   List<Document> documents = <Document>[];
 
   void primaryAction(BuildContext context) {
@@ -51,6 +51,11 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     printLog("Building State!");
+    // Check if user logged in, if not then prompt login page.
+    return homePage(context);
+  }
+  
+  Widget homePage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -62,7 +67,7 @@ class HomePageState extends State<HomePage> {
           itemBuilder: (BuildContext context, int index) {
             return Container(
               height: 50,
-              color: Colors.blueAccent,
+              color: Colors.black87,
               child: Column(
                 children: <Widget> [
                   Text( "Full Name: ${documents[index].name}"),
@@ -78,6 +83,30 @@ class HomePageState extends State<HomePage> {
         onPressed: () => primaryAction(context),
        tooltip: "Increment",
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  State<StatefulWidget> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: const Text("Login Page"),
       ),
     );
   }

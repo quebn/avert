@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:acqua/core.dart";
 import "package:acqua/utils.dart";
 import "package:sqflite/sqflite.dart";
+import "package:crypto/crypto.dart";
+import "dart:convert";
 
 class App extends StatelessWidget{
   const App({super.key});
@@ -15,7 +17,7 @@ class App extends StatelessWidget{
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),
       home: HomePage(title: title)
@@ -24,7 +26,15 @@ class App extends StatelessWidget{
 
   _onCreate(Database db, int version) async {
     // Database is created, create the table
-    await db.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, password TEXT NOT NULL)");
+    String query = """CREATE TABLE users(
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL, 
+      password TEXT NOT NULL, 
+      createdAt INTEGER NOT NULL,
+      lastLoginAt INTEGER NOT NULL,
+      createdBy INTEGER NOT NULL,
+    )""";
+    await db.execute(query);
   }
 
   _onOpen(Database db) async {
@@ -43,6 +53,11 @@ class App extends StatelessWidget{
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
+  }
+
+  Digest hash(String text) {
+    var bytes = utf8.encode(text);
+    return sha256.convert(bytes);
   }
 }
 
