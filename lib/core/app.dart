@@ -52,13 +52,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     printLog("Building State!");
     // Check if user logged in, if not then prompt login page.
-    return homePage(context);
+    return loginPage(context);
   }
   
   Widget homePage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(widget.title)
       ),
       body: Center(
         child: ListView.separated(
@@ -67,7 +69,7 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (BuildContext context, int index) {
             return Container(
               height: 50,
-              color: Colors.black87,
+              color: Colors.black,
               child: Column(
                 children: <Widget> [
                   Text( "Full Name: ${documents[index].name}"),
@@ -80,9 +82,24 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
         onPressed: () => primaryAction(context),
        tooltip: "Increment",
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget loginPage(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(widget.title)
+      ),
+      body: Center(
+        child: const Text("Login Page"),
       ),
     );
   }

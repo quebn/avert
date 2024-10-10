@@ -45,6 +45,7 @@ app.*.map.json
 #files
 flutter_jank_metrics_*.json
 TODO.md
+
 #folders
 /linux/
 /android/

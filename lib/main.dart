@@ -28,31 +28,40 @@ class App extends StatelessWidget{
     // Database is created, create the table
     String query = """CREATE TABLE users(
       id INTEGER PRIMARY KEY,
-      name TEXT NOT NULL, 
-      password TEXT NOT NULL, 
+      name TEXT NOT NULL,
+      password TEXT NOT NULL,
       createdAt INTEGER NOT NULL,
       lastLoginAt INTEGER NOT NULL,
-      createdBy INTEGER NOT NULL,
+      createdBy INTEGER NOT NULL
     )""";
     await db.execute(query);
   }
 
   _onOpen(Database db) async {
     // Database is opened, read from the table
-    List<Map<String, Object?>> results = await db.query("users");
-    printLog("Printing data from db:\n${results.toString()}", level:LogLevel.warn);
+    String username = "Administrator";
+    List<Map<String, Object?>> results = await db.query("users",
+      columns: ["id", "name", "password"],
+      where: "name = ?",
+      whereArgs: [username]
+    );
+    if (results.isEmpty) {
+      printLog("No user found with username of: \"$username\"!", level:LogLevel.error);
+    }
   }
 
-  void initDB() async {
+  Future<Database> initDB() async {
     //Database db = 
     String path = await getDatabasesPath();
-    String db = "acqua.db";
-    printLog("Databases Path: $path/$db");
-    await openDatabase(db,
+    String dbName = "acqua.db";
+    printLog("Databases Path: $path/$dbName");
+    Database db = await openDatabase(dbName,
       version:1,
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
+    printLog("After opening of Database ${db.path}", level:LogLevel.warn);
+    return db;
   }
 
   Digest hash(String text) {
