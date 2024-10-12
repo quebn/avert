@@ -92,6 +92,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget loginPage(BuildContext context) {
+    TextEditingController userCon = TextEditingController();
+    TextEditingController passwordCon = TextEditingController();
+
+    List<Widget> children = <Widget>[
+      //const Text("Login as a User"),
+      InputField(
+        labelText: "Username", 
+        padding: EdgeInsets.all(8.0),
+        controller: userCon,
+      ),
+      InputField(
+        labelText: "Password", 
+        padding: EdgeInsets.all(8.0),
+        controller: passwordCon,
+      ),
+      // TODO: add Buttons for signing in or login in.
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -99,7 +117,9 @@ class _HomePageState extends State<HomePage> {
         title: Text(widget.title)
       ),
       body: Center(
-        child: const Text("Login Page"),
+        child: Column(
+          children: children,
+        ),
       ),
     );
   }

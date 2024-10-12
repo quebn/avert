@@ -4,6 +4,8 @@ import "package:acqua/utils.dart";
 import "package:sqflite/sqflite.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
+//import "package:path_provider/path_provider.dart";
+//import "dart:io";
 
 class App extends StatelessWidget{
   const App({super.key});
@@ -17,7 +19,10 @@ class App extends StatelessWidget{
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.black,
+          primary: Colors.black,
+        ),
         useMaterial3: true,
       ),
       home: HomePage(title: title)
@@ -32,7 +37,7 @@ class App extends StatelessWidget{
       password TEXT NOT NULL,
       createdAt INTEGER NOT NULL,
       lastLoginAt INTEGER NOT NULL,
-      createdBy INTEGER NOT NULL
+      createdBy INTEGER NOT NULL 
     )""";
     await db.execute(query);
   }
@@ -45,22 +50,23 @@ class App extends StatelessWidget{
       where: "name = ?",
       whereArgs: [username]
     );
+
     if (results.isEmpty) {
       printLog("No user found with username of: \"$username\"!", level:LogLevel.error);
     }
   }
 
   Future<Database> initDB() async {
-    //Database db = 
-    String path = await getDatabasesPath();
-    String dbName = "acqua.db";
-    printLog("Databases Path: $path/$dbName");
-    Database db = await openDatabase(dbName,
+    String dbPath = await getDatabasesPath();
+    String dbFile = "acqua.db";
+
+    printLog("Databases Path: $dbPath/$dbFile");
+    Database db = await openDatabase(dbFile,
       version:1,
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
-    printLog("After opening of Database ${db.path}", level:LogLevel.warn);
+    printLog("After opening of Database Path:${db.path}", level:LogLevel.warn);
     return db;
   }
 
