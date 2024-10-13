@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
-class InputField extends StatelessWidget {
-  const InputField({super.key, required this.padding, required this.labelText, this.gapPadding = 8, required this.controller});
+class AcquaInput extends StatelessWidget {
+  const AcquaInput({super.key, required this.padding, required this.labelText, this.gapPadding = 8, required this.controller});
   
   final EdgeInsetsGeometry padding;
   final String labelText;

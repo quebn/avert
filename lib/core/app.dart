@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
     //TextEditingController lnameCon = TextEditingController();
 
     List<Widget> children = <Widget>[
-      InputField(
+      AcquaInput(
         labelText: "Full Name", 
         padding: EdgeInsets.all(8.0),
         controller: fnameCon,
@@ -97,17 +97,28 @@ class _HomePageState extends State<HomePage> {
 
     List<Widget> children = <Widget>[
       //const Text("Login as a User"),
-      InputField(
+      AcquaInput(
         labelText: "Username", 
         padding: EdgeInsets.all(8.0),
         controller: userCon,
       ),
-      InputField(
+      AcquaInput(
         labelText: "Password", 
         padding: EdgeInsets.all(8.0),
         controller: passwordCon,
       ),
-      // TODO: add Buttons for signing in or login in.
+      Row(
+        children: <Widget>[
+          AcquaButton(
+            buttonName:"Sign Up",
+            onPressed:() => onSignup(),
+          ),
+          AcquaButton(
+            buttonName:"Login",
+            onPressed:() => onLogin(userCon.text, passwordCon.text),
+          ),
+        ],
+      ),
     ];
 
     return Scaffold(
@@ -123,28 +134,36 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
+  
+  void onSignup() {
+    printLog("Pressed Signup Button!");
+  }
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<StatefulWidget> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: const Text("Login Page"),
-      ),
-    );
+  void onLogin(String userName, String userPassword) {
+    printLog("Username: $userName | Password: $userPassword");
   }
 }
+
+//class LoginPage extends StatefulWidget {
+//  const LoginPage({super.key, required this.title});
+//
+//  final String title;
+//
+//  @override
+//  State<StatefulWidget> createState() => _LoginPageState();
+//}
+//
+//class _LoginPageState extends State<LoginPage> {
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return Scaffold(
+//      appBar: AppBar(
+//        title: Text(widget.title),
+//      ),
+//      body: Center(
+//        child: const Text("Login Page"),
+//      ),
+//    );
+//  }
+//}
