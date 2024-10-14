@@ -4,8 +4,6 @@ import "package:acqua/utils.dart";
 import "package:sqflite/sqflite.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
-//import "package:path_provider/path_provider.dart";
-//import "dart:io";
 
 class App extends StatelessWidget{
   const App({super.key});
