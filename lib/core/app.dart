@@ -21,11 +21,11 @@ class _HomePageState extends State<HomePage> {
   
   @override
   Widget build(BuildContext context) {
-    printLog("Building State!");
     return LoginPage();
   }
   
   Widget homePage(BuildContext context) {
+    printLog("Building Homepage state!");
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
