@@ -1,45 +1,68 @@
-//import "package:acqua/core.dart";
-import "package:acqua/core/login.dart";
+import "package:acqua/core.dart";
 import "package:acqua/utils.dart";
 import "package:flutter/material.dart";
+import "package:sqflite/sqflite.dart";
 
-class HomePage extends StatefulWidget {
-  HomePage({super.key, required this.title}) {
-    printLog("Calling App Constructor!");
-  }
-  final String title;
+class App extends StatelessWidget{
+  const App({super.key});
 
-  @override
-  State<StatefulWidget> createState() => _HomePageState();
-}
+  final String title = "Acqua";
+  static Database? db;
+  //static User? currentUser;
 
-class _HomePageState extends State<HomePage> {
-  
-  void primaryAction(BuildContext context) {
-    printLog("Creating Document...");
-  }
-  
   @override
   Widget build(BuildContext context) {
-    return LoginPage();
+    return MaterialApp(
+      title: title,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.black,
+          primary: Colors.black,
+        ),
+        useMaterial3: true,
+      ),
+      home: HomePage(title: title)
+    );
   }
   
-  Widget homePage(BuildContext context) {
-    printLog("Building Homepage state!");
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: Text(widget.title)
-      ),
-      body: const Text("HomePage"),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        onPressed: () => primaryAction(context),
-        tooltip: "Primary Action",
-        child: const Icon(Icons.add),
-      ),
+  static Future<void> dbInit() async {
+    String dbPath = await getDatabasesPath();
+    String dbFile = "acqua.db";
+
+    printLog("Databases Path: $dbPath/$dbFile");
+    db = await openDatabase(dbFile,
+      version:1,
+      onCreate: _onCreate,
+      onOpen: _onOpen,
     );
+  }
+}
+
+
+_onCreate(Database db, int version) async {
+  // Database is created, create the table
+  String query = """CREATE TABLE users(
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    password TEXT NOT NULL,
+    createdAt INTEGER NOT NULL,
+    createdBy INTEGER NOT NULL,
+    lastLoginAt INTEGER
+    )""";
+  await db.execute(query);
+}
+
+_onOpen(Database db) async {
+  String username = "Administrator";
+  List<Map<String, Object?>> results = await db.query("users",
+    columns: ["id", "name", "password", "createdAt", "createdBy", "lastLoginAt"],
+    where: "name = ?",
+    whereArgs: [username]
+  );
+
+  if (results.isEmpty) {
+    printLog("No user found with username of: \"$username\"!", level:LogLevel.error);
+  } else {
+    printLog("username with value of \"$username\" found! with values of ${results.toString()}");
   }
 }

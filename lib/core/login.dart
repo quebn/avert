@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import "package:acqua/core.dart";
 import "package:acqua/utils.dart";
+import "package:crypto/crypto.dart";
+import "dart:convert";
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, });
@@ -23,11 +25,11 @@ class _LoginPageState extends State<LoginPage> {
         foregroundColor: Colors.white,
         title: const Text("Login")
       ),
-      body: loginBody(userCon, passwordCon),
+      body: loginBody(context, userCon, passwordCon),
       );
   }  
 
-  Widget loginBody(TextEditingController userCon, TextEditingController passwordCon) {
+  Widget loginBody(BuildContext context, TextEditingController userCon, TextEditingController passwordCon) {
     List<Widget> children = <Widget>[
       //const Text("Login as a User"),
       AcquaInput(
@@ -44,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         children: <Widget>[
           AcquaButton(
             buttonName:"Sign Up",
-            onPressed:() => signup(),
+            onPressed:() => signupPage(context),
           ),
           AcquaButton(
             buttonName:"Login",
@@ -60,11 +62,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
   
-  void signup() {
-    printLog("Building signup state!");
-    TextEditingController userCon = TextEditingController();
-    TextEditingController pwdCon = TextEditingController();
-    TextEditingController pwdConfirmCon = TextEditingController();
+  void signupPage(BuildContext context) {
+    printLog("Building signup page!");
 
     Navigator.push(context,
       MaterialPageRoute(
@@ -72,21 +71,24 @@ class _LoginPageState extends State<LoginPage> {
           appBar: AppBar(
             title: const Text("Create new user"),
           ),
-          body: signupBody(context, userCon, pwdCon, pwdConfirmCon)
+          body: signupBody(context)
         )
       ),
     );
     printLog("Pressed Signup Button!");
   }
-
   
   void onLogin(String userName, String userPassword) {
     printLog("Username: $userName | Password: $userPassword");
   }
 
-  Widget signupBody(BuildContext context, TextEditingController userCon, TextEditingController pwdCon, TextEditingController pwdConfirmCon) {
+  Widget signupBody(BuildContext context) {
+
+    TextEditingController userCon = TextEditingController();
+    TextEditingController pwdCon = TextEditingController();
+    TextEditingController pwdConfirmCon = TextEditingController();
+
     List<Widget> children = <Widget>[
-      //const Text("Login as a User"),
       AcquaInput(
         labelText: "Username", 
         padding: EdgeInsets.all(8.0),
@@ -94,11 +96,13 @@ class _LoginPageState extends State<LoginPage> {
       ),
       AcquaInput(
         labelText: "Password", 
+        inputType: AcquaInputType.password, 
         padding: EdgeInsets.all(8.0),
         controller: pwdCon,
       ),
       AcquaInput(
         labelText: "Confirm Password", 
+        inputType: AcquaInputType.password,
         padding: EdgeInsets.all(8.0),
         controller: pwdConfirmCon,
       ),
@@ -106,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
         children: <Widget>[
           AcquaButton(
             buttonName:"Sign Up",
-            onPressed:() => onSignup(),
+            onPressed:() => onSignup(userCon, pwdCon, pwdConfirmCon),
           ),
         ],
       ),
@@ -116,8 +120,37 @@ class _LoginPageState extends State<LoginPage> {
       children: children
     );
   }
+
+  void onSignup(TextEditingController userCon, TextEditingController pwdCon, TextEditingController pwdConfirmCon) {
+    String username = userCon.text;
+    String password = pwdCon.text;
+    String passwordConfirm = pwdConfirmCon.text;
+    if (password != passwordConfirm) {
+      printLog("Password does not match!", level: LogLevel.error);
+      return;
+    }
+    printLog("Passwords matched!");
+    createUser(username, password);
+    Navigator.pop(context);
+  }
   
-  void onSignup() {
-    printLog("Signing Up!");
+  Future<void> createUser(String username, String password) async {
+    printLog("Creating user...");
+
+    var bytes = utf8.encode(password);
+    Digest digest = sha256.convert(bytes);
+
+    var values = {
+      "name"      : username,
+      "password"  : digest.toString(),
+      // TODO: should not be string but int.
+      "createdAt" : DateTime.now().toString(),
+      "createdBy" : username, 
+      // TODO: should not be string but int.
+      "lastLoginAt": DateTime.now().toString(),
+    };
+    printLog("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
+    int? r = await App.db?.insert("users", values);
+    printLog("insert finished with response code of [$r]", level: LogLevel.warn);
   }
 }
