@@ -2,12 +2,15 @@ import "package:acqua/core.dart";
 import "package:acqua/utils.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
+import "package:permission_handler/permission_handler.dart";
+import "dart:io";
 
 class App extends StatelessWidget{
   const App({super.key});
 
   final String title = "Acqua";
   static Database? db;
+  static const String storagePath = "/storage/emulated/0/Acqua";
   //static User? currentUser;
 
   @override
@@ -25,7 +28,7 @@ class App extends StatelessWidget{
     );
   }
   
-  static Future<void> dbInit() async {
+  static Future<void> dbInit({bool isDenied = false}) async {
     String dbPath = await getDatabasesPath();
     String dbFile = "acqua.db";
 
@@ -36,20 +39,31 @@ class App extends StatelessWidget{
       onOpen: _onOpen,
     );
   }
+
+  static Future<bool> createAppDir() async {
+    // NOTE: use the directory created as a storage for backup files.
+    var status = await Permission.manageExternalStorage.request();
+
+    if (status.isDenied) {
+      printLog("Storage access permission denied!", level: LogLevel.error);
+    } else {
+      printLog("Storage access permission granted!");
+    }
+
+    Directory dir = await Directory(App.storagePath).create(recursive: true);
+    printLog("Acqua Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
+    return status.isDenied;
+  }
 }
 
 
 _onCreate(Database db, int version) async {
-  // Database is created, create the table
-  String query = """CREATE TABLE users(
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    password TEXT NOT NULL,
-    createdAt INTEGER NOT NULL,
-    createdBy INTEGER NOT NULL,
-    lastLoginAt INTEGER
-    )""";
-  await db.execute(query);
+  Batch batch = db.batch();
+  batch.execute(User.createTableQuery);
+
+  //List<dynamic> res = await batch.commit();
+  await batch.commit();
+  
 }
 
 _onOpen(Database db) async {

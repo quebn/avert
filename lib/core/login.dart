@@ -143,11 +143,9 @@ class _LoginPageState extends State<LoginPage> {
     var values = {
       "name"      : username,
       "password"  : digest.toString(),
-      // TODO: should not be string but int.
-      "createdAt" : DateTime.now().toString(),
+      "createdAt" : DateTime.now().millisecondsSinceEpoch,
       "createdBy" : username, 
-      // TODO: should not be string but int.
-      "lastLoginAt": DateTime.now().toString(),
+      "lastLoginAt": DateTime.now().millisecondsSinceEpoch,
     };
     printLog("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
     int? r = await App.db?.insert("users", values);

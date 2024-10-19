@@ -14,4 +14,13 @@ class User {
   //DateTime modifiedAt;
   DateTime lastLoginAt;
   
+  static const String createTableQuery = """
+    CREATE TABLE IF NOT EXIST users(
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      password TEXT NOT NULL,
+      createdAt INTEGER NOT NULL,
+      createdBy INTEGER NOT NULL,
+      lastLoginAt INTEGER
+    )""";
 }
