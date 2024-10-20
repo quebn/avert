@@ -18,9 +18,16 @@ class App extends StatelessWidget{
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black,
+        colorScheme: ColorScheme(
+          brightness: Brightness.light,
+          surface: Colors.white,
+          onSurface: Colors.black,
           primary: Colors.black,
+          onPrimary: Colors.white,
+          secondary: Colors.white,
+          onSecondary: Colors.black,
+          error: Colors.red,
+          onError: Colors.white,
         ),
         useMaterial3: true,
       ),
@@ -59,24 +66,24 @@ class App extends StatelessWidget{
 
 _onCreate(Database db, int version) async {
   Batch batch = db.batch();
-  batch.execute(User.createTableQuery);
-
-  //List<dynamic> res = await batch.commit();
+  //batch.execute(App.getTableQuery());
+  batch.execute(User.getTableQuery());
   await batch.commit();
-  
 }
 
 _onOpen(Database db) async {
-  String username = "Administrator";
-  List<Map<String, Object?>> results = await db.query("users",
-    columns: ["id", "name", "password", "createdAt", "createdBy", "lastLoginAt"],
-    where: "name = ?",
-    whereArgs: [username]
-  );
+  // TODO: onOpen() should do the following:
+  //   [x] check if user table is not empty.
+  //   [-] check and read the file responsible of storing last user login data.
+  //   [-] check if last user exist in user table.
+  //   [-] check if user is still valid for skipping authentication.
+  //   [-] if yes get user data and skip login screen.
 
+  List<String> cols = ["id", "name", "password", "createdAt"];
+  List<Map<String, Object?>> results = await db.query("users", columns: cols);
   if (results.isEmpty) {
-    printLog("No user found with username of: \"$username\"!", level:LogLevel.error);
+    printLog("No users found in users table!", level:LogLevel.error);
   } else {
-    printLog("username with value of \"$username\" found! with values of ${results.toString()}");
+    printLog("${results.length} user(s) found! with values of ${results.toString()}");
   }
 }

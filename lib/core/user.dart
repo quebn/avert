@@ -9,18 +9,15 @@ class User {
   });
 
   String name;
-  //String password;
   DateTime createdAt;
-  //DateTime modifiedAt;
   DateTime lastLoginAt;
   
-  static const String createTableQuery = """
-    CREATE TABLE IF NOT EXIST users(
+  static String getTableQuery() => """
+    CREATE TABLE users(
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       password TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
-      createdBy INTEGER NOT NULL,
-      lastLoginAt INTEGER
-    )""";
+      createdAt INTEGER NOT NULL
+    )
+    """;
 }

@@ -20,13 +20,47 @@ class _LoginPageState extends State<LoginPage> {
     TextEditingController passwordCon = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text("Login")
-      ),
-      body: loginBody(context, userCon, passwordCon),
-      );
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            height: MediaQuery.sizeOf(context).height / 4,
+            child: Center(
+              child: const Text("ACQUA",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10.0,
+                )
+              ]
+            ),
+            margin: EdgeInsets.only(
+              left:   12.0,
+              right:  12.0,
+              top:    MediaQuery.sizeOf(context).height / 5,
+              bottom: 50.0,
+            ),
+            child: Card(
+              shadowColor: Colors.black,
+              child: Center(
+                child: const Text("Text Fields"),
+                )
+            )
+          )
+        ]
+      )
+    );
   }  
 
   Widget loginBody(BuildContext context, TextEditingController userCon, TextEditingController passwordCon) {
@@ -68,9 +102,6 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.push(context,
       MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text("Create new user"),
-          ),
           body: signupBody(context)
         )
       ),
@@ -144,8 +175,6 @@ class _LoginPageState extends State<LoginPage> {
       "name"      : username,
       "password"  : digest.toString(),
       "createdAt" : DateTime.now().millisecondsSinceEpoch,
-      "createdBy" : username, 
-      "lastLoginAt": DateTime.now().millisecondsSinceEpoch,
     };
     printLog("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
     int? r = await App.db?.insert("users", values);
