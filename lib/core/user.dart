@@ -1,4 +1,4 @@
-import "package:acqua/utils.dart";
+import "package:acqua/core/utils.dart";
 
 class User {
   User({

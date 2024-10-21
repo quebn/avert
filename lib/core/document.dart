@@ -1,4 +1,4 @@
-import "package:acqua/core.dart";
+import "package:flutter/material.dart";
 
 class Document {
   Document({required this.name,}): createdAt = DateTime.now();

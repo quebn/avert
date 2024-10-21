@@ -9,67 +9,49 @@ enum AcquaInputType {
 class AcquaInput extends StatelessWidget {
   const AcquaInput({
     super.key, 
-    required this.padding, 
+    this.xPadding = 8, 
+    this.yPadding = 8, 
     required this.labelText, 
     this.gapPadding = 8, 
     this.inputType = AcquaInputType.text, 
     required this.controller
   });
   
-  final EdgeInsetsGeometry padding;
   final String labelText;
+  final double xPadding, yPadding;
   final double gapPadding;
   final AcquaInputType inputType;
   final TextEditingController controller;
   
   bool get _shouldObscure {
-    switch (inputType) {
-      case AcquaInputType.password:
-        return true;
-      default:
-        return false;
-    }
+    return inputType == AcquaInputType.password;
   }
 
   bool get _shouldSuggest {
-    switch (inputType) {
-      case AcquaInputType.password:
-        return false;
-      default:
-        return true;
-    }
+    return inputType != AcquaInputType.password;
   }
 
   bool get _shouldAutoCorrect {
-    switch (inputType) {
-      case AcquaInputType.password:
-        return false;
-      default:
-        return true;
-    }
+    return inputType != AcquaInputType.password;
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding,
+      padding: EdgeInsets.symmetric(horizontal: xPadding, vertical: yPadding),
       child: TextField(
         obscureText: _shouldObscure,
         enableSuggestions: _shouldSuggest,
         autocorrect: _shouldAutoCorrect,
         controller: controller,
         decoration: InputDecoration(
-          //filled: true,
-          //fillColor: Colors.black,
           iconColor: Colors.white,
           border: OutlineInputBorder(
             gapPadding: gapPadding,
-            //borderSide: BorderSide(width:5, color:Colors.red)
           ),
           labelText: labelText,
         )
       )
     );
   }
-
 }

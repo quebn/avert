@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:acqua/core.dart";
+import "package:acqua/core/components.dart";
 import "package:acqua/core/login.dart";
-import "package:acqua/utils.dart";
+import "package:acqua/core/utils.dart";
 
 class HomePage extends StatefulWidget {
   HomePage({super.key, required this.title}) {

@@ -1,5 +1,6 @@
-import "package:acqua/core.dart";
-import "package:acqua/utils.dart";
+import "package:acqua/core/utils.dart";
+import "package:acqua/core/home.dart";
+import "package:acqua/core/user.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
 import "package:permission_handler/permission_handler.dart";
@@ -45,6 +46,7 @@ class App extends StatelessWidget{
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
+    printLog("After opening of Database Path:${db?.path}", level:LogLevel.warn);
   }
 
   static Future<bool> createAppDir() async {

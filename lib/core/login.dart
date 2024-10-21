@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
-import "package:acqua/core.dart";
-import "package:acqua/utils.dart";
+import "package:acqua/core/components.dart";
+import "package:acqua/core/app.dart";
+import "package:acqua/core/utils.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
@@ -12,25 +13,27 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  
+  bool isLogin = true;
 
   @override
   Widget build(BuildContext context) {
     printLog("Building login state!");
-    TextEditingController userCon = TextEditingController();
-    TextEditingController passwordCon = TextEditingController();
-
     return Scaffold(
       body: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
               color: Colors.black,
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(15.0),
             ),
             height: MediaQuery.sizeOf(context).height / 4,
             child: Center(
               child: const Text("ACQUA",
                 style: TextStyle(
+                  //fontFamily: "Roboto",
+                  fontSize: 32.0,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
@@ -49,13 +52,19 @@ class _LoginPageState extends State<LoginPage> {
               left:   12.0,
               right:  12.0,
               top:    MediaQuery.sizeOf(context).height / 5,
-              bottom: 50.0,
+              bottom: 30.0,
             ),
             child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               shadowColor: Colors.black,
               child: Center(
-                child: const Text("Text Fields"),
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: isLogin ? loginBody(context) : signupBody(context),
                 )
+              )
             )
           )
         ]
@@ -63,30 +72,53 @@ class _LoginPageState extends State<LoginPage> {
     );
   }  
 
-  Widget loginBody(BuildContext context, TextEditingController userCon, TextEditingController passwordCon) {
+  Widget loginBody(BuildContext context) {
+
+    TextEditingController userCon = TextEditingController();
+    TextEditingController passwordCon = TextEditingController();
+
     List<Widget> children = <Widget>[
-      //const Text("Login as a User"),
-      AcquaInput(
-        labelText: "Username", 
-        padding: EdgeInsets.all(8.0),
-        controller: userCon,
-      ),
-      AcquaInput(
-        labelText: "Password", 
-        padding: EdgeInsets.all(8.0),
-        controller: passwordCon,
-      ),
-      Row(
-        children: <Widget>[
-          AcquaButton(
-            buttonName:"Sign Up",
-            onPressed:() => signupPage(context),
+      Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: 12.0,
+        ),
+        child: const Text( "LOGIN",
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
           ),
-          AcquaButton(
-            buttonName:"Login",
-            onPressed:() => onLogin(userCon.text, passwordCon.text),
-          ),
-        ],
+        ),
+      ),
+      Expanded(
+        child: ListView(
+          //physics: ClampingScrollPhysics(),
+          padding: EdgeInsets.zero,
+          children: [
+            AcquaInput(
+              labelText: "Username", 
+              controller: userCon,
+            ),
+            AcquaInput(
+              labelText: "Password", 
+              controller: passwordCon,
+            ),
+            AcquaButton(
+              buttonName:"Login",
+              fontSize: 18,
+              xMargin: 80,
+              yMargin: 8,
+              height:  60,
+              onPressed:() => onLogin(userCon.text, passwordCon.text),
+            ),
+            AcquaLink(
+              linkText: "Create a new account.",
+              linkSize: 16,
+              yMargin: 20,
+              onPressed: (){ printLog("Pressed Link"); },
+            ),
+            
+          ],
+        )
       ),
     ];
     return Center(
@@ -121,20 +153,17 @@ class _LoginPageState extends State<LoginPage> {
 
     List<Widget> children = <Widget>[
       AcquaInput(
-        labelText: "Username", 
-        padding: EdgeInsets.all(8.0),
+        labelText:  "Username", 
         controller: userCon,
       ),
       AcquaInput(
-        labelText: "Password", 
-        inputType: AcquaInputType.password, 
-        padding: EdgeInsets.all(8.0),
+        labelText:  "Password", 
+        inputType:  AcquaInputType.password, 
         controller: pwdCon,
       ),
       AcquaInput(
-        labelText: "Confirm Password", 
-        inputType: AcquaInputType.password,
-        padding: EdgeInsets.all(8.0),
+        labelText:  "Confirm Password", 
+        inputType:  AcquaInputType.password,
         controller: pwdConfirmCon,
       ),
       Row(
