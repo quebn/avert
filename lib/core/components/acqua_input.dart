@@ -16,22 +16,27 @@ class AcquaInput extends StatefulWidget {
     this.yPadding = 8, 
     this.gapPadding = 8, 
     this.inputType = AcquaInputType.text, 
+    this.validateEmpty = false, 
+    this.validator,
   });
 
   const AcquaInput.password({
     super.key, 
     required this.controller,
+    required this.validator,
     this.xPadding = 8, 
     this.yPadding = 8, 
     this.gapPadding = 8, 
     this.labelText = "Password", 
-  }) : inputType = AcquaInputType.password ;
+  }) : inputType = AcquaInputType.password, validateEmpty = true ;
 
   final String labelText;
   final double xPadding, yPadding;
   final double gapPadding;
   final AcquaInputType inputType;
   final TextEditingController controller;
+  final bool validateEmpty;
+  final String? Function(String value)? validator;
   
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -40,44 +45,19 @@ class AcquaInput extends StatefulWidget {
 class _InputState extends State<AcquaInput> {
 
   bool shouldObscure = true;
+  String? errMsg;
+  //Strig shouldObscure = true;
 
   @override
   Widget build(BuildContext context) {
     printLog("Building Input Field listening for value of shouldObscure: $shouldObscure", level: LogLevel.warn);
     switch(widget.inputType) {
       case AcquaInputType.password:
-        return Stack(
-          children: [
-            password(context),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: showButton(context),
-              ),
-            ),
-          ]
-        );
+        return password(context);
       default:
         return text(context);
     }
   }
-
-  Widget password(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
-    child: TextField(
-      obscureText: shouldObscure,
-      enableSuggestions: false,
-      autocorrect: false,
-      controller: widget.controller,
-      decoration: InputDecoration(
-        iconColor: Colors.white,
-        border: OutlineInputBorder(
-          gapPadding: widget.gapPadding,
-        ),
-        labelText: widget.labelText,
-      )
-    )
-  );
 
   Widget text(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
@@ -93,18 +73,49 @@ class _InputState extends State<AcquaInput> {
     )
   );
 
-  Widget showButton(BuildContext context, { double padding = 8}) => Padding(
-    padding: EdgeInsets.all(padding),
-    child: IconButton(
-      iconSize: 32,
-      isSelected: shouldObscure,
-      icon: const Icon(Icons.visibility_off_rounded),
-      selectedIcon: const Icon(Icons.visibility_rounded),
-      onPressed: () {
-        setState(() {
-          shouldObscure = !shouldObscure;
-        });
-      },
-    ),
+  Widget password(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
+    child: TextField(
+      onEditingComplete: () => validate(context),
+      obscureText: shouldObscure,
+      enableSuggestions: false,
+      autocorrect: false,
+      controller: widget.controller,
+      decoration: InputDecoration(
+        suffixIcon: showButton(context),
+        iconColor: Colors.white,
+        border: OutlineInputBorder(
+          gapPadding: widget.gapPadding,
+        ),
+        labelText: widget.labelText,
+        errorText: errMsg,
+      )
+    )
   );
+
+  Widget showButton(BuildContext context) => IconButton(
+    //padding: EdgeInsets.all(0),
+    iconSize: 28,
+    isSelected: shouldObscure,
+    icon: const Icon(Icons.visibility_off_rounded),
+    selectedIcon: const Icon(Icons.visibility_rounded),
+    onPressed: () {
+      setState(() {
+        shouldObscure = !shouldObscure;
+      });
+    },
+  );
+
+  void validate(BuildContext context) {
+    setState(() {
+      if (widget.controller.text.isEmpty && widget.validateEmpty) {
+        errMsg = "Field must not be empty!";
+        return;
+      }
+      errMsg = widget.validator!(widget.controller.text);
+    });
+    if (errMsg == null) {
+      FocusScope.of(context).unfocus();
+    }
+  }
 }
