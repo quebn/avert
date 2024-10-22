@@ -20,7 +20,7 @@ enum LogLevel {
 void printLog(String text, {LogLevel level = LogLevel.debug}) {
   switch (level) {
     case LogLevel.debug:
-      debugPrint("\x1B[34m [DEBUG]: $text\x1B[0m");
+      debugPrint("\x1B[32m [DEBUG]: $text\x1B[0m");
       break;
     case LogLevel.warn:
       debugPrint("\x1B[33m [WARN]: $text\x1B[0m");

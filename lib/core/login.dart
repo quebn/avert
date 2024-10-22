@@ -15,6 +15,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   
   bool isLogin = true;
+  String errMsg = "";
+  //"Incorrect Password!"
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
               left:   12.0,
               right:  12.0,
               top:    MediaQuery.sizeOf(context).height / 5,
-              bottom: 30.0,
+              bottom: 20.0,
             ),
             child: Card(
               shape: RoundedRectangleBorder(
@@ -67,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
               )
             )
           )
-        ]
+        ],
       )
     );
   }  
@@ -98,9 +100,18 @@ class _LoginPageState extends State<LoginPage> {
               labelText: "Username", 
               controller: userCon,
             ),
-            AcquaInput(
-              labelText: "Password", 
+            AcquaInput.password(
               controller: passwordCon,
+            ),
+            Padding(
+              padding:EdgeInsets.only(left: 10,),
+              child: Text(errMsg,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              )
             ),
             AcquaButton(
               buttonName:"Login",
@@ -113,10 +124,9 @@ class _LoginPageState extends State<LoginPage> {
             AcquaLink(
               linkText: "Create a new account.",
               linkSize: 16,
-              yMargin: 20,
+              yMargin: 16,
               onPressed: (){ printLog("Pressed Link"); },
             ),
-            
           ],
         )
       ),
@@ -131,6 +141,9 @@ class _LoginPageState extends State<LoginPage> {
   void signupPage(BuildContext context) {
     printLog("Building signup page!");
 
+    // TODO: to add
+    // - error message pop-up for unmatched passwords.
+    // - password strength indicator.
     Navigator.push(context,
       MaterialPageRoute(
         builder: (context) => Scaffold(

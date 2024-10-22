@@ -26,6 +26,7 @@ class AcquaLink extends StatelessWidget {
             recognizer: TapGestureRecognizer()..onTap = onPressed,
             text: linkText,
             style: TextStyle(
+              decoration: TextDecoration.underline,
               color: Colors.black,
               fontSize: linkSize,
               fontWeight: FontWeight.bold,
