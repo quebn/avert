@@ -33,3 +33,11 @@ void printLog(String text, {LogLevel level = LogLevel.debug}) {
       break;
   }
 }
+
+// NOTE: currently a soft assert.
+// TODO: turn this into a proper assert that exits or freezes the app when on assert.
+void printAssert(bool assertCondition, String errMsg) {
+  if (!assertCondition) {
+    printLog(errMsg, level: LogLevel.error);
+  }
+}

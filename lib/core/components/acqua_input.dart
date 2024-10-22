@@ -50,7 +50,6 @@ class _InputState extends State<AcquaInput> {
 
   @override
   Widget build(BuildContext context) {
-    printLog("Building Input Field listening for value of shouldObscure: $shouldObscure", level: LogLevel.warn);
     switch(widget.inputType) {
       case AcquaInputType.password:
         return password(context);
@@ -62,6 +61,7 @@ class _InputState extends State<AcquaInput> {
   Widget text(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
     child: TextField(
+      onEditingComplete: () => validate(context),
       controller: widget.controller,
       decoration: InputDecoration(
         iconColor: Colors.white,
@@ -69,6 +69,7 @@ class _InputState extends State<AcquaInput> {
           gapPadding: widget.gapPadding,
         ),
         labelText: widget.labelText,
+        errorText: errMsg,
       )
     )
   );
@@ -108,12 +109,13 @@ class _InputState extends State<AcquaInput> {
 
   void validate(BuildContext context) {
     setState(() {
-      if (widget.controller.text.isEmpty && widget.validateEmpty) {
-        errMsg = "Field must not be empty!";
+      if (widget.validateEmpty) {
+        errMsg = widget.controller.text.isEmpty ? "${widget.labelText} field must not be empty!" : null;
         return;
       }
       errMsg = widget.validator!(widget.controller.text);
     });
+    printLog("errMsg: $errMsg", level:LogLevel.warn);
     if (errMsg == null) {
       FocusScope.of(context).unfocus();
     }

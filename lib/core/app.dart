@@ -1,3 +1,4 @@
+import "package:acqua/core/login.dart";
 import "package:acqua/core/utils.dart";
 import "package:acqua/core/home.dart";
 import "package:acqua/core/user.dart";
@@ -32,7 +33,7 @@ class App extends StatelessWidget{
         ),
         useMaterial3: true,
       ),
-      home: HomePage(title: title)
+      home: LoginPage()
     );
   }
   
