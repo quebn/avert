@@ -1,42 +1,55 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/utils.dart";
+import "package:flutter/services.dart";
 
 enum AcquaInputType {
   text,
+  alphanumeric,
   password,
   datetime,
 }
 
 class AcquaInput extends StatefulWidget {
   const AcquaInput({
-    super.key, 
-    required this.labelText, 
+    super.key,
+    required this.name,
     required this.controller,
-    this.xPadding = 8, 
-    this.yPadding = 8, 
-    this.gapPadding = 8, 
-    this.inputType = AcquaInputType.text, 
-    this.validateEmpty = false, 
+    this.xPadding = 8,
+    this.yPadding = 8,
+    this.gapPadding = 8,
+    this.inputType = AcquaInputType.text,
+    this.required = false,
     this.validator,
   });
+
+  const AcquaInput.alphanumeric({
+    super.key, 
+    required this.name, 
+    required this.controller,
+    this.xPadding = 8,
+    this.yPadding = 8,
+    this.gapPadding = 8, 
+    this.required = false,
+    this.validator,
+  }) : inputType = AcquaInputType.alphanumeric;
 
   const AcquaInput.password({
     super.key, 
     required this.controller,
-    required this.validator,
-    this.xPadding = 8, 
-    this.yPadding = 8, 
+    this.validator,
+    this.xPadding = 8,
+    this.yPadding = 8,
     this.gapPadding = 8, 
-    this.labelText = "Password", 
-  }) : inputType = AcquaInputType.password, validateEmpty = true ;
+    this.name = "Password", 
+  }) : inputType = AcquaInputType.password, required = true ;
 
-  final String labelText;
+  final String name;
   final double xPadding, yPadding;
   final double gapPadding;
   final AcquaInputType inputType;
   final TextEditingController controller;
-  final bool validateEmpty;
-  final String? Function(String value)? validator;
+  final bool required;
+  final String? Function(String? value)? validator;
   
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -45,12 +58,12 @@ class AcquaInput extends StatefulWidget {
 class _InputState extends State<AcquaInput> {
 
   bool shouldObscure = true;
-  String? errMsg;
-  //Strig shouldObscure = true;
 
   @override
   Widget build(BuildContext context) {
     switch(widget.inputType) {
+      case AcquaInputType.alphanumeric:
+        return alphanumeric(context);
       case AcquaInputType.password:
         return password(context);
       default:
@@ -58,26 +71,46 @@ class _InputState extends State<AcquaInput> {
     }
   }
 
-  Widget text(BuildContext context) => Padding(
+  Widget alphanumeric(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
-    child: TextField(
-      onEditingComplete: () => validate(context),
+    child: TextFormField(
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
+      ],
+      validator: validate,
       controller: widget.controller,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
           gapPadding: widget.gapPadding,
         ),
-        labelText: widget.labelText,
-        errorText: errMsg,
+        labelText: widget.name,
+        //errorText: errMsg,
+      )
+    )
+  
+  );
+
+  Widget text(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
+    child: TextFormField(
+      validator: validate,
+      controller: widget.controller,
+      decoration: InputDecoration(
+        iconColor: Colors.white,
+        border: OutlineInputBorder(
+          gapPadding: widget.gapPadding,
+        ),
+        labelText: widget.name,
+        //errorText: errMsg,
       )
     )
   );
 
   Widget password(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
-    child: TextField(
-      onEditingComplete: () => validate(context),
+    child: TextFormField(
+      validator: validate,
       obscureText: shouldObscure,
       enableSuggestions: false,
       autocorrect: false,
@@ -88,8 +121,8 @@ class _InputState extends State<AcquaInput> {
         border: OutlineInputBorder(
           gapPadding: widget.gapPadding,
         ),
-        labelText: widget.labelText,
-        errorText: errMsg,
+        labelText: widget.name,
+        //errorText: errMsg,
       )
     )
   );
@@ -107,17 +140,12 @@ class _InputState extends State<AcquaInput> {
     },
   );
 
-  void validate(BuildContext context) {
-    setState(() {
-      if (widget.validateEmpty) {
-        errMsg = widget.controller.text.isEmpty ? "${widget.labelText} field must not be empty!" : null;
-        return;
-      }
-      errMsg = widget.validator!(widget.controller.text);
-    });
-    printLog("errMsg: $errMsg", level:LogLevel.warn);
-    if (errMsg == null) {
-      FocusScope.of(context).unfocus();
+  String? validate(String? value) {
+    printLog("validating value: $value");
+    if (widget.required && (value == null || value.isEmpty)) {
+      printLog("Required non empty field of ${widget.name}");
+      return "${widget.name} is required!";
     }
+    return widget.validator == null ? null : widget.validator!(value);
   }
 }

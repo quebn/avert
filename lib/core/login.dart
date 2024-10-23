@@ -14,13 +14,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   
-  bool isLogin = true;
-  String errMsg = "";
-  //"Incorrect Password!"
+  bool isLogin = false;
 
   @override
   Widget build(BuildContext context) {
-    printLog("Building login state!");
+    printLog("building.....");
     return Scaffold(
       body: Stack(
         children: [
@@ -48,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.black12,
                   blurRadius: 10.0,
                 )
-              ]
+              ],
             ),
             margin: EdgeInsets.only(
               left:   12.0,
@@ -61,150 +59,172 @@ class _LoginPageState extends State<LoginPage> {
                 borderRadius: BorderRadius.circular(15),
               ),
               shadowColor: Colors.black,
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: isLogin ? loginBody(context) : signupBody(context),
-                )
-              )
-            )
-          )
+              child: isLogin ? loginBody(context) : signupBody(context),
+            ),
+          ),
         ],
-      )
+      ),
     );
   }  
 
   Widget loginBody(BuildContext context) {
 
-    TextEditingController userCon = TextEditingController();
-    TextEditingController passwordCon = TextEditingController();
+    final GlobalKey<FormState> key = GlobalKey<FormState>();
+    final Map<String, TextEditingController> controllers = {
+      "username": TextEditingController(),
+      "password": TextEditingController(),
+    };
 
     List<Widget> children = <Widget>[
-      Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 12.0,
-        ),
-        child: const Text( "LOGIN",
-          style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      AcquaInput.alphanumeric(
+        name: "Username", 
+        controller: controllers['username']!,
+        required: true,
       ),
-      Expanded(
-        child: ListView(
-          //physics: ClampingScrollPhysics(),
-          padding: EdgeInsets.zero,
-          children: [
-            AcquaInput(
-              labelText: "Username", 
-              controller: userCon,
-            ),
-            AcquaInput.password(
-              controller: passwordCon,
-            ),
-            Padding(
-              padding:EdgeInsets.only(left: 10,),
-              child: Text(errMsg,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              )
-            ),
-            AcquaButton(
-              buttonName:"Login",
-              fontSize: 18,
-              xMargin: 80,
-              yMargin: 8,
-              height:  60,
-              onPressed:() => onLogin(userCon.text, passwordCon.text),
-            ),
-            AcquaLink(
-              linkText: "Create a new account.",
-              linkSize: 16,
-              yMargin: 16,
-              onPressed: (){ printLog("Pressed Link"); },
-            ),
-          ],
-        )
+      AcquaInput.password(
+        controller: controllers['password']!,
+        validator: (value) { return null; },
+      ),
+      AcquaButton(
+        buttonName:"Login",
+        fontSize: 18,
+        xMargin: 80,
+        yMargin: 8,
+        height:  60,
+        onPressed:() => onLogin(key, controllers['username']!.text, controllers['password']!.text),
+      ),
+      AcquaLink(
+        linkText: "Create a new user.",
+        linkSize: 16,
+        yMargin: 16,
+        onPressed:() {
+          setState(() => isLogin = false);
+        }
       ),
     ];
-    return Center(
-      child: Column(
-        children: children,
-      ),
-    );
-  }
-  
-  void signupPage(BuildContext context) {
-    printLog("Building signup page!");
 
-    // TODO: to add
-    // - error message pop-up for unmatched passwords.
-    // - password strength indicator.
-    Navigator.push(context,
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          body: signupBody(context)
-        )
+    return Form(
+      key:key,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 12.0,
+            ),
+            child: const Text( "LOGIN",
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              children: children,
+            )
+          ),
+        ]
       ),
     );
+  }
+
+  void signupPage() {
     printLog("Pressed Signup Button!");
+    setState(() {
+      isLogin = false;
+    });
   }
   
-  void onLogin(String userName, String userPassword) {
+  void onLogin(GlobalKey<FormState> formKey, String userName, String userPassword,) {
+    if (!formKey.currentState!.validate()) {
+      printLog("Reach this block!", level: LogLevel.error);
+      return;
+    }
     printLog("Username: $userName | Password: $userPassword");
   }
 
   Widget signupBody(BuildContext context) {
 
-    TextEditingController userCon = TextEditingController();
-    TextEditingController pwdCon = TextEditingController();
-    TextEditingController pwdConfirmCon = TextEditingController();
+    final GlobalKey<FormState> key = GlobalKey<FormState>();
+    final Map<String, TextEditingController> controllers = {
+      "username": TextEditingController(),
+      "password": TextEditingController(),
+      "password_confirm": TextEditingController(),
+    };
 
     List<Widget> children = <Widget>[
-      AcquaInput(
-        labelText:  "Username", 
-        controller: userCon,
+      AcquaInput.alphanumeric(
+        name:"Username", 
+        controller: controllers['username']!,
+        required: true,
       ),
-      AcquaInput(
-        labelText:  "Password", 
-        inputType:  AcquaInputType.password, 
-        controller: pwdCon,
+      AcquaInput.password(
+        controller: controllers['password']!,
       ),
-      AcquaInput(
-        labelText:  "Confirm Password", 
-        inputType:  AcquaInputType.password,
-        controller: pwdConfirmCon,
+      AcquaInput.password(
+        name:  "Confirm Password", 
+        controller: controllers['password_confirm']!,
+        validator: (value) {
+          return controllers['password']!.text != value ? "Password does not match!" : null;
+        },
       ),
-      Row(
-        children: <Widget>[
-          AcquaButton(
-            buttonName:"Sign Up",
-            onPressed:() => onSignup(userCon, pwdCon, pwdConfirmCon),
-          ),
-        ],
+      AcquaButton(
+        buttonName:"Sign Up",
+        fontSize: 18,
+        xMargin: 80,
+        yMargin: 8,
+        height:  60,
+        onPressed:() => onSignup(
+          key,
+          controllers['username']!.value.text, 
+          controllers['password']!.value.text, 
+        ),
+      ),
+      AcquaLink(
+        linkText: "Login",
+        linkSize: 16,
+        yMargin: 16,
+        onPressed:() {
+          setState(() => isLogin = true);
+        }
       ),
     ];
 
-    return Column(
-      children: children
+    return Form(
+      key:key,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 12.0,
+            ),
+            child: const Text( "REGISTER",
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              children: children,
+            )
+          ),
+        ]
+      ),
     );
   }
 
-  void onSignup(TextEditingController userCon, TextEditingController pwdCon, TextEditingController pwdConfirmCon) {
-    String username = userCon.text;
-    String password = pwdCon.text;
-    String passwordConfirm = pwdConfirmCon.text;
-    if (password != passwordConfirm) {
-      printLog("Password does not match!", level: LogLevel.error);
+  void onSignup(GlobalKey<FormState> formKey, String userName, String userPassword,) {
+    if (formKey.currentState!.validate()) {
+      printLog("Username: $userName | Password: $userPassword", level: LogLevel.error);
       return;
     }
-    printLog("Passwords matched!");
-    createUser(username, password);
-    Navigator.pop(context);
+    printLog("WRONG!", level: LogLevel.error);
   }
   
   Future<void> createUser(String username, String password) async {
