@@ -9,6 +9,10 @@ enum AcquaInputType {
   datetime,
 }
 
+// NOTE: known issues for this is error does set from validator wont go until 
+// the form is submitted.
+// TODO: find way to resolve NOTE above
+
 class AcquaInput extends StatefulWidget {
   const AcquaInput({
     super.key,
@@ -39,8 +43,8 @@ class AcquaInput extends StatefulWidget {
     this.validator,
     this.xPadding = 8,
     this.yPadding = 8,
-    this.gapPadding = 8, 
-    this.name = "Password", 
+    this.gapPadding = 8,
+    this.name = "Password",
   }) : inputType = AcquaInputType.password, required = true ;
 
   final String name;
@@ -58,6 +62,7 @@ class AcquaInput extends StatefulWidget {
 class _InputState extends State<AcquaInput> {
 
   bool shouldObscure = true;
+  String? errMsg;
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +84,7 @@ class _InputState extends State<AcquaInput> {
       ],
       validator: validate,
       controller: widget.controller,
+      //forceErrorText: errMsg,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -96,6 +102,7 @@ class _InputState extends State<AcquaInput> {
     child: TextFormField(
       validator: validate,
       controller: widget.controller,
+      //forceErrorText: errMsg,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -112,6 +119,7 @@ class _InputState extends State<AcquaInput> {
     child: TextFormField(
       validator: validate,
       obscureText: shouldObscure,
+      //forceErrorText: errMsg,
       enableSuggestions: false,
       autocorrect: false,
       controller: widget.controller,
@@ -142,6 +150,8 @@ class _InputState extends State<AcquaInput> {
 
   String? validate(String? value) {
     printLog("validating value: $value");
+    printLog("errMsg value: $errMsg");
+    printAssert(errMsg == null, "variable errMsg has value of $errMsg where it should be \"null\"");
     if (widget.required && (value == null || value.isEmpty)) {
       printLog("Required non empty field of ${widget.name}");
       return "${widget.name} is required!";

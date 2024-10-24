@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
 enum LogLevel {
-  debug ,
+  log,
   warn,
   error,
   success,
@@ -17,10 +17,10 @@ enum LogLevel {
 // White:   \x1B[37m
 // Reset:   \x1B[0m
 
-void printLog(String text, {LogLevel level = LogLevel.debug}) {
+void printLog(String text, {LogLevel level = LogLevel.log}) {
   switch (level) {
-    case LogLevel.debug:
-      debugPrint("\x1B[32m [DEBUG]: $text\x1B[0m");
+    case LogLevel.log:
+      debugPrint("\x1B[32m [LOG]: $text\x1B[0m");
       break;
     case LogLevel.warn:
       debugPrint("\x1B[33m [WARN]: $text\x1B[0m");
@@ -38,6 +38,6 @@ void printLog(String text, {LogLevel level = LogLevel.debug}) {
 // TODO: turn this into a proper assert that exits or freezes the app when on assert.
 void printAssert(bool assertCondition, String errMsg) {
   if (!assertCondition) {
-    printLog(errMsg, level: LogLevel.error);
+    printLog("[ASSERTION]: $errMsg", level: LogLevel.error);
   }
 }
