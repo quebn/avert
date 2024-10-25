@@ -6,7 +6,9 @@ import "package:crypto/crypto.dart";
 import "dart:convert";
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, });
+  const LoginPage({super.key, required this.title});
+  
+  final String title;
 
   @override
   State<StatefulWidget> createState() => _LoginPageState();
@@ -29,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             height: MediaQuery.sizeOf(context).height / 4,
             child: Center(
-              child: const Text("ACQUA",
+              child: Text(widget.title,
                 style: TextStyle(
                   //fontFamily: "Roboto",
                   fontSize: 32.0,
@@ -139,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
   
   void onLogin(GlobalKey<FormState> formKey, String userName, String userPassword,) {
     if (!formKey.currentState!.validate()) {
-      printLog("Reach this block!", level: LogLevel.error);
+      printLog("Input field values are wrong", level: LogLevel.error);
       return;
     }
     printLog("Username: $userName | Password: $userPassword");
@@ -220,19 +222,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void onSignup(GlobalKey<FormState> formKey, String userName, String userPassword,) {
-    if (formKey.currentState!.validate()) {
-      printLog("Username: $userName | Password: $userPassword", level: LogLevel.error);
+    if (!formKey.currentState!.validate()) {
+      printLog("WRONG!", level: LogLevel.error);
       return;
     }
-    printLog("WRONG!", level: LogLevel.error);
+    printLog("Username: $userName | Password: $userPassword", level: LogLevel.error);
   }
-  
+
   Future<void> createUser(String username, String password) async {
     printLog("Creating user...");
-
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
-
     var values = {
       "name"      : username,
       "password"  : digest.toString(),

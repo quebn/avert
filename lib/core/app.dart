@@ -12,8 +12,16 @@ class App extends StatelessWidget{
 
   final String title = "Acqua";
   static Database? db;
+  static User? user;
   static const String storagePath = "/storage/emulated/0/Acqua";
-  //static User? currentUser;
+  
+  static String getTableQuery() => """
+    CREATE TABLE app_settings(
+      id INTEGER PRIMARY KEY,
+      company TEXT,
+      user INTEGER
+    )
+  """;
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +41,17 @@ class App extends StatelessWidget{
         ),
         useMaterial3: true,
       ),
-      home: LoginPage()
+      home: user == null ? LoginPage(title:title) : HomePage(title: title),
     );
   }
   
-  static Future<void> dbInit({bool isDenied = false}) async {
-    String dbPath = await getDatabasesPath();
-    String dbFile = "acqua.db";
-
+  static Future<void> initDB({bool isDenied = false}) async {
+    final String dbPath = await getDatabasesPath();
+    //appDir
+    final String dbFile = "acqua.db";
     printLog("Databases Path: $dbPath/$dbFile");
     db = await openDatabase(dbFile,
-      version:1,
+      version: 1,
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
@@ -53,28 +61,33 @@ class App extends StatelessWidget{
   static Future<bool> createAppDir() async {
     // NOTE: use the directory created as a storage for backup files.
     var status = await Permission.manageExternalStorage.request();
-
     if (status.isDenied) {
       printLog("Storage access permission denied!", level: LogLevel.error);
     } else {
       printLog("Storage access permission granted!");
     }
-
     Directory dir = await Directory(App.storagePath).create(recursive: true);
     printLog("Acqua Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
     return status.isDenied;
   }
 }
 
-
 _onCreate(Database db, int version) async {
+  printLog("Creating Database tables");
   Batch batch = db.batch();
-  //batch.execute(App.getTableQuery());
+  batch.execute(App.getTableQuery());
   batch.execute(User.getTableQuery());
   await batch.commit();
+
+  Map<String, dynamic> values = {
+    "company"   : null,
+    "user"  : null,
+  };
+  await db.insert("app_settings", values);
 }
 
 _onOpen(Database db) async {
+  printLog("Opening Database tables");
   // TODO: onOpen() should do the following:
   //   [x] check if user table is not empty.
   //   [-] check and read the file responsible of storing last user login data.
@@ -82,11 +95,20 @@ _onOpen(Database db) async {
   //   [-] check if user is still valid for skipping authentication.
   //   [-] if yes get user data and skip login screen.
 
-  List<String> cols = ["id", "name", "password", "createdAt"];
-  List<Map<String, Object?>> results = await db.query("users", columns: cols);
-  if (results.isEmpty) {
+  List<Map<String, Object?>> appSettings = await db.query("app_settings", 
+    columns: ["id", "company", "user"],
+    where: "id = ?",
+    whereArgs: [1],
+  );
+
+  List<Map<String, Object?>> users = await db.query("users", 
+    columns: ["id", "name", "password", "createdAt"],
+  );
+  printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
+  printLog("${appSettings.length} settings found! with values of ${users.toString()}");
+  if (users.isEmpty) {
     printLog("No users found in users table!", level:LogLevel.error);
   } else {
-    printLog("${results.length} user(s) found! with values of ${results.toString()}");
+    printLog("${users.length} user(s) found! with values of ${users.toString()}");
   }
 }

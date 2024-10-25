@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   
   @override
   Widget build(BuildContext context) {
-    return LoginPage();
+    return LoginPage(title:widget.title);
   }
   
   Widget homePage(BuildContext context) {

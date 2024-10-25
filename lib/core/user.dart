@@ -3,7 +3,6 @@ import "package:acqua/core/utils.dart";
 class User {
   User({
     required this.name, 
-    //required this.password, 
     required this.createdAt, 
     required this.lastLoginAt
   });
@@ -12,6 +11,10 @@ class User {
   DateTime createdAt;
   DateTime lastLoginAt;
   
+  void save(String password) {
+
+  }
+
   static String getTableQuery() => """
     CREATE TABLE users(
       id INTEGER PRIMARY KEY,
@@ -19,5 +22,12 @@ class User {
       password TEXT NOT NULL,
       createdAt INTEGER NOT NULL
     )
-    """;
+  """;
+  
+  static User? getUser() {
+    User? user;
+
+    return user;
+  }
+
 }

@@ -9,9 +9,8 @@ enum AcquaInputType {
   datetime,
 }
 
-// NOTE: known issues for this is error does set from validator wont go until 
-// the form is submitted.
-// TODO: find way to resolve NOTE above
+// NOTE: known issues for this is error does set from validator wont go until the form is submitted.
+// TODO: find way to resolve NOTE above.
 
 class AcquaInput extends StatefulWidget {
   const AcquaInput({
