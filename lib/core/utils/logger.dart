@@ -38,6 +38,6 @@ void printLog(String text, {LogLevel level = LogLevel.log}) {
 // TODO: turn this into a proper assert that exits or freezes the app when on assert.
 void printAssert(bool assertCondition, String errMsg) {
   if (!assertCondition) {
-    printLog("[ASSERTION]: $errMsg", level: LogLevel.error);
+    printLog("[ASSERTION FAILED]: $errMsg", level: LogLevel.error);
   }
 }

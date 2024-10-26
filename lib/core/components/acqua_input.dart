@@ -9,7 +9,8 @@ enum AcquaInputType {
   datetime,
 }
 
-// NOTE: known issues for this is error does set from validator wont go until the form is submitted.
+// NOTE: known issues for this is error does set from validator wont go until 
+// the form is submitted.
 // TODO: find way to resolve NOTE above.
 
 class AcquaInput extends StatefulWidget {
@@ -23,6 +24,7 @@ class AcquaInput extends StatefulWidget {
     this.inputType = AcquaInputType.text,
     this.required = false,
     this.validator,
+    this.forceErrMsg,
   });
 
   const AcquaInput.alphanumeric({
@@ -34,6 +36,7 @@ class AcquaInput extends StatefulWidget {
     this.gapPadding = 8, 
     this.required = false,
     this.validator,
+    this.forceErrMsg,
   }) : inputType = AcquaInputType.alphanumeric;
 
   const AcquaInput.password({
@@ -44,6 +47,7 @@ class AcquaInput extends StatefulWidget {
     this.yPadding = 8,
     this.gapPadding = 8,
     this.name = "Password",
+    this.forceErrMsg,
   }) : inputType = AcquaInputType.password, required = true ;
 
   final String name;
@@ -53,6 +57,7 @@ class AcquaInput extends StatefulWidget {
   final TextEditingController controller;
   final bool required;
   final String? Function(String? value)? validator;
+  final String? forceErrMsg;
   
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -61,7 +66,6 @@ class AcquaInput extends StatefulWidget {
 class _InputState extends State<AcquaInput> {
 
   bool shouldObscure = true;
-  String? errMsg;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +87,7 @@ class _InputState extends State<AcquaInput> {
       ],
       validator: validate,
       controller: widget.controller,
-      //forceErrorText: errMsg,
+      forceErrorText: widget.forceErrMsg,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -101,7 +105,7 @@ class _InputState extends State<AcquaInput> {
     child: TextFormField(
       validator: validate,
       controller: widget.controller,
-      //forceErrorText: errMsg,
+      forceErrorText: widget.forceErrMsg,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -118,7 +122,7 @@ class _InputState extends State<AcquaInput> {
     child: TextFormField(
       validator: validate,
       obscureText: shouldObscure,
-      //forceErrorText: errMsg,
+      forceErrorText: widget.forceErrMsg,
       enableSuggestions: false,
       autocorrect: false,
       controller: widget.controller,
@@ -149,8 +153,6 @@ class _InputState extends State<AcquaInput> {
 
   String? validate(String? value) {
     printLog("validating value: $value");
-    printLog("errMsg value: $errMsg");
-    printAssert(errMsg == null, "variable errMsg has value of $errMsg where it should be \"null\"");
     if (widget.required && (value == null || value.isEmpty)) {
       printLog("Required non empty field of ${widget.name}");
       return "${widget.name} is required!";
