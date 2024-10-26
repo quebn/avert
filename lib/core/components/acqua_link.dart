@@ -9,11 +9,14 @@ class AcquaLink extends StatelessWidget {
     this.linkSize = 14, 
     this.xMargin = 8,
     this.yMargin = 8,
+    //this.xPadding = 8,
+    //this.yPadding = 8,
   });
 
   final String linkText;
   final double linkSize;
   final double xMargin, yMargin;
+  //final double xPadding, yPadding;
   final VoidCallback onPressed;
 
   @override

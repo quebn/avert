@@ -1,6 +1,4 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/components.dart";
-import "package:acqua/core/login.dart";
 import "package:acqua/core/utils.dart";
 
 class HomePage extends StatefulWidget {
@@ -21,10 +19,6 @@ class _HomePageState extends State<HomePage> {
   
   @override
   Widget build(BuildContext context) {
-    return LoginPage(title:widget.title);
-  }
-  
-  Widget homePage(BuildContext context) {
     printLog("Building Homepage state!");
     return Scaffold(
       appBar: AppBar(

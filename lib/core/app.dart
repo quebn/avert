@@ -1,4 +1,4 @@
-import "package:acqua/core/login.dart";
+import "package:acqua/core/login/login_page.dart";
 import "package:acqua/core/utils.dart";
 import "package:acqua/core/home.dart";
 import "package:acqua/core/user.dart";
@@ -105,7 +105,7 @@ _onOpen(Database db) async {
     columns: ["id", "name", "password", "createdAt"],
   );
   printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
-  printLog("${appSettings.length} settings found! with values of ${users.toString()}");
+  printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
   if (users.isEmpty) {
     printLog("No users found in users table!", level:LogLevel.error);
   } else {
