@@ -78,7 +78,6 @@ _onCreate(Database db, int version) async {
   batch.execute(App.getTableQuery());
   batch.execute(User.getTableQuery());
   await batch.commit();
-
   Map<String, dynamic> values = {
     "company"   : null,
     "user"  : null,

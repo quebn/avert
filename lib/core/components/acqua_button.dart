@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 class AcquaButton extends StatelessWidget {
   const AcquaButton({
     super.key, 
-    required this.buttonName, 
+    required this.name, 
     required this.onPressed, 
     this.fontSize = 16, 
     this.xMargin = 0, 
@@ -12,7 +12,7 @@ class AcquaButton extends StatelessWidget {
     this.height, 
   });
 
-  final String buttonName;
+  final String name;
   final double fontSize;
   final double xMargin, yMargin;
   final double? width, height;
@@ -31,7 +31,7 @@ class AcquaButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed, 
-        child: Text(buttonName,
+        child: Text(name,
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.bold,

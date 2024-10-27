@@ -67,10 +67,11 @@ class _LoginPageState extends State<LoginPage> {
   
   Widget get form {
     if (signup) {
-      return SignUpForm(title: widget.title, callback:loginForm);
+      return SignUpForm(title: widget.title, setLoginForm:loginForm);
     }
-    return LoginForm(title:widget.title, callback:signupForm);
+    return LoginForm(title:widget.title, setSignupForm:signupForm);
   }
+
   void loginForm() {
     printLog("Going to Login Form");
     setState(() => signup = false);
