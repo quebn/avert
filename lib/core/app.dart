@@ -94,6 +94,7 @@ _onOpen(Database db) async {
   //   [-] check if user is still valid for skipping authentication.
   //   [-] if yes get user data and skip login screen.
 
+
   List<Map<String, Object?>> appSettings = await db.query("app_settings", 
     columns: ["id", "company", "user"],
     where: "id = ?",

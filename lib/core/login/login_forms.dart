@@ -26,6 +26,8 @@ class _LoginFormState extends State<LoginForm> {
     "password": TextEditingController(),
   };
 
+  String? userErrMsg, passErrMsg;
+
   @override
   void dispose() {
     for (TextEditingController controller in controllers.values) {
@@ -40,11 +42,13 @@ class _LoginFormState extends State<LoginForm> {
       AcquaInput.alphanumeric(
         name: "Username", 
         controller: controllers['username']!,
+        forceErrMsg: userErrMsg,
         required: true,
       ),
       AcquaInput.password(
         controller: controllers['password']!,
-        validator: (value) { return null; },
+        forceErrMsg: passErrMsg,
+        //validator: (value) { return null; },
       ),
       AcquaButton(
         name:"Login",
@@ -52,7 +56,7 @@ class _LoginFormState extends State<LoginForm> {
         xMargin: 80,
         yMargin: 8,
         height:  60,
-        onPressed:() => onLogin,
+        onPressed: onLogin,
       ),
       AcquaLink(
         linkText: "Create a new user.",
@@ -89,14 +93,36 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  void onLogin() {
+  Future<void> onLogin() async {
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
+    if(userErrMsg != null) setState(() => userErrMsg = null);
+    if(passErrMsg != null) setState(() => passErrMsg = null);
+    printLog("Logging in!");
     if (!key.currentState!.validate()) {
       printLog("Input field values are wrong", level: LogLevel.error);
       return;
     }
-    printLog("Username: $username | Password: $password");
+    printLog("Validating the ff. values -> Username: $username | Password: $password");
+    var bytes = utf8.encode(password);
+    Digest digest = sha256.convert(bytes);
+    
+    var result = await App.db!.query("users", 
+      columns: ["name", "password"],
+      where:"name = ?",
+      whereArgs: [username],
+    );
+    if (result.isEmpty) {
+      setState(() => userErrMsg = "Username '$username' does not exist!");
+      return;
+    }
+    for (var item in result) {
+      if (item['password'] == digest.toString()) {
+        // TODO: handle login here.
+        return;
+      }
+    }
+    setState(() => passErrMsg = "Incorrect Password!");
   }
 }
 
@@ -197,7 +223,7 @@ class _SignUpFormState extends State<SignUpForm> {
   Future<void> onSignup() async {
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
-    if(userErrMsg != null) setState(() =>userErrMsg = null);
+    if(userErrMsg != null) setState(() => userErrMsg = null);
     if (!key.currentState!.validate()) {
       printLog("WRONG!", level: LogLevel.error);
       return;
@@ -219,12 +245,13 @@ class _SignUpFormState extends State<SignUpForm> {
     // TODO: actions.
     //    [x] check if user exist in database. 
     //    [x] if exist it exist, username field should throw an error message.
-    //    [-] if not exist create user.
+    //    [x] if not exist create user.
     //    [ ] show a pop up that a user is created. and show buttons on what the user want to do next.
     printLog("Creating user.....");
     printLog("Username: $username | Password: $password", level: LogLevel.error);
-    //int? status_code = createUser(username, password);
-    //printLog("insert finished with response code of [$status_code]", level: LogLevel.warn);
+    int? status = await createUser(username, password);
+    printAssert(status != 0 ,"insert finished with response code of [$status]");
+    printLog("insert finished with response code of [$status]", level: LogLevel.warn);
     final String t = "User '$username' created!";
     final String m = "User '$username' has been successfully created would you like to go to Login form?";
     notifyUserCreation(t, m);
