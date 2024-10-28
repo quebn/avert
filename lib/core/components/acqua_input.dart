@@ -9,10 +9,6 @@ enum AcquaInputType {
   datetime,
 }
 
-// NOTE: known issues for this is error does set from validator wont go until 
-// the form is submitted.
-// TODO: find way to resolve NOTE above.
-
 class AcquaInput extends StatefulWidget {
   const AcquaInput({
     super.key,
@@ -25,6 +21,7 @@ class AcquaInput extends StatefulWidget {
     this.required = false,
     this.validator,
     this.forceErrMsg,
+    this.onChanged,
   });
 
   const AcquaInput.alphanumeric({
@@ -37,6 +34,7 @@ class AcquaInput extends StatefulWidget {
     this.required = false,
     this.validator,
     this.forceErrMsg,
+    this.onChanged,
   }) : inputType = AcquaInputType.alphanumeric;
 
   const AcquaInput.password({
@@ -48,6 +46,7 @@ class AcquaInput extends StatefulWidget {
     this.gapPadding = 8,
     this.name = "Password",
     this.forceErrMsg,
+    this.onChanged,
   }) : inputType = AcquaInputType.password, required = true ;
 
   final String name;
@@ -58,6 +57,7 @@ class AcquaInput extends StatefulWidget {
   final bool required;
   final String? Function(String? value)? validator;
   final String? forceErrMsg;
+  final void Function(String? value)? onChanged;
   
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -88,6 +88,7 @@ class _InputState extends State<AcquaInput> {
       validator: validate,
       controller: widget.controller,
       forceErrorText: widget.forceErrMsg,
+      onChanged: widget.onChanged,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -106,6 +107,7 @@ class _InputState extends State<AcquaInput> {
       validator: validate,
       controller: widget.controller,
       forceErrorText: widget.forceErrMsg,
+      onChanged: widget.onChanged,
       decoration: InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -123,6 +125,7 @@ class _InputState extends State<AcquaInput> {
       validator: validate,
       obscureText: shouldObscure,
       forceErrorText: widget.forceErrMsg,
+      onChanged: widget.onChanged,
       enableSuggestions: false,
       autocorrect: false,
       controller: widget.controller,

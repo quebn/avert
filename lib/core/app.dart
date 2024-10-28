@@ -15,6 +15,7 @@ class App extends StatelessWidget{
   static User? user;
   static const String storagePath = "/storage/emulated/0/Acqua";
   
+  // TODO: 'user' column should be 'user_id'.
   static String getTableQuery() => """
     CREATE TABLE app_settings(
       id INTEGER PRIMARY KEY,
@@ -70,6 +71,16 @@ class App extends StatelessWidget{
     printLog("Acqua Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
     return status.isDenied;
   }
+
+  static Future<void> rememberUser(int userID, bool rememberLogin) async {
+    Map<String, dynamic> values = {
+      "user"  : rememberLogin ? userID : null,
+    };
+    await db!.update("app_settings", values,
+      where: "id = ?",
+      whereArgs: [1],
+    );
+  }
 }
 
 _onCreate(Database db, int version) async {
@@ -96,19 +107,31 @@ _onOpen(Database db) async {
 
 
   List<Map<String, Object?>> appSettings = await db.query("app_settings", 
-    columns: ["id", "company", "user"],
+    columns: ["company", "user"],
     where: "id = ?",
     whereArgs: [1],
   );
-
+  printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
+  int? userID = appSettings[0]['user'] as int?;
+  if (userID == null) { 
+    printLog("userID: $userID ", level:LogLevel.error);
+    return;
+  }
   List<Map<String, Object?>> users = await db.query("users", 
-    columns: ["id", "name", "password", "createdAt"],
+    columns: ["id", "name", "createdAt",],// "password", ],
+    where: "id = ?",
+    whereArgs: [userID],
   );
   printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
-  printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
   if (users.isEmpty) {
-    printLog("No users found in users table!", level:LogLevel.error);
-  } else {
-    printLog("${users.length} user(s) found! with values of ${users.toString()}");
+    printLog("${users.length} user(s)", level:LogLevel.error);
+    return;
   }
+  printLog("${users.length} user(s) found! with values of ${users.toString()}");
+  DateTime dt = DateTime.fromMillisecondsSinceEpoch(users[0]['createdAt'] as int);
+  App.user = User(
+    name:users[0]['name'] as String,
+    createdAt: dt,
+    lastLoginAt: DateTime.now(),
+  );
 }

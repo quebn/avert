@@ -1,3 +1,4 @@
+import "package:acqua/core/home.dart";
 import "package:flutter/material.dart";
 import "package:acqua/core/components.dart";
 import "package:acqua/core/app.dart";
@@ -27,6 +28,7 @@ class _LoginFormState extends State<LoginForm> {
   };
 
   String? userErrMsg, passErrMsg;
+  bool rememberLogin = true;
 
   @override
   void dispose() {
@@ -44,11 +46,12 @@ class _LoginFormState extends State<LoginForm> {
         controller: controllers['username']!,
         forceErrMsg: userErrMsg,
         required: true,
+        onChanged: onChangeUsername,
       ),
       AcquaInput.password(
         controller: controllers['password']!,
         forceErrMsg: passErrMsg,
-        //validator: (value) { return null; },
+        onChanged: onChangePassword,
       ),
       AcquaButton(
         name:"Login",
@@ -56,7 +59,7 @@ class _LoginFormState extends State<LoginForm> {
         xMargin: 80,
         yMargin: 8,
         height:  60,
-        onPressed: onLogin,
+        onPressed: login,
       ),
       AcquaLink(
         linkText: "Create a new user.",
@@ -93,38 +96,59 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  Future<void> onLogin() async {
-    String username = controllers['username']!.value.text;
-    String password = controllers['password']!.value.text;
-    if(userErrMsg != null) setState(() => userErrMsg = null);
-    if(passErrMsg != null) setState(() => passErrMsg = null);
+  void onChangeUsername(String? value) {
+    if (userErrMsg != null) {
+      setState(() => userErrMsg = null);
+    }
+  }
+
+  void onChangePassword(String? value) {
+    if (passErrMsg != null) {
+      setState(() => passErrMsg = null);
+    }
+  }
+
+  Future<void> login() async {
     printLog("Logging in!");
     if (!key.currentState!.validate()) {
       printLog("Input field values are wrong", level: LogLevel.error);
       return;
     }
+    String username = controllers['username']!.value.text;
+    String password = controllers['password']!.value.text;
     printLog("Validating the ff. values -> Username: $username | Password: $password");
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
     
     var result = await App.db!.query("users", 
-      columns: ["name", "password"],
+      columns: ["id", "name", "password"],
       where:"name = ?",
       whereArgs: [username],
     );
+    
     if (result.isEmpty) {
       setState(() => userErrMsg = "Username '$username' does not exist!");
       return;
     }
-    for (var item in result) {
-      if (item['password'] == digest.toString()) {
-        // TODO: handle login here.
+
+    for (Map<String, Object?> item in result) {
+      if (item['password'] == digest.toString() && mounted) {
+        App.rememberUser(item['id'] as int, rememberLogin);
+        Navigator.pop(context);
+        Navigator.push(context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(title: widget.title),
+          )
+        );
         return;
       }
     }
     setState(() => passErrMsg = "Incorrect Password!");
   }
+
 }
+
+
 
 // NOTE: SIGNUP FORM.
 class SignUpForm extends StatefulWidget {
@@ -165,6 +189,7 @@ class _SignUpFormState extends State<SignUpForm> {
         required: true,
         validator: (value) {return null;},
         forceErrMsg: userErrMsg,
+        onChanged: onChangeUsername,
       ),
       AcquaInput.password(
         controller: controllers['password']!,
@@ -183,7 +208,7 @@ class _SignUpFormState extends State<SignUpForm> {
         xMargin: 80,
         yMargin: 8,
         height:  60,
-        onPressed: onSignup,
+        onPressed: signup,
       ),
       AcquaLink(
         linkText: "Login",
@@ -220,16 +245,21 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 
-  Future<void> onSignup() async {
-    String username = controllers['username']!.value.text;
-    String password = controllers['password']!.value.text;
-    if(userErrMsg != null) setState(() => userErrMsg = null);
+  void onChangeUsername(String? value) {
+    if (userErrMsg != null) {
+      setState(() => userErrMsg = null);
+    }
+  }
+  
+  Future<void> signup() async {
     if (!key.currentState!.validate()) {
       printLog("WRONG!", level: LogLevel.error);
       return;
     }
+    String username = controllers['username']!.value.text;
+    String password = controllers['password']!.value.text;
     printAssert(username.isNotEmpty && password.isNotEmpty, "Username and Password is Empty!");
-    var results = await App.db!.query("users", 
+    List<Map<String, Object?>> results = await App.db!.query("users", 
       where:"name = ?",
       whereArgs: [username],
     );
@@ -242,11 +272,6 @@ class _SignUpFormState extends State<SignUpForm> {
       return;
     }
     printAssert(results.isEmpty, "Username $username already exist in database where it should'nt dumping userdata: ${results.toString()}");
-    // TODO: actions.
-    //    [x] check if user exist in database. 
-    //    [x] if exist it exist, username field should throw an error message.
-    //    [x] if not exist create user.
-    //    [ ] show a pop up that a user is created. and show buttons on what the user want to do next.
     printLog("Creating user.....");
     printLog("Username: $username | Password: $password", level: LogLevel.error);
     int? status = await createUser(username, password);

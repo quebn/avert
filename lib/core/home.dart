@@ -28,8 +28,6 @@ class _HomePageState extends State<HomePage> {
       ),
       body: const Text("HomePage"),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
         onPressed: () => primaryAction(context),
         tooltip: "Primary Action",
         child: const Icon(Icons.add),
