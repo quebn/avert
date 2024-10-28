@@ -15,12 +15,11 @@ class App extends StatelessWidget{
   static User? user;
   static const String storagePath = "/storage/emulated/0/Acqua";
   
-  // TODO: 'user' column should be 'user_id'.
   static String getTableQuery() => """
     CREATE TABLE app_settings(
       id INTEGER PRIMARY KEY,
       company TEXT,
-      user INTEGER
+      user_id INTEGER
     )
   """;
 
@@ -96,23 +95,16 @@ _onCreate(Database db, int version) async {
   await db.insert("app_settings", values);
 }
 
+// TODO: pass info of there a user to login page.
 _onOpen(Database db) async {
   printLog("Opening Database tables");
-  // TODO: onOpen() should do the following:
-  //   [x] check if user table is not empty.
-  //   [-] check and read the file responsible of storing last user login data.
-  //   [-] check if last user exist in user table.
-  //   [-] check if user is still valid for skipping authentication.
-  //   [-] if yes get user data and skip login screen.
-
-
   List<Map<String, Object?>> appSettings = await db.query("app_settings", 
-    columns: ["company", "user"],
+    columns: ["company", "user_id"],
     where: "id = ?",
     whereArgs: [1],
   );
   printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
-  int? userID = appSettings[0]['user'] as int?;
+  int? userID = appSettings[0]['user_id'] as int?;
   if (userID == null) { 
     printLog("userID: $userID ", level:LogLevel.error);
     return;

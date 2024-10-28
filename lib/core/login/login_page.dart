@@ -3,9 +3,12 @@ import "package:acqua/core/login/login_forms.dart";
 import "package:acqua/core/utils.dart";
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
+  const LoginPage({super.key, required this.title,});
 
   final String title;
+
+  // TODO: get info if theres users in user table.
+  // final bool noUsers
 
   @override
   State<StatefulWidget> createState() => _LoginPageState();
