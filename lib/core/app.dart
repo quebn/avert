@@ -13,6 +13,7 @@ class App extends StatelessWidget{
   final String title = "Acqua";
   static Database? db;
   static User? user;
+  static bool hasUsers = false;
   static const String storagePath = "/storage/emulated/0/Acqua";
   
   static String getTableQuery() => """
@@ -58,8 +59,9 @@ class App extends StatelessWidget{
     printLog("After opening of Database Path:${db?.path}", level:LogLevel.warn);
   }
 
+  // NOTE: use the directory created as a storage for backup files.
   static Future<bool> createAppDir() async {
-    // NOTE: use the directory created as a storage for backup files.
+    if (!Platform.isAndroid) return false;
     var status = await Permission.manageExternalStorage.request();
     if (status.isDenied) {
       printLog("Storage access permission denied!", level: LogLevel.error);
@@ -73,7 +75,7 @@ class App extends StatelessWidget{
 
   static Future<void> rememberUser(int userID, bool rememberLogin) async {
     Map<String, dynamic> values = {
-      "user"  : rememberLogin ? userID : null,
+      "user_id"  : rememberLogin ? userID : null,
     };
     await db!.update("app_settings", values,
       where: "id = ?",
@@ -90,12 +92,11 @@ _onCreate(Database db, int version) async {
   await batch.commit();
   Map<String, dynamic> values = {
     "company"   : null,
-    "user"  : null,
+    "user_id"  : null,
   };
   await db.insert("app_settings", values);
 }
 
-// TODO: pass info of there a user to login page.
 _onOpen(Database db) async {
   printLog("Opening Database tables");
   List<Map<String, Object?>> appSettings = await db.query("app_settings", 
@@ -103,27 +104,28 @@ _onOpen(Database db) async {
     where: "id = ?",
     whereArgs: [1],
   );
-  printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
   int? userID = appSettings[0]['user_id'] as int?;
-  if (userID == null) { 
-    printLog("userID: $userID ", level:LogLevel.error);
-    return;
-  }
+
+  printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
   List<Map<String, Object?>> users = await db.query("users", 
     columns: ["id", "name", "createdAt",],// "password", ],
-    where: "id = ?",
-    whereArgs: [userID],
   );
-  printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
-  if (users.isEmpty) {
-    printLog("${users.length} user(s)", level:LogLevel.error);
+  App.hasUsers = users.isNotEmpty;
+  printLog("${users.length} user(s) found! with values of ${users.toString()}");
+
+  if (userID == null || users.isEmpty) { 
     return;
   }
-  printLog("${users.length} user(s) found! with values of ${users.toString()}");
-  DateTime dt = DateTime.fromMillisecondsSinceEpoch(users[0]['createdAt'] as int);
-  App.user = User(
-    name:users[0]['name'] as String,
-    createdAt: dt,
-    lastLoginAt: DateTime.now(),
-  );
+  printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
+  for (var user in users) {
+    if (userID == user['id']) {
+      DateTime dt = DateTime.fromMillisecondsSinceEpoch(users[0]['createdAt'] as int);
+      App.user = User(
+        name:users[0]['name'] as String,
+        createdAt: dt,
+        lastLoginAt: DateTime.now(),
+      );
+      break;
+    }
+  }
 }

@@ -181,6 +181,9 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
+    if (!App.hasUsers){
+      controllers['username']!.text = "Administrator";
+    }
     List<Widget> children = <Widget>[
       AcquaInput.alphanumeric(
         name:"Username", 
@@ -196,7 +199,7 @@ class _SignUpFormState extends State<SignUpForm> {
       AcquaInput.password(
         name:  "Confirm Password", 
         controller: controllers['password_confirm']!,
-        // TODO: add an onValueChange for this widget where is checks the password what the password must contain.
+        // TODO: add an onValueChange for this widget where is checks field must contain.
         validator: (value) {
           return controllers['password']!.text != value ? "Password does not match!" : null;
         },

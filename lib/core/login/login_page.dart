@@ -1,14 +1,12 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/login/login_forms.dart";
 import "package:acqua/core/utils.dart";
+import "package:acqua/core/app.dart";
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title,});
+  const LoginPage({super.key, required this.title});
 
   final String title;
-
-  // TODO: get info if theres users in user table.
-  // final bool noUsers
 
   @override
   State<StatefulWidget> createState() => _LoginPageState();
@@ -16,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
-  bool signup = false;
+  bool signup = !App.hasUsers;
 
   @override
   Widget build(BuildContext context) {
