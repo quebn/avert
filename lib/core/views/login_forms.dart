@@ -1,4 +1,4 @@
-import "package:acqua/core/home.dart";
+import "package:acqua/core/views/home_screen.dart";
 import "package:flutter/material.dart";
 import "package:acqua/core/components.dart";
 import "package:acqua/core/app.dart";
@@ -136,7 +136,7 @@ class _LoginFormState extends State<LoginForm> {
         Navigator.pop(context);
         Navigator.push(context,
           MaterialPageRoute(
-            builder: (context) => HomePage(title: widget.title),
+            builder: (context) => HomeScreen(title: widget.title),
           )
         );
         return;

@@ -1,6 +1,6 @@
-import "package:acqua/core/login/login_page.dart";
+import "package:acqua/core/views/login_screen.dart";
 import "package:acqua/core/utils.dart";
-import "package:acqua/core/home.dart";
+import "package:acqua/core/views/home_screen.dart";
 import "package:acqua/core/user.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
@@ -28,7 +28,13 @@ class App extends StatelessWidget{
   Widget build(BuildContext context) {
     return MaterialApp(
       title: title,
+      //debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          //color: Colors.white,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
         colorScheme: ColorScheme(
           brightness: Brightness.light,
           surface: Colors.white,
@@ -42,7 +48,7 @@ class App extends StatelessWidget{
         ),
         useMaterial3: true,
       ),
-      home: user == null ? LoginPage(title:title) : HomePage(title: title),
+      home: user == null ? LoginScreen(title:title) : HomeScreen(title: title),
     );
   }
   

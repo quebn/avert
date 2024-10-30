@@ -1,18 +1,18 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/login/login_forms.dart";
+import "package:acqua/core/views/login_forms.dart";
 import "package:acqua/core/utils.dart";
 import "package:acqua/core/app.dart";
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key, required this.title});
 
   final String title;
 
   @override
-  State<StatefulWidget> createState() => _LoginPageState();
+  State<StatefulWidget> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
 
   bool signup = !App.hasUsers;
 
