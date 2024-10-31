@@ -11,10 +11,9 @@ class HomeScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   // Object<AcquaViewable> currentModule
   // AcquaViewMode currentView
-  
   @override
   Widget build(BuildContext context) {
     printLog("Building Homepage state! ->");
@@ -22,36 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: Drawer(
         width: 200,
       ),
-      body: CustomScrollView(
-        slivers: [
-          appBar(),
-          body(),
-        ],
+      appBar: AppBar(
+        leading: drawerButton(),
+        title: titleItems(),
       ),
-    );
-  }
-  
-  Widget appBar() {
-    return SliverAppBar(
-      pinned: true,
-      leading: drawerButton(),
-      title: titleItems(),
-      expandedHeight: MediaQuery.sizeOf(context).height/4,
-      flexibleSpace: const FlexibleSpaceBar(
-        //title: Text("Company Name",
-        //  style: TextStyle(
-        //    color: Colors.white,
-        //    fontWeight: FontWeight.bold,
-        //  ),
-        //),
-      ),
-    );
-  }
-  
-  Widget body() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
+      body:ListView.builder(
+        itemCount: 20,
+        itemBuilder: (BuildContext context, int index) {
           return Container(
             color: index.isOdd ? Colors.white : Colors.black12,
             height: 100.0,
@@ -60,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-        childCount: 20,
       ),
     );
   }
@@ -77,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   
   Widget titleItems() {
-    List<Widget> children = [
+    List<Widget> widgets = [
       //Notification Button.
       IconButton(
         padding: EdgeInsets.only(right:16),
@@ -97,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: children, 
+      children: widgets, 
     );
   }
 }

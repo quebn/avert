@@ -39,7 +39,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = <Widget>[
+    List<Widget> widgets = <Widget>[
       AcquaInput.alphanumeric(
         name: "Username", 
         controller: controllers['username']!,
@@ -87,7 +87,7 @@ class _LoginFormState extends State<LoginForm> {
             child: ListView(
               physics: ClampingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 8.0),
-              children: children,
+              children: widgets,
             )
           ),
         ]
@@ -184,7 +184,7 @@ class _SignUpFormState extends State<SignUpForm> {
     if (!App.hasUsers){
       controllers['username']!.text = "Administrator";
     }
-    List<Widget> children = <Widget>[
+    List<Widget> widgets = <Widget>[
       AcquaInput.alphanumeric(
         name:"Username", 
         controller: controllers['username']!,
@@ -239,7 +239,7 @@ class _SignUpFormState extends State<SignUpForm> {
             child: ListView(
               physics: ClampingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 8.0),
-              children: children,
+              children: widgets,
             )
           ),
         ]
