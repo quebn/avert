@@ -119,7 +119,7 @@ class _LoginFormState extends State<LoginForm> {
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
     
-    var result = await App.db!.query("users", 
+    var result = await App.appdata.db!.query("users", 
       columns: ["id", "name", "password"],
       where:"name = ?",
       whereArgs: [username],
@@ -181,7 +181,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (!App.hasUsers){
+    if (!App.appdata.hasUsers){
       controllers['username']!.text = "Administrator";
     }
     List<Widget> widgets = <Widget>[
@@ -261,7 +261,7 @@ class _SignUpFormState extends State<SignUpForm> {
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
     printAssert(username.isNotEmpty && password.isNotEmpty, "Username and Password is Empty!");
-    List<Map<String, Object?>> results = await App.db!.query("users", 
+    List<Map<String, Object?>> results = await App.appdata.db!.query("users", 
       where:"name = ?",
       whereArgs: [username],
     );
@@ -294,7 +294,7 @@ class _SignUpFormState extends State<SignUpForm> {
       "createdAt" : DateTime.now().millisecondsSinceEpoch,
     };
     printLog("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
-    return await App.db?.insert("users", values);
+    return await App.appdata.db?.insert("users", values);
   }
 
   Future<void> notifyUserCreation(String title, String msg) {

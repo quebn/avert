@@ -1,13 +1,12 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/utils.dart";
 import "package:acqua/core/core.dart";
 
-class User implements Document {
-  User({
-    required this.id, 
-    required this.name, 
-    required this.createdAt, 
-    required this.lastLoginAt
+// NOTE: should be a document in core.
+class Company implements Document {
+  Company({
+    required this.id,
+    required this.name,
+    required this.createdAt,
   });
 
   @override
@@ -19,32 +18,23 @@ class User implements Document {
   @override
   DateTime createdAt;
 
-  DateTime lastLoginAt;
-  
   static String getTableQuery() => """
-    CREATE TABLE users(
+    CREATE TABLE companies(
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
-      password TEXT NOT NULL,
       createdAt INTEGER NOT NULL
     )
   """;
-  
-  static User? getUser() {
-    User? user;
-
-    return user;
-  }
 
   @override
   Widget viewDetails() {
-    // TODO: implement viewDetails
+    // TODO: implement details
     throw UnimplementedError();
   }
 
   @override
   Widget viewList() {
-    // TODO: implement viewList
+    // TODO: implement details
     throw UnimplementedError();
   }
 }

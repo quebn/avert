@@ -1,23 +1,23 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/utils.dart";
+import "package:acqua/core/core.dart";
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key, required this.title}) {
-    printLog("Calling App Constructor!");
-  }
+  const HomeScreen({super.key, required this.title});
+
   final String title;
 
   @override
   State<StatefulWidget> createState() => _HomeScreenState();
 }
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
-  // Object<AcquaViewable> currentModule
-  // AcquaViewMode currentView
+
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  // int currentModule
   int currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    printLog("Building Homepage state!");
+    // TODO: check for company if null or not.
     return Scaffold(
       drawer: Drawer(
         width: 200,
@@ -51,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
             icon: Icon(Icons.library_books_rounded),
             label: "Documents",
           ),
+          // TODO: might add create button for quick document creation.
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart_rounded),
             label: "Reports",
@@ -124,13 +125,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   }
 
   Widget headerContent() {
-    String p1 = "Current Company Title";
     String p2 = "Current Module";
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.only(top: 16, bottom:8),
-          child: Text(p1,
+          child: Text(App.appdata.company?.name ?? "NO COMPANY",
             style: TextStyle(
               fontSize: 18,
               //fontFamily: "Roboto",
