@@ -1,16 +1,16 @@
-# acqua
+# Acqua
 
-A new Flutter project.
+An Android Finance Managements App.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+This App is a finance management system designed to track the spendings and transaction a person has made
+whether it be the user's business or just a personal one.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This App primarily uses Accounting methods for it transactions and here are the list of the features it provides:
+- Accounting
+- Inventory
+- Project Managements
+- Financial Reports
+- Fixed Assets Management
+- Task Management
