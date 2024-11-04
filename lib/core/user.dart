@@ -30,12 +30,6 @@ class User implements Document {
     )
   """;
   
-  static User? getUser() {
-    User? user;
-
-    return user;
-  }
-
   @override
   Widget viewDetails() {
     // TODO: implement viewDetails

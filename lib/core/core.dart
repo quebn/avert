@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/company.dart";
+import "package:acqua/core/user.dart";
 export "package:acqua/core/app.dart";
 export "package:acqua/core/task.dart";
 export "package:acqua/core/user.dart";
@@ -35,6 +36,19 @@ class Core implements Module {
   
   @override
   final String name = "Acqua";
+
+  User? user;
+  bool hasUsers = false;
+  Company? company;
+  List<Module> modules = [];
+
+  static String getTableQuery() => """
+    CREATE TABLE core_settings(
+      id INTEGER PRIMARY KEY,
+      company_id TEXT,
+      user_id INTEGER
+    )
+  """;
 
   @override
   Widget viewDashboard() {

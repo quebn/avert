@@ -7,32 +7,21 @@ import "package:sqflite/sqflite.dart";
 import "package:permission_handler/permission_handler.dart";
 import "dart:io";
 
-class AppData {
-  Database? db;
-  User? user;
-  bool hasUsers = false;
-  Company? company;
-  List<Module> modules = [];
-}
 
 class App extends StatelessWidget {
   const App({super.key});
 
   final String title = "Acqua";
-  static AppData appdata = AppData();
+  static bool hasUsers = false;
+  static Database? db;
+  static Map<String, Module> modules = {
+    'core': Core(),
+  };
   static const String storagePath = "/storage/emulated/0/Acqua";
   
-
-  static String getTableQuery() => """
-    CREATE TABLE app_settings(
-      id INTEGER PRIMARY KEY,
-      company_id TEXT,
-      user_id INTEGER
-    )
-  """;
-
   @override
   Widget build(BuildContext context) {
+    Core c = modules['core'] as Core;
     return MaterialApp(
       title: title,
       //debugShowCheckedModeBanner: false,
@@ -55,7 +44,7 @@ class App extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: appdata.user == null ? LoginScreen(title:title) : HomeScreen(title: title),
+      home: c.user == null ? LoginScreen(title:title) : HomeScreen(title: title),
     );
   }
   
@@ -64,12 +53,12 @@ class App extends StatelessWidget {
     //appDir
     final String dbFile = "acqua.db";
     printLog("Databases Path: $dbPath/$dbFile");
-    appdata.db = await openDatabase(dbFile,
+    db = await openDatabase(dbFile,
       version: 1,
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
-    printLog("After opening of Database Path:${appdata.db?.path}", level:LogLevel.warn);
+    printLog("After opening of Database Path:${db?.path}", level:LogLevel.warn);
   }
 
   // NOTE: use the directory created as a storage for backup files.
@@ -90,7 +79,7 @@ class App extends StatelessWidget {
     Map<String, dynamic> values = {
       "user_id"  : rememberLogin ? userID : null,
     };
-    await appdata.db!.update("app_settings", values,
+    await db!.update("core_settings", values,
       where: "id = ?",
       whereArgs: [1],
     );
@@ -100,7 +89,7 @@ class App extends StatelessWidget {
 _onCreate(Database db, int version) async {
   printLog("Creating Database tables");
   Batch batch = db.batch();
-  batch.execute(App.getTableQuery());
+  batch.execute(Core.getTableQuery());
   batch.execute(User.getTableQuery());
   batch.execute(Company.getTableQuery());
   batch.execute(Task.getTableQuery());
@@ -109,12 +98,12 @@ _onCreate(Database db, int version) async {
     "company_id"   : null,
     "user_id"  : null,
   };
-  await db.insert("app_settings", values);
+  await db.insert("core_settings", values);
 }
 
 _onOpen(Database db) async {
   printLog("Opening Database tables");
-  List<Map<String, Object?>> appSettings = await db.query("app_settings", 
+  List<Map<String, Object?>> appSettings = await db.query("core_settings", 
     columns: ["company_id", "user_id"],
     where: "id = ?",
     whereArgs: [1],
@@ -125,7 +114,7 @@ _onOpen(Database db) async {
   List<Map<String, Object?>> users = await db.query("users", 
     columns: ["id", "name", "createdAt",],// "password", ],
   );
-  App.appdata.hasUsers = users.isNotEmpty;
+  App.hasUsers = users.isNotEmpty;
   printLog("${users.length} user(s) found! with values of ${users.toString()}");
 
   if (userID == null || users.isEmpty) { 
@@ -135,7 +124,8 @@ _onOpen(Database db) async {
   for (var user in users) {
     if (userID == user['id']) {
       DateTime dt = DateTime.fromMillisecondsSinceEpoch(users[0]['createdAt'] as int);
-      App.appdata.user = User(
+      Core c = App.modules['core'] as Core;
+      c.user = User(
         id:users[0]['id'] as int,
         name:users[0]['name'] as String,
         createdAt: dt,

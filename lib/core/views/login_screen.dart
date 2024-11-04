@@ -14,9 +14,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  bool signup = !App.appdata.hasUsers;
+  bool signup = !App.hasUsers;
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
   
   Widget get form {
-    printLog("printing bools: signup:$signup, App.Data.hasUsers${App.appdata.hasUsers}");
+    printLog("printing bools: signup:$signup, App.Data.hasUsers${App.hasUsers}");
     if (signup) {
       return SignUpForm(title: widget.title, setLoginForm:loginForm);
     }

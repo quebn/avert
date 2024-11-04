@@ -125,12 +125,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget headerContent() {
+    Core c = App.modules['core'] as Core;
     String p2 = "Current Module";
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.only(top: 16, bottom:8),
-          child: Text(App.appdata.company?.name ?? "NO COMPANY",
+          child: Text(c.company?.name ?? "NO COMPANY",
             style: TextStyle(
               fontSize: 18,
               //fontFamily: "Roboto",
