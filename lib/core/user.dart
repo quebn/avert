@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/utils.dart";
-import "package:acqua/core/core.dart";
+import "package:acqua/core.dart";
 import "package:sqflite/sqflite.dart";
 
 class User implements Document {
@@ -37,7 +37,7 @@ class User implements Document {
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       password TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
+      createdAt INTEGER NOT NULL
     )
   """;
   

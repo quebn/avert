@@ -58,7 +58,8 @@ class _LoginFormState extends State<LoginForm> {
         fontSize: 18,
         xMargin: 80,
         yMargin: 8,
-        height:  60,
+        // TODO: fix
+        // height:  60,
         onPressed: authenticateUser,
       ),
       AcquaLink(
@@ -216,7 +217,8 @@ class _SignUpFormState extends State<SignUpForm> {
         fontSize: 18,
         xMargin: 80,
         yMargin: 8,
-        height:  60,
+        // TODO: fix 2
+        // height:  60,
         onPressed: registerUser,
       ),
       AcquaLink(

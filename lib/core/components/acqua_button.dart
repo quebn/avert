@@ -8,21 +8,19 @@ class AcquaButton extends StatelessWidget {
     this.fontSize = 16, 
     this.xMargin = 0, 
     this.yMargin = 0, 
-    this.width, 
-    this.height, 
+    this.xPadding = 0, 
+    this.yPadding = 0, 
   });
 
   final String name;
   final double fontSize;
+  final double xPadding, yPadding;
   final double xMargin, yMargin;
-  final double? width, height;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width:  width,
-      height: height,
       margin: EdgeInsets.symmetric(horizontal: xMargin, vertical: yMargin),
       child:  FilledButton(
         style:  FilledButton.styleFrom(
@@ -31,10 +29,14 @@ class AcquaButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed, 
-        child: Text(name,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
+        // TODO: add Padding option.
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: xPadding, vertical: yPadding),
+          child: Text(name,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       )

@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/core.dart";
+import "package:acqua/core.dart";
 
 // NOTE: should be a document in core.
 class Company implements Document {
@@ -26,6 +26,20 @@ class Company implements Document {
     )
   """;
 
+  static Future<Company> insert(String name) async {
+    DateTime now = DateTime.now();
+    Map<String, Object?> values = {
+      "name": name,
+      "createdAt": now.millisecondsSinceEpoch,
+    };
+    int id = await App.database!.insert("companies", values);
+    printAssert(id != 0, "Insertion Failed to table 'companies' with values of: ${values.toString()}");
+    return Company(
+      id: id,
+      name: name,
+      createdAt: now,
+    );
+  }
   @override
   Widget viewDetails() {
     // TODO: implement details

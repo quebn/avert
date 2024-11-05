@@ -1,6 +1,6 @@
+import "package:acqua/core/components.dart";
 import "package:flutter/material.dart";
-import "package:acqua/core/utils.dart";
-import "package:acqua/core/core.dart";
+import "package:acqua/core.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -18,7 +18,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
-    // TODO: check for company if null or not.
+    if (App.company == null) {
+      printLog("Company is null");
+      return createCompanyForm();
+      // TODO: Company creation form.
+    }
     return Scaffold(
       drawer: Drawer(
         width: 200,
@@ -35,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ],
         )
       ),
+      extendBodyBehindAppBar: true,
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor:Colors.black,
         unselectedItemColor:Colors.grey,
@@ -64,6 +69,87 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  Widget createCompanyForm() {
+    final GlobalKey<FormState> key = GlobalKey<FormState>();
+    TextEditingController nameCon = TextEditingController();
+    // TODO: 1. maybe make this list global where other modules can add their fields for company creation. 
+    // TODO: 2. or maybe make this function call a return widgets function foreach modules that is present.
+    List<Widget> widgets = [
+      Stack(
+        alignment: AlignmentDirectional.bottomStart,
+        children: [
+          Container(
+            width: MediaQuery.sizeOf(context).width,
+            height: 200,
+            color: Colors.black,
+            child: Center(
+              child: const Text("Create a Company",
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  fontSize: 28,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              //padding: EdgeInsets.symmetric(top:)
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(20)
+              ),
+            ),
+            height: 25,
+          )
+        ],
+      ),
+      Column(
+        children: [
+          AcquaInput(
+            xPadding: 24,
+            name: "Company Name", 
+            controller: nameCon,
+            required: true,
+          ),
+        ]
+      ),
+    ];
+    // NOTE: do foreach call here if 2. was chosen.
+    // call goes here.
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Form(
+          key:key,
+          child: Column(
+            children: widgets
+          ),
+        ),
+      ),
+      persistentFooterAlignment: AlignmentDirectional.center,
+      persistentFooterButtons: [
+        AcquaButton(
+          name: "Create Company", 
+          onPressed: () => createFirstCompany(key, nameCon.value.text),
+          yPadding: 16,
+        ),
+      ],
+    );
+  }
+
+  Future<void> createFirstCompany(GlobalKey<FormState> key, String name) async {
+    printLog("Pressed Create Company");
+    if (!key.currentState!.validate()) {
+      return;
+    }
+    printLog("Pressed Create Company with value of: $name");
+    Company c = await Company.insert(name);
+    setState(() => App.company = c);
+    App.rememberCompany(c.id);
+    printAssert(App.company != null, "App Company is null where it shouldnt!");
   }
 
   Widget drawerButton() => Builder(
@@ -131,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       children: [
         Padding(
           padding: EdgeInsets.only(top: 16, bottom:8),
-          child: Text(App.company?.name ?? "NO COMPANY",
+          child: Text(App.company!.name,
             style: TextStyle(
               fontSize: 18,
               //fontFamily: "Roboto",

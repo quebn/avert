@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/core.dart";
+import "package:acqua/core.dart";
 
 enum TaskPriority {
   low,

@@ -3,6 +3,7 @@ export "package:acqua/core/app.dart";
 export "package:acqua/core/task.dart";
 export "package:acqua/core/user.dart";
 export "package:acqua/core/company.dart";
+export "package:acqua/core/utils.dart";
 
 abstract class Module {
   const Module({required this.name});
@@ -27,5 +28,6 @@ abstract class Document {
   DateTime createdAt;
 
   Widget viewDetails();
+  //Widget viewQuickDetails();
   Widget viewList();
 }

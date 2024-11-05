@@ -1,8 +1,7 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/views/login_screen.dart";
 import "package:acqua/core/views/home_screen.dart";
-import "package:acqua/core/core.dart";
-import "package:acqua/core/utils.dart";
+import "package:acqua/core.dart";
 import "package:sqflite/sqflite.dart";
 import "package:permission_handler/permission_handler.dart";
 import "dart:io";
@@ -87,6 +86,16 @@ class App extends StatelessWidget{
   static Future<void> rememberUser(int userID, bool rememberLogin) async {
     Map<String, dynamic> values = {
       "user_id"  : rememberLogin ? userID : null,
+    };
+    await database!.update("app_settings", values,
+      where: "id = ?",
+      whereArgs: [1],
+    );
+  }
+
+  static Future<void> rememberCompany(int companyID) async {
+    Map<String, dynamic> values = {
+      "company_id"  : companyID,
     };
     await database!.update("app_settings", values,
       where: "id = ?",
