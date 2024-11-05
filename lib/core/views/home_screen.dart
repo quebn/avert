@@ -71,40 +71,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  // TODO: remake this into a stateless/stateful widget in another file.
   Widget createCompanyForm() {
     final GlobalKey<FormState> key = GlobalKey<FormState>();
     TextEditingController nameCon = TextEditingController();
     // TODO: 1. maybe make this list global where other modules can add their fields for company creation. 
     // TODO: 2. or maybe make this function call a return widgets function foreach modules that is present.
     List<Widget> widgets = [
-      Stack(
-        alignment: AlignmentDirectional.bottomStart,
-        children: [
-          Container(
-            width: MediaQuery.sizeOf(context).width,
-            height: 200,
-            color: Colors.black,
-            child: Center(
-              child: const Text("Create a Company",
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  fontSize: 28,
-                ),
-              ),
+      Container(
+        width: MediaQuery.sizeOf(context).width,
+        color: Colors.black,
+        child: Container(
+          decoration: BoxDecoration(
+            //padding: EdgeInsets.symmetric(top:)
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(20)
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              //padding: EdgeInsets.symmetric(top:)
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(20)
-              ),
-            ),
-            height: 25,
-          )
-        ],
+          height: 25,
+        )
       ),
       Column(
         children: [
@@ -119,8 +105,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     ];
     // NOTE: do foreach call here if 2. was chosen.
     // call goes here.
-
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("New Company",
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            fontSize: 28,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Form(
           key:key,
