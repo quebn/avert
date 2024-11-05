@@ -1,14 +1,26 @@
 import "package:flutter/material.dart";
 import "package:acqua/core/utils.dart";
 import "package:acqua/core/core.dart";
+import "package:sqflite/sqflite.dart";
 
 class User implements Document {
   User({
     required this.id, 
     required this.name, 
     required this.createdAt, 
-    required this.lastLoginAt
   });
+
+  User.login({
+    required Object id, 
+    required Object name, 
+    required Object createdAt, 
+  }):
+    id = id as int,
+    name = name as String,
+    createdAt =  DateTime.fromMillisecondsSinceEpoch(createdAt as int)
+  {
+    App.user = this;
+  }
 
   @override
   int id;
@@ -19,14 +31,13 @@ class User implements Document {
   @override
   DateTime createdAt;
 
-  DateTime lastLoginAt;
   
   static String getTableQuery() => """
     CREATE TABLE users(
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       password TEXT NOT NULL,
-      createdAt INTEGER NOT NULL
+      createdAt INTEGER NOT NULL,
     )
   """;
   

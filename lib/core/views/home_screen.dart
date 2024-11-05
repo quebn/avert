@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
     // TODO: check for company if null or not.
     return Scaffold(
       drawer: Drawer(
@@ -125,13 +126,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget headerContent() {
-    Core c = App.modules['core'] as Core;
     String p2 = "Current Module";
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.only(top: 16, bottom:8),
-          child: Text(c.company?.name ?? "NO COMPANY",
+          child: Text(App.company?.name ?? "NO COMPANY",
             style: TextStyle(
               fontSize: 18,
               //fontFamily: "Roboto",

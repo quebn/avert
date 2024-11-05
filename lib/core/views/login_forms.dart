@@ -1,6 +1,7 @@
 import "package:acqua/core/views/home_screen.dart";
 import "package:flutter/material.dart";
 import "package:acqua/core/components.dart";
+import "package:acqua/core/user.dart";
 import "package:acqua/core/app.dart";
 import "package:acqua/core/utils.dart";
 import "package:crypto/crypto.dart";
@@ -58,7 +59,7 @@ class _LoginFormState extends State<LoginForm> {
         xMargin: 80,
         yMargin: 8,
         height:  60,
-        onPressed: login,
+        onPressed: authenticateUser,
       ),
       AcquaLink(
         linkText: "Create a new user.",
@@ -107,7 +108,7 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
-  Future<void> login() async {
+  Future<void> authenticateUser() async {
     printLog("Logging in!");
     if (!key.currentState!.validate()) {
       printLog("Input field values are wrong", level: LogLevel.error);
@@ -119,8 +120,8 @@ class _LoginFormState extends State<LoginForm> {
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
     
-    var result = await App.db!.query("users", 
-      columns: ["id", "name", "password"],
+    var result = await App.database!.query("users", 
+      columns: ["id", "name", "password", "createdAt"],
       where:"name = ?",
       whereArgs: [username],
     );
@@ -132,6 +133,12 @@ class _LoginFormState extends State<LoginForm> {
 
     for (Map<String, Object?> item in result) {
       if (item['password'] == digest.toString() && mounted) {
+        User.login(
+          id: item['id']!,
+          name: item['name']!,
+          createdAt: item['createdAt']!,
+        );
+        // TODO: have a setting to check whether this function should be called or not.
         App.rememberUser(item['id'] as int, rememberLogin);
         Navigator.pop(context);
         Navigator.push(context,
@@ -210,7 +217,7 @@ class _SignUpFormState extends State<SignUpForm> {
         xMargin: 80,
         yMargin: 8,
         height:  60,
-        onPressed: signup,
+        onPressed: registerUser,
       ),
       AcquaLink(
         linkText: "Login",
@@ -253,7 +260,7 @@ class _SignUpFormState extends State<SignUpForm> {
     }
   }
   
-  Future<void> signup() async {
+  Future<void> registerUser() async {
     if (!key.currentState!.validate()) {
       printLog("WRONG!", level: LogLevel.error);
       return;
@@ -261,7 +268,7 @@ class _SignUpFormState extends State<SignUpForm> {
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
     printAssert(username.isNotEmpty && password.isNotEmpty, "Username and Password is Empty!");
-    List<Map<String, Object?>> results = await App.db!.query("users", 
+    List<Map<String, Object?>> results = await App.database!.query("users", 
       where:"name = ?",
       whereArgs: [username],
     );
@@ -294,7 +301,7 @@ class _SignUpFormState extends State<SignUpForm> {
       "createdAt" : DateTime.now().millisecondsSinceEpoch,
     };
     printLog("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
-    return await App.db?.insert("users", values);
+    return await App.database?.insert("users", values);
   }
 
   Future<void> notifyUserCreation(String title, String msg) {

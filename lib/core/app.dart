@@ -7,21 +7,27 @@ import "package:sqflite/sqflite.dart";
 import "package:permission_handler/permission_handler.dart";
 import "dart:io";
 
-
-class App extends StatelessWidget {
+class App extends StatelessWidget{
   const App({super.key});
 
   final String title = "Acqua";
+
+  // TODO: let utils handle the access and write of these static data.
+  static Database? database;
   static bool hasUsers = false;
-  static Database? db;
-  static Map<String, Module> modules = {
-    'core': Core(),
-  };
-  static const String storagePath = "/storage/emulated/0/Acqua";
+  static User? user;
+  static Company? company;
   
+  static String getTableQuery() => """
+    CREATE TABLE app_settings(
+      id INTEGER PRIMARY KEY,
+      company_id TEXT,
+      user_id INTEGER
+    )
+  """;
+
   @override
   Widget build(BuildContext context) {
-    Core c = modules['core'] as Core;
     return MaterialApp(
       title: title,
       //debugShowCheckedModeBanner: false,
@@ -44,7 +50,7 @@ class App extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: c.user == null ? LoginScreen(title:title) : HomeScreen(title: title),
+      home: user == null ? LoginScreen(title:title) : HomeScreen(title: title),
     );
   }
   
@@ -53,24 +59,27 @@ class App extends StatelessWidget {
     //appDir
     final String dbFile = "acqua.db";
     printLog("Databases Path: $dbPath/$dbFile");
-    db = await openDatabase(dbFile,
+    database = await openDatabase(dbFile,
       version: 1,
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
-    printLog("After opening of Database Path:${db?.path}", level:LogLevel.warn);
+    printLog("After opening of Database Path:${database?.path}", level:LogLevel.warn);
   }
 
   // NOTE: use the directory created as a storage for backup files.
   static Future<bool> createAppDir() async {
-    if (!Platform.isAndroid) return false;
+    if (!Platform.isAndroid) {
+      return false;
+    }
+    const String path = "/storage/emulated/0/Acqua";
     var status = await Permission.manageExternalStorage.request();
     if (status.isDenied) {
       printLog("Storage access permission denied!", level: LogLevel.error);
     } else {
       printLog("Storage access permission granted!");
     }
-    Directory dir = await Directory(App.storagePath).create(recursive: true);
+    Directory dir = await Directory(path).create(recursive: true);
     printLog("Acqua Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
     return status.isDenied;
   }
@@ -79,7 +88,7 @@ class App extends StatelessWidget {
     Map<String, dynamic> values = {
       "user_id"  : rememberLogin ? userID : null,
     };
-    await db!.update("core_settings", values,
+    await database!.update("app_settings", values,
       where: "id = ?",
       whereArgs: [1],
     );
@@ -89,7 +98,7 @@ class App extends StatelessWidget {
 _onCreate(Database db, int version) async {
   printLog("Creating Database tables");
   Batch batch = db.batch();
-  batch.execute(Core.getTableQuery());
+  batch.execute(App.getTableQuery());
   batch.execute(User.getTableQuery());
   batch.execute(Company.getTableQuery());
   batch.execute(Task.getTableQuery());
@@ -98,12 +107,12 @@ _onCreate(Database db, int version) async {
     "company_id"   : null,
     "user_id"  : null,
   };
-  await db.insert("core_settings", values);
+  await db.insert("app_settings", values);
 }
 
 _onOpen(Database db) async {
   printLog("Opening Database tables");
-  List<Map<String, Object?>> appSettings = await db.query("core_settings", 
+  List<Map<String, Object?>> appSettings = await db.query("app_settings", 
     columns: ["company_id", "user_id"],
     where: "id = ?",
     whereArgs: [1],
@@ -121,15 +130,12 @@ _onOpen(Database db) async {
     return;
   }
   printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
-  for (var user in users) {
+  for (Map<String, Object?> user in users) {
     if (userID == user['id']) {
-      DateTime dt = DateTime.fromMillisecondsSinceEpoch(users[0]['createdAt'] as int);
-      Core c = App.modules['core'] as Core;
-      c.user = User(
-        id:users[0]['id'] as int,
-        name:users[0]['name'] as String,
-        createdAt: dt,
-        lastLoginAt: DateTime.now(),
+      User.login(
+        id: user['id']!,
+        name: user['name']!,
+        createdAt: user['createdAt']!,
       );
       break;
     }
