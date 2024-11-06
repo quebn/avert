@@ -102,6 +102,22 @@ class App extends StatelessWidget{
       whereArgs: [1],
     );
   }
+  
+  static Future<void> initCompany(Database db) async {
+    List<Map<String, Object?>> companies = await db.query("companies", 
+      columns: ["id", "name", "createdAt",],
+      orderBy: "id ASC",
+      limit: 1,
+    );
+    if (companies.isNotEmpty) {
+      App.company = Company(
+        id: companies[0]['id'] as int,
+        name: companies[0]['name'] as String,
+        createdAt: companies[0]['createdAt'] as int,
+      );
+    }
+    printLog("${companies.length} companies found! with values of ${companies.toString()}");
+  }
 }
 
 _onCreate(Database db, int version) async {
@@ -127,13 +143,30 @@ _onOpen(Database db) async {
     whereArgs: [1],
   );
   int? userID = appSettings[0]['user_id'] as int?;
-
   printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
+
   List<Map<String, Object?>> users = await db.query("users", 
     columns: ["id", "name", "createdAt",],// "password", ],
   );
   App.hasUsers = users.isNotEmpty;
   printLog("${users.length} user(s) found! with values of ${users.toString()}");
+  if (appSettings[0]['company_id'] != null) {
+    List<Map<String, Object?>> companies = await db.query("companies", 
+      columns: ["id", "name", "createdAt",],
+      where: "id = ?",
+      whereArgs: [appSettings[0]['company_id']],
+    );
+    if (companies.isNotEmpty) {
+      App.company = Company(
+        id: companies[0]['id'] as int,
+        name: companies[0]['name'] as String,
+        createdAt: companies[0]['createdAt'] as int,
+      );
+    }
+  }
+  if (App.company == null) {
+    await App.initCompany(db);
+  }
 
   if (userID == null || users.isEmpty) { 
     return;

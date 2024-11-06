@@ -18,11 +18,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
-    if (App.company == null) {
-      printLog("Company is null");
-      return createCompanyForm();
-      // TODO: Company creation form.
-    }
     return Scaffold(
       drawer: Drawer(
         width: 200,
@@ -39,10 +34,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ],
         )
       ),
-      extendBodyBehindAppBar: true,
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor:Colors.black,
-        unselectedItemColor:Colors.grey,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
         onTap: (int index) {
           setState(() {currentIndex = index;});
         },
@@ -71,81 +65,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // TODO: remake this into a stateless/stateful widget in another file.
-  Widget createCompanyForm() {
-    final GlobalKey<FormState> key = GlobalKey<FormState>();
-    TextEditingController nameCon = TextEditingController();
-    // TODO: 1. maybe make this list global where other modules can add their fields for company creation. 
-    // TODO: 2. or maybe make this function call a return widgets function foreach modules that is present.
-    List<Widget> widgets = [
-      Container(
-        width: MediaQuery.sizeOf(context).width,
-        color: Colors.black,
-        child: Container(
-          decoration: BoxDecoration(
-            //padding: EdgeInsets.symmetric(top:)
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(20)
-            ),
-          ),
-          height: 25,
-        )
-      ),
-      Column(
-        children: [
-          AcquaInput(
-            xPadding: 24,
-            name: "Company Name", 
-            controller: nameCon,
-            required: true,
-          ),
-        ]
-      ),
-    ];
-    // NOTE: do foreach call here if 2. was chosen.
-    // call goes here.
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("New Company",
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-            fontSize: 28,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key:key,
-          child: Column(
-            children: widgets
-          ),
-        ),
-      ),
-      persistentFooterAlignment: AlignmentDirectional.center,
-      persistentFooterButtons: [
-        AcquaButton(
-          name: "Create Company", 
-          onPressed: () => createFirstCompany(key, nameCon.value.text),
-          yPadding: 16,
-        ),
-      ],
-    );
-  }
-
-  Future<void> createFirstCompany(GlobalKey<FormState> key, String name) async {
-    printLog("Pressed Create Company");
-    if (!key.currentState!.validate()) {
-      return;
-    }
-    printLog("Pressed Create Company with value of: $name");
-    Company c = await Company.insert(name);
-    setState(() => App.company = c);
-    App.rememberCompany(c.id);
-    printAssert(App.company != null, "App Company is null where it shouldnt!");
-  }
 
   Widget drawerButton() => Builder(
     builder: (BuildContext context) {
@@ -162,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        // current cd
         //Notification Button.
         IconButton(
           padding: EdgeInsets.only(right:16),
@@ -186,12 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
-        Container(
-          width: MediaQuery.sizeOf(context).width,
-          height: 300,
-          color: Colors.black,
-          child: headerContent(),
-        ),
+        App.company == null ? createCompany() : headerContent(),
         Container(
           decoration: BoxDecoration(
             //padding: EdgeInsets.symmetric(top:)
@@ -206,31 +121,82 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget createCompany() {
+    return Container(
+      width: MediaQuery.sizeOf(context).width,
+      height: 200,
+      color: Colors.black,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top:24),
+            child: Text("No Company Found",
+              style: TextStyle(
+                fontSize: 28,
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              App.company = Company();
+              printLog("Redirecting to Company Creation Page.");
+              Navigator.push(context,
+                MaterialPageRoute(
+                  builder: (context) => CompanyScreen(company: App.company!)
+                )
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon( Icons.add_rounded,
+                  color: Colors.white,
+                  size: 36,
+                ),
+                Text("Create New Company",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ]
+            ),
+          ),
+        ]
+      ),
+    );
+  }
+
   Widget headerContent() {
     String p2 = "Current Module";
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 16, bottom:8),
-          child: Text(App.company!.name,
-            style: TextStyle(
-              fontSize: 18,
-              //fontFamily: "Roboto",
-              color: Colors.white,
+    return Container(
+      width: MediaQuery.sizeOf(context).width,
+      height: 300,
+      color: Colors.black,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 16, bottom:8),
+            child: Text(App.company!.name,
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Text(p2,
-            style: TextStyle(
-              fontSize: 14,
-              //fontFamily: "Roboto",
-              color: Colors.white,
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text(p2,
+              style: TextStyle(
+                fontSize: 14,
+                //fontFamily: "Roboto",
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -42,14 +42,8 @@ class User implements Document {
   """;
   
   @override
-  Widget viewDetails() {
+  Widget viewDocument() {
     // TODO: implement viewDetails
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget viewList() {
-    // TODO: implement viewList
     throw UnimplementedError();
   }
 }

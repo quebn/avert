@@ -41,14 +41,9 @@ class Task implements Document {
   """;
 
   @override
-  Widget viewDetails() {
-    // TODO: implement viewDetails
+  Widget viewDocument() {
+    // TODO: implement details
     throw UnimplementedError();
   }
 
-  @override
-  Widget viewList() {
-    // TODO: implement viewDetails
-    throw UnimplementedError();
-  }
 }

@@ -321,14 +321,14 @@ class _SignUpFormState extends State<SignUpForm> {
           AcquaButton(
             name: "No",
             onPressed: (){
-              Navigator.pop(context, "No");
+              Navigator.pop(context);
               printLog("Pressed No");
             },
           ),
           AcquaButton(
             name: "Yes",
             onPressed: (){
-              Navigator.pop(context, "Yes");
+              Navigator.pop(context);
               widget.setLoginForm();
               printLog("Pressed Yes");
             },

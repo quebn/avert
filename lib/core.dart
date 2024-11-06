@@ -27,7 +27,5 @@ abstract class Document {
   String name;
   DateTime createdAt;
 
-  Widget viewDetails();
-  //Widget viewQuickDetails();
-  Widget viewList();
+  Widget viewDocument();
 }

@@ -29,7 +29,6 @@ class AcquaButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed, 
-        // TODO: add Padding option.
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: xPadding, vertical: yPadding),
           child: Text(name,
