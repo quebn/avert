@@ -3,6 +3,7 @@ import "package:acqua/core/views/login_screen.dart";
 import "package:acqua/core/views/home_screen.dart";
 import "package:acqua/core.dart";
 import "package:sqflite/sqflite.dart";
+import "package:shared_preferences/shared_preferences.dart";
 import "package:permission_handler/permission_handler.dart";
 import "dart:io";
 
@@ -15,16 +16,9 @@ class App extends StatelessWidget{
   static Database? database;
   static bool hasUsers = false;
   static User? user;
+  static SharedPreferences? sharedPrefs;
   static Company? company;
   
-  static String getTableQuery() => """
-    CREATE TABLE app_settings(
-      id INTEGER PRIMARY KEY,
-      company_id TEXT,
-      user_id INTEGER
-    )
-  """;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -68,11 +62,14 @@ class App extends StatelessWidget{
 
   // NOTE: use the directory created as a storage for backup files.
   static Future<bool> createAppDir() async {
+    sharedPrefs = await SharedPreferences.getInstance();
     if (!Platform.isAndroid) {
       return false;
     }
     const String path = "/storage/emulated/0/Acqua";
     var status = await Permission.manageExternalStorage.request();
+    //[WARN]: Acqua Directory path: /storage/emulated/0/Acqua uri: file:///storage/emulated/0/Acqua/
+    //[LOG]: Databases Path: /data/user/0/com.example.acqua/databases/acqua.db
     if (status.isDenied) {
       printLog("Storage access permission denied!", level: LogLevel.error);
     } else {
@@ -84,23 +81,11 @@ class App extends StatelessWidget{
   }
 
   static Future<void> rememberUser(int userID, bool rememberLogin) async {
-    Map<String, dynamic> values = {
-      "user_id"  : rememberLogin ? userID : null,
-    };
-    await database!.update("app_settings", values,
-      where: "id = ?",
-      whereArgs: [1],
-    );
+    App.sharedPrefs!.setInt("user_id", userID);
   }
 
   static Future<void> rememberCompany(int companyID) async {
-    Map<String, dynamic> values = {
-      "company_id"  : companyID,
-    };
-    await database!.update("app_settings", values,
-      where: "id = ?",
-      whereArgs: [1],
-    );
+    App.sharedPrefs!.setInt("company_id", companyID);
   }
   
   static Future<void> initCompany(Database db) async {
@@ -123,38 +108,28 @@ class App extends StatelessWidget{
 _onCreate(Database db, int version) async {
   printLog("Creating Database tables");
   Batch batch = db.batch();
-  batch.execute(App.getTableQuery());
   batch.execute(User.getTableQuery());
   batch.execute(Company.getTableQuery());
   batch.execute(Task.getTableQuery());
+  //batch.execute(Accounting.getTableQuery()):
   await batch.commit();
-  Map<String, dynamic> values = {
-    "company_id"   : null,
-    "user_id"  : null,
-  };
-  await db.insert("app_settings", values);
 }
 
 _onOpen(Database db) async {
   printLog("Opening Database tables");
-  List<Map<String, Object?>> appSettings = await db.query("app_settings", 
-    columns: ["company_id", "user_id"],
-    where: "id = ?",
-    whereArgs: [1],
-  );
-  int? userID = appSettings[0]['user_id'] as int?;
-  printLog("${appSettings.length} settings found! with values of ${appSettings.toString()}");
+  int userID = App.sharedPrefs!.getInt("user_id") ?? 0;
 
   List<Map<String, Object?>> users = await db.query("users", 
     columns: ["id", "name", "createdAt",],// "password", ],
   );
   App.hasUsers = users.isNotEmpty;
   printLog("${users.length} user(s) found! with values of ${users.toString()}");
-  if (appSettings[0]['company_id'] != null) {
+  int companyID = App.sharedPrefs!.getInt("company_id") ?? 0;
+  if (companyID > 0) {
     List<Map<String, Object?>> companies = await db.query("companies", 
       columns: ["id", "name", "createdAt",],
       where: "id = ?",
-      whereArgs: [appSettings[0]['company_id']],
+      whereArgs: [companyID],
     );
     if (companies.isNotEmpty) {
       App.company = Company(
@@ -168,10 +143,9 @@ _onOpen(Database db) async {
     await App.initCompany(db);
   }
 
-  if (userID == null || users.isEmpty) { 
+  if (userID == 0 || users.isEmpty) { 
     return;
   }
-  printAssert(appSettings.isNotEmpty, "Application Settings should not be zero");
   for (Map<String, Object?> user in users) {
     if (userID == user['id']) {
       User.login(
