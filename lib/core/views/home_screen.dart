@@ -1,4 +1,3 @@
-import "package:acqua/core/components.dart";
 import "package:flutter/material.dart";
 import "package:acqua/core.dart";
 
@@ -15,6 +14,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // int currentModule
   int currentIndex = 0;
 
+  // TODO: write sliver appbar function back in.
   @override
   Widget build(BuildContext context) {
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
@@ -22,17 +22,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       drawer: Drawer(
         width: 200,
       ),
-      appBar: AppBar(
-        leading: drawerButton(),
-        title: titleItems(),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            dashboardHeader(),
-            dashboardContent(),
-          ],
-        )
+      body: CustomScrollView(
+        slivers: [
+          appBar(),
+          mainContent()
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.black,
@@ -65,61 +59,68 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-
-  Widget drawerButton() => Builder(
-    builder: (BuildContext context) {
-      return IconButton(
-        icon: const Icon(Icons.menu),
+ 
+  Widget appBar() => SliverAppBar(
+    title: Text(App.company!.name,
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w900,
+        fontSize: 24,
+      ),
+    ),
+    actions: [
+      IconButton(
+        padding: EdgeInsets.only(right:16),
+        icon: const Icon(Icons.notifications_rounded),
         iconSize: 30,
-        onPressed: () => Scaffold.of(context).openDrawer(),
-        tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-      );
-    },
-  );
-  
-  Widget titleItems() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        // current cd
-        //Notification Button.
-        IconButton(
-          padding: EdgeInsets.only(right:16),
-          icon: const Icon(Icons.notifications_rounded),
-          iconSize: 30,
-          onPressed: () => printLog("Pressed Notification Button!"),
-          //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        ),
-        GestureDetector(
+        onPressed: () => printLog("Pressed Notification Button!"),
+        //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+      ),
+      Padding(
+        padding: EdgeInsets.only(right:16),
+        child: GestureDetector(
           child: CircleAvatar(
             radius: 24,
             backgroundColor: Colors.white,
           ),
           onTap: () => printLog("Pressed Profile Picture."),
         ),
-        //Profile Button.
-      ], 
-    );
-  }
-
-  Widget dashboardHeader() {
-    return Stack(
-      alignment: AlignmentDirectional.bottomStart,
-      children: [
-        App.company == null ? createCompany() : headerContent(),
-        Container(
-          decoration: BoxDecoration(
-            //padding: EdgeInsets.symmetric(top:)
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(20)
+      ),
+    ],
+    excludeHeaderSemantics: true,
+    leading: Builder(
+      builder: (BuildContext context) {
+        return IconButton(
+          icon: const Icon(Icons.menu),
+          iconSize: 30,
+          onPressed: () => Scaffold.of(context).openDrawer(),
+          tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        );
+      },
+    ),
+    //title: titleItems(),
+    pinned: true,
+    expandedHeight: 300,
+    flexibleSpace: FlexibleSpaceBar(
+      collapseMode: CollapseMode.pin,
+      background: Stack(
+        alignment: AlignmentDirectional.bottomStart,
+        children: [
+          App.company == null ? createCompany() : headerContent(),
+          Container(
+            decoration: BoxDecoration(
+              //padding: EdgeInsets.symmetric(top:)
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(20)
+              ),
             ),
-          ),
-          height: 25,
-        )
-      ],
-    );
-  }
+            height: 24,
+          )
+        ],
+      ),
+    ),
+  );
 
   Widget createCompany() {
     return Container(
@@ -172,25 +173,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget headerContent() {
     String p2 = "Current Module";
     return Container(
+      padding: EdgeInsets.only(top: kToolbarHeight),
       width: MediaQuery.sizeOf(context).width,
       height: 300,
       color: Colors.black,
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 16, bottom:8),
-            child: Text(App.company!.name,
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: 16),
             child: Text(p2,
               style: TextStyle(
-                fontSize: 14,
-                //fontFamily: "Roboto",
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
@@ -200,10 +194,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget dashboardContent() {
-    return Column(
-      children: [
-      ]
+  Widget mainContent() {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 700, // NOTE: temporary height for debug purposes.
+        child: Column(
+          children: [
+          ]
+        ),
+      ),
     );
   }
 }
