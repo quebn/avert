@@ -14,7 +14,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // int currentModule
   int currentIndex = 0;
 
-  // TODO: write sliver appbar function back in.
   @override
   Widget build(BuildContext context) {
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
