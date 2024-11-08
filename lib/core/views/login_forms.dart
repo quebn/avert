@@ -284,7 +284,6 @@ class _SignUpFormState extends State<SignUpForm> {
     }
     printAssert(results.isEmpty, "Username $username already exist in database where it should'nt dumping userdata: ${results.toString()}");
     printLog("Creating user.....");
-    printLog("Username: $username | Password: $password", level: LogLevel.error);
     int? status = await createUser(username, password);
     printAssert(status != 0 ,"insert finished with response code of [$status]");
     printLog("insert finished with response code of [$status]", level: LogLevel.warn);

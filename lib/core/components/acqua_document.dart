@@ -4,26 +4,32 @@ class AcquaDocument extends StatelessWidget {
   const AcquaDocument({super.key, 
     required this.title, 
     required this.widgetsBody,
-    this.formKey, 
-    this.actionButton,
+    this.formKey,
+    this.xPadding = 0,
+    this.yPadding = 0,
+    this.floationActionButton,
     this.widgetsFooter,
     this.leading,
+    this.onPop,
+    this.actions,
   });
 
   final String title;
+  final double xPadding, yPadding;
   final List<Widget> widgetsBody;
   final GlobalKey<FormState>? formKey;
   final List<Widget>? widgetsFooter;
-  final Widget? actionButton;
+  final Widget? floationActionButton;
   final Widget? leading;
-  //final List<Widget> widgets;
+  final List<Widget>? actions;
+  final void Function(bool, Object?)? onPop;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: actions,
         leading: leading,
-        centerTitle: true,
         title: Text(title,
           style: TextStyle(
             fontWeight: FontWeight.w800,
@@ -34,13 +40,18 @@ class AcquaDocument extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Form(
+          canPop: false,
+          onPopInvokedWithResult: onPop,
           key: formKey,
-          child: Column(
-            children: widgetsBody
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: yPadding, horizontal: xPadding),
+            child: Column(
+              children: widgetsBody
+            ),
           ),
         ),
       ),
-      floatingActionButton: actionButton,
+      floatingActionButton: floationActionButton,
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: widgetsFooter,
     );

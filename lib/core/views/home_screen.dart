@@ -4,64 +4,125 @@ import "package:acqua/core.dart";
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
 
-  final String title;
+ final String title;
 
   @override
   State<StatefulWidget> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  // int currentModule
+class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
+  // int currentModule
 
   @override
   Widget build(BuildContext context) {
+    // BUG: returning from company creation. doesnt update the HomeScreen Display.
+    // App.company!.deleteByID();
+    // App.company = null;
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
-    return Scaffold(
-      drawer: Drawer(
-        width: 200,
-      ),
-      body: CustomScrollView(
-        slivers: [
-          appBar(),
-          mainContent()
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        onTap: (int index) {
-          setState(() {currentIndex = index;});
-        },
-        showUnselectedLabels: true,
-        currentIndex: currentIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_rounded),
-            label: "Dashboard",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_books_rounded),
-            label: "Documents",
-          ),
-          // TODO: might add create button for quick document creation.
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_rounded),
-            label: "Reports",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_rounded),
-            label: "Settings",
-          ),
-        ],
-      ),
-    );
+    printLog("Building HomeScreen");
+    if (App.company == null) {
+      return noCompanyDisplay();
+    }
+    printAssert(App.company != null, "Company null!!!!!!");
+    return mainDisplay();
   }
 
- 
+  Widget mainDisplay() => Scaffold(
+    drawer: Drawer(
+      width: 200,
+    ),
+    body: CustomScrollView(
+      slivers: [
+        appBar(),
+        mainContent()
+      ],
+    ),
+    bottomNavigationBar: BottomNavigationBar(
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+      onTap: (int index) {
+        setState(() {currentIndex = index;});
+      },
+      showUnselectedLabels: true,
+      currentIndex: currentIndex,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.dashboard_rounded),
+          label: "Dashboard",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.library_books_rounded),
+          label: "Documents",
+        ),
+        // TODO: might add create button for quick document creation.
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bar_chart_rounded),
+          label: "Reports",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings_rounded),
+          label: "Settings",
+        ),
+      ],
+    ),
+  );
+  
+  
+  Widget noCompanyDisplay() => Scaffold(
+    body: Container(
+      width: MediaQuery.sizeOf(context).width,
+      height: MediaQuery.sizeOf(context).height,
+      color: Colors.black,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top:24),
+            child: Text("No Company Found",
+              style: TextStyle(
+                fontSize: 28,
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              App.company = Company();
+              printLog("Redirecting to Company Creation Page.");
+              Navigator.push(context,
+                MaterialPageRoute(
+                  builder: (context) => CompanyScreen(
+                    company: App.company!,
+                  ),
+                )
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon( Icons.add_rounded,
+                  color: Colors.white,
+                  size: 36,
+                ),
+                Text("Create A Company",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ]
+            ),
+          ),
+        ]
+      ),
+    ),
+  );
+
   Widget appBar() => SliverAppBar(
     title: Text(App.company!.name,
-      style: TextStyle(
+      style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w900,
         fontSize: 24,
@@ -69,14 +130,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     ),
     actions: [
       IconButton(
-        padding: EdgeInsets.only(right:16),
+        padding: const EdgeInsets.only(right:16),
         icon: const Icon(Icons.notifications_rounded),
         iconSize: 30,
         onPressed: () => printLog("Pressed Notification Button!"),
         //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       Padding(
-        padding: EdgeInsets.only(right:16),
+        padding: const EdgeInsets.only(right:16),
         child: GestureDetector(
           child: CircleAvatar(
             radius: 24,
@@ -97,15 +158,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         );
       },
     ),
-    //title: titleItems(),
     pinned: true,
     expandedHeight: 300,
-    flexibleSpace: FlexibleSpaceBar(
+    flexibleSpace: headerContent(),
+  );
+
+  Widget headerContent() {
+    return FlexibleSpaceBar(
       collapseMode: CollapseMode.pin,
       background: Stack(
         alignment: AlignmentDirectional.bottomStart,
         children: [
-          App.company == null ? createCompany() : headerContent(),
+          Container(
+            padding: EdgeInsets.only(top: kToolbarHeight),
+            width: MediaQuery.sizeOf(context).width,
+            height: 300,
+            color: Colors.black,
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: const Text("Current Module",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Container(
             decoration: BoxDecoration(
               //padding: EdgeInsets.symmetric(top:)
@@ -116,78 +199,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             height: 24,
           )
-        ],
-      ),
-    ),
-  );
-
-  Widget createCompany() {
-    return Container(
-      width: MediaQuery.sizeOf(context).width,
-      height: 200,
-      color: Colors.black,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top:24),
-            child: Text("No Company Found",
-              style: TextStyle(
-                fontSize: 28,
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              App.company = Company();
-              printLog("Redirecting to Company Creation Page.");
-              Navigator.push(context,
-                MaterialPageRoute(
-                  builder: (context) => CompanyScreen(company: App.company!)
-                )
-              );
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon( Icons.add_rounded,
-                  color: Colors.white,
-                  size: 36,
-                ),
-                Text("Create New Company",
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ]
-            ),
-          ),
-        ]
-      ),
-    );
-  }
-
-  Widget headerContent() {
-    String p2 = "Current Module";
-    return Container(
-      padding: EdgeInsets.only(top: kToolbarHeight),
-      width: MediaQuery.sizeOf(context).width,
-      height: 300,
-      color: Colors.black,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Text(p2,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
         ],
       ),
     );

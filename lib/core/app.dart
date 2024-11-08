@@ -7,16 +7,16 @@ import "package:shared_preferences/shared_preferences.dart";
 import "package:permission_handler/permission_handler.dart";
 import "dart:io";
 
-class App extends StatelessWidget{
+class App extends StatelessWidget {
   const App({super.key});
 
   final String title = "Acqua";
 
   // TODO: let utils handle the access and write of these static data.
+  // static AcquaData;
   static Database? database;
   static bool hasUsers = false;
   static User? user;
-  static SharedPreferences? sharedPrefs;
   static Company? company;
   
   @override
@@ -48,10 +48,7 @@ class App extends StatelessWidget{
   }
   
   static Future<void> initDB({bool isDenied = false}) async {
-    final String dbPath = await getDatabasesPath();
-    //appDir
     final String dbFile = "acqua.db";
-    printLog("Databases Path: $dbPath/$dbFile");
     database = await openDatabase(dbFile,
       version: 1,
       onCreate: _onCreate,
@@ -62,14 +59,11 @@ class App extends StatelessWidget{
 
   // NOTE: use the directory created as a storage for backup files.
   static Future<bool> createAppDir() async {
-    sharedPrefs = await SharedPreferences.getInstance();
     if (!Platform.isAndroid) {
       return false;
     }
     const String path = "/storage/emulated/0/Acqua";
     var status = await Permission.manageExternalStorage.request();
-    //[WARN]: Acqua Directory path: /storage/emulated/0/Acqua uri: file:///storage/emulated/0/Acqua/
-    //[LOG]: Databases Path: /data/user/0/com.example.acqua/databases/acqua.db
     if (status.isDenied) {
       printLog("Storage access permission denied!", level: LogLevel.error);
     } else {
@@ -80,26 +74,50 @@ class App extends StatelessWidget{
     return status.isDenied;
   }
 
-  static Future<void> rememberUser(int userID, bool rememberLogin) async {
-    App.sharedPrefs!.setInt("user_id", userID);
+  static void rememberUser(int userID, bool rememberLogin) {
+    final SharedPreferencesAsync cachedPrefs = SharedPreferencesAsync();
+    cachedPrefs.setInt("user_id", userID).then((r) {
+      printLog("user_id set with value of: $userID");
+    });
   }
 
-  static Future<void> rememberCompany(int companyID) async {
-    App.sharedPrefs!.setInt("company_id", companyID);
+  static void rememberCompany(int companyID) {
+    final SharedPreferencesAsync cachedPrefs = SharedPreferencesAsync();
+    cachedPrefs.setInt("company_id", companyID).then((r) {
+      printLog("company_id set with values of: $companyID");
+    });
   }
   
-  static Future<void> initCompany(Database db) async {
-    List<Map<String, Object?>> companies = await db.query("companies", 
-      columns: ["id", "name", "createdAt",],
-      orderBy: "id ASC",
-      limit: 1,
-    );
-    if (companies.isNotEmpty) {
-      App.company = Company(
-        id: companies[0]['id'] as int,
-        name: companies[0]['name'] as String,
-        createdAt: companies[0]['createdAt'] as int,
+  static Future<void> loadCompany(int companyID, Database db) async {
+    List<Map<String, Object?>> companies = [];
+    List<String> cols = ["id", "name", "createdAt",];
+    if (companyID > 0) {
+      companies = await db.query("companies", 
+        columns: cols,
+        where: "id = ?",
+        whereArgs: [companyID],
       );
+      if (companies.isNotEmpty) {
+        App.company = Company(
+          id: companies[0]['id'] as int,
+          name: companies[0]['name'] as String,
+          createdAt: companies[0]['createdAt'] as int,
+        );
+      }
+    }
+    if (App.company == null) {
+      companies = await db.query("companies", 
+        columns: cols,
+        orderBy: "id ASC",
+        limit: 1,
+      );
+      if (companies.isNotEmpty) {
+        App.company = Company(
+          id: companies[0]['id'] as int,
+          name: companies[0]['name'] as String,
+          createdAt: companies[0]['createdAt'] as int,
+        );
+      }
     }
     printLog("${companies.length} companies found! with values of ${companies.toString()}");
   }
@@ -117,31 +135,21 @@ _onCreate(Database db, int version) async {
 
 _onOpen(Database db) async {
   printLog("Opening Database tables");
-  int userID = App.sharedPrefs!.getInt("user_id") ?? 0;
+  final SharedPreferencesWithCache cachedPrefs = await SharedPreferencesWithCache.create(
+    cacheOptions: const SharedPreferencesWithCacheOptions(
+      allowList: <String>{"user_id", "company_id"},
+    )
+  );
+  int userID = cachedPrefs.getInt("user_id") ?? 0;
 
   List<Map<String, Object?>> users = await db.query("users", 
     columns: ["id", "name", "createdAt",],// "password", ],
   );
   App.hasUsers = users.isNotEmpty;
   printLog("${users.length} user(s) found! with values of ${users.toString()}");
-  int companyID = App.sharedPrefs!.getInt("company_id") ?? 0;
-  if (companyID > 0) {
-    List<Map<String, Object?>> companies = await db.query("companies", 
-      columns: ["id", "name", "createdAt",],
-      where: "id = ?",
-      whereArgs: [companyID],
-    );
-    if (companies.isNotEmpty) {
-      App.company = Company(
-        id: companies[0]['id'] as int,
-        name: companies[0]['name'] as String,
-        createdAt: companies[0]['createdAt'] as int,
-      );
-    }
-  }
-  if (App.company == null) {
-    await App.initCompany(db);
-  }
+
+  int companyID = cachedPrefs.getInt("company_id") ?? 0;
+  await App.loadCompany(companyID, db);
 
   if (userID == 0 || users.isEmpty) { 
     return;
@@ -157,3 +165,5 @@ _onOpen(Database db) async {
     }
   }
 }
+
+

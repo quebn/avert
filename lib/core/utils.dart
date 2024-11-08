@@ -1,1 +1,1 @@
-export "package:acqua/core/utils/logger.dart";
+export "package:acqua/core/logger.dart";

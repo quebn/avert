@@ -52,6 +52,13 @@ class Company implements Document {
     id = await App.database!.insert("companies", values);
     return id != 0;
   }
+  
+  Future<int> deleteByID() async {
+    return await App.database!.delete("companies",
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
     
   @override
   Widget viewDocument() {
@@ -70,10 +77,11 @@ class CompanyScreen extends StatefulWidget {
     this.onSave,
     this.onSubmit, 
     this.onDelete,
+    this.onPop
   });
 
   final Company company;
-  final VoidCallback? onCreate, onSave, onSubmit, onDelete;
+  final VoidCallback? onCreate, onSave, onSubmit, onDelete, onPop;
   
   @override
   State<StatefulWidget> createState() => _CompanyScreenState();
@@ -86,18 +94,23 @@ class _CompanyScreenState extends State<CompanyScreen> {
     'name': TextEditingController(),
   };
 
+  bool isDirty = false;
   bool isNew = true;
   bool get formStatus => widget.company.id == 0;
 
   @override
   void initState() {
     super.initState();
+    controllers['name']!.addListener(onNameChange);
     isNew = formStatus;
-    controllers['name']!.text = widget.company.name;
+    if(!isNew) {
+      setFieldValues();
+    }
   }
 
   @override
   void dispose() {
+    controllers['name']!.removeListener(onNameChange);
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -106,144 +119,138 @@ class _CompanyScreenState extends State<CompanyScreen> {
   
   @override
   Widget build(BuildContext context) {
-    if (isNew) {
-      return AcquaDocument(
-        formKey: key,
-        title: "New Company",
-        widgetsBody: [
-          AcquaInput(
-            xPadding: 24,
-            name: "Company Name", 
-            controller: controllers['name']!,
-            required: true,
-          ),
-        ],
-        widgetsFooter: [
-          AcquaButton(
-            name: "Create Company", 
-            onPressed: createCompany,
-            yPadding: 16,
-          ),
-        ],
-      );
-    }
     return AcquaDocument(
+      onPop: (didPop, result){ printLog("didPop:$didPop | value:${result.toString()}");},
+      yPadding: 16,
+      xPadding: 16,
+      actions: isNew ? null :  [
+        IconButton(
+          color: Colors.red,
+          onPressed: (){printLog("Delete Company");}, 
+          icon: const Icon(Icons.delete_rounded,
+          ),
+        ),
+        AcquaButton(
+          name: "Set as Default",
+          onPressed: (){printLog("Delete Company");}, 
+        ),
+      ],
+      floationActionButton: isDirty ? IconButton.filled(
+        onPressed: saveDocument,
+        iconSize: 48,
+        icon: Icon(Icons.save_rounded)
+      ) : null,
       formKey: key,
-      title: widget.company.name,
+      title: isNew ? "New Company" : widget.company.name,
       widgetsBody: [
         AcquaInput(
-          xPadding: 24,
-          name: "Company Name", 
+          yPadding: 8,
+          name: "Company Name",
           controller: controllers['name']!,
           required: true,
         ),
       ],
-      widgetsFooter: [
-        AcquaButton(
-          name: "Save Changes", 
-          onPressed: saveCompany,
-          yPadding: 16,
-        ),
-      ],
     );
   }
 
-  Future<void> createCompany() async {
-    if (!key.currentState!.validate()) {
-      return;
-    }
-    widget.company.name = controllers['name']!.value.text;
-    printLog("Pressed Create Company with value of: ${ widget.company.name }");
-    bool success =  await widget.company.save();
-
-    if (widget.onCreate != null) {
-      widget.onCreate!();
-    }
-
-    if (success) {
-      notifyCreation();
-    }
-    // showPopup depending on the result of the insertion.
+  void setFieldValues() {
+    controllers['name']!.text = widget.company.name;
   }
 
-  Future<void> notifyCreation() {
-    return showDialog<void>(
+  void onFieldChange(Function<bool>() isDirtyCallback) {
+    final bool isReallyDirty = isDirtyCallback();
+    if (isReallyDirty == isDirty) {
+      return;
+    }
+    setState(() {
+      isDirty = isReallyDirty;
+    });
+  }
+
+  void onNameChange() => onFieldChange(<bool>() {
+    return controllers['name']!.text != widget.company.name;
+  });
+
+  // TODO: Implement document pop function.
+  Future<bool?> _showBackDialog(BuildContext context) {
+    return showDialog<bool>(
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text("Success"),
-        content: Center(
-          widthFactor: 1,
-          heightFactor: 1,
-          child: Text(
-            """
-              New company '${widget.company.name}' is create successfully!\n
-              Would you like to set it as the current Company?
-            """,
-          ),
-        ),
-        actions: [
-          AcquaButton(
-            name: "No",
-            onPressed: (){
-              Navigator.pop(context);
-              printLog("Pressed No");
-              setState(() => isNew = formStatus);
-            },
-          ),
-          AcquaButton(
-            name: "Yes",
-            onPressed: (){
-              if (App.company != widget.company) {
-                printLog("Setting as the current company in with the popUp!", level:LogLevel.warn);
-                App.company = widget.company;
-              }
-              App.rememberCompany(widget.company.id);
-              Navigator.pop(context);
-              setState(() => isNew = formStatus);
-            },
-          ),
-        ]
-      ),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Are you sure?"),
+          content: const Text("Are you sure you want to leave this page?"),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text("Stay"),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text("Leave"),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Future<void> saveCompany() async {
+
+  Future<void> saveDocument() async {
     if (!key.currentState!.validate()) {
       return;
     }
-    widget.company.name = controllers['name']!.value.text;
-    printLog("Pressed Create Company with value of: ${ widget.company.name }");
-    bool success = await widget.company.update();
-    if (success){
-      
+    // TEST: checks.
+    // -- check if new or not. if new create the Company and get/make the message.
+    // -- if not save the document.
+    // -- display the message.
+    String title = "Operation Failed!", msg = "Error writing the document to the database!";
+    if (isNew) {
+      bool success =  await widget.company.save();
+      if (widget.onCreate != null) {
+        widget.onCreate!();
+      }
+      if (success) {
+        title = "New Company Created!";
+        msg = "Company '${widget.company.name}' is successfully created!";
+        setState(() => widget.company.name = controllers['name']!.value.text);
+      }
+    } else {
+      bool success = await widget.company.update();
+      if (success){
+        title = "Changes Saved!";
+        msg = "Successfully changed company details";
+        widget.company.name = controllers['name']!.value.text;
+      }
     }
-    printAssert(App.company != null, "App Company is null where it shouldnt!");
-    // showPopup for confirmation of creation.
-    throw UnimplementedError();
+    if (mounted) {
+      notifyUpdate(context, title, msg);
+    }
   }
   
-  Future<void> notifyUpdate() {
+  Future<void> notifyUpdate(BuildContext context, String title, String msg) {
+    // TODO: make title or anything in the dialog change color depending on the results.
     return showDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (BuildContext context) => AlertDialog(
-        title: Text("Success"),
+        title: Text(title),
         content: Center(
-          widthFactor: 1,
-          heightFactor: 1,
-          child: Text(
-            """
-              Company '${widget.company.name}' have been successfully updated!
-            """,
-          ),
+          child: Text(msg),
         ),
         actions: [
           AcquaButton(
             name: "Close",
-            onPressed: (){
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
           ),
         ]
       ),
