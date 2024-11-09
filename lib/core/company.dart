@@ -27,10 +27,16 @@ class Company implements Document {
     )
   """;
 
+  bool valuesNotValid() {
+    return name.isEmpty;
+  }
+
   Future<bool> update() async {
+    if (valuesNotValid()) return false;
     Map<String, Object?> values = {
       "name": name,
     };
+    printLog("update with values of: ${values.toString()} of company with id of: $id!", level: LogLevel.warn);
     int r = await App.database!.update("companies", values,
       where: "id = ?",
       whereArgs: [id],
@@ -38,18 +44,21 @@ class Company implements Document {
     return r == 1;
   }
 
-  Future<bool> save() async {
+  Future<bool> insert() async {
     if (id > 0) {
       // TODO: maybe have a prompt for this.
       printLog("Document is already inserted with id of '$id'");
       return false;
     }
+    if (valuesNotValid()) return false;
     int now = DateTime.now().millisecondsSinceEpoch;
     Map<String, Object?> values = {
       "name": name,
       "createdAt": now,
     };
+    printLog("creating company with values of: ${values.toString()}", level: LogLevel.warn);
     id = await App.database!.insert("companies", values);
+    printLog("company created with id of $id", level: LogLevel.warn);
     return id != 0;
   }
   
@@ -119,20 +128,25 @@ class _CompanyScreenState extends State<CompanyScreen> {
   
   @override
   Widget build(BuildContext context) {
+    printLog("company.id = ${widget.company.id}");
     return AvertDocument(
       onPop: (didPop, result){ printLog("didPop:$didPop | value:${result.toString()}");},
       yPadding: 16,
       xPadding: 16,
       actions: isNew ? null :  [
-        IconButton(
-          color: Colors.red,
-          onPressed: (){printLog("Delete Company");}, 
-          icon: const Icon(Icons.delete_rounded,
-          ),
-        ),
         AvertButton(
           name: "Set as Default",
           onPressed: (){printLog("Delete Company");}, 
+          bgColor: Colors.white,
+          fgColor: Colors.black,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right:16),
+          child: IconButton(
+            onPressed: (){printLog("Delete Company");}, 
+            icon: const Icon(Icons.delete_rounded,
+            ),
+          ),
         ),
       ],
       floationActionButton: isDirty ? IconButton.filled(
@@ -209,27 +223,23 @@ class _CompanyScreenState extends State<CompanyScreen> {
     if (!key.currentState!.validate()) {
       return;
     }
-    // TEST: checks.
-    // -- check if new or not. if new create the Company and get/make the message.
-    // -- if not save the document.
-    // -- display the message.
+    widget.company.name = controllers['name']!.value.text;
     String title = "Operation Failed!", msg = "Error writing the document to the database!";
     if (isNew) {
-      bool success =  await widget.company.save();
+      bool success =  await widget.company.insert();
+      printLog("id after widget.company: ${widget.company.id}");
       if (widget.onCreate != null) {
         widget.onCreate!();
       }
       if (success) {
         title = "New Company Created!";
         msg = "Company '${widget.company.name}' is successfully created!";
-        setState(() => widget.company.name = controllers['name']!.value.text);
       }
     } else {
       bool success = await widget.company.update();
       if (success){
         title = "Changes Saved!";
         msg = "Successfully changed company details";
-        widget.company.name = controllers['name']!.value.text;
       }
     }
     if (mounted) {
@@ -245,12 +255,16 @@ class _CompanyScreenState extends State<CompanyScreen> {
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
         content: Center(
+          heightFactor: 1,
           child: Text(msg),
         ),
         actions: [
           AvertButton(
             name: "Close",
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() => isNew = formStatus);
+            }
           ),
         ]
       ),

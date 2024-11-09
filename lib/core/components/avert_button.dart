@@ -10,6 +10,8 @@ class AvertButton extends StatelessWidget {
     this.yMargin = 0, 
     this.xPadding = 0, 
     this.yPadding = 0, 
+    this.bgColor,
+    this.fgColor,
   });
 
   final String name;
@@ -17,6 +19,7 @@ class AvertButton extends StatelessWidget {
   final double xPadding, yPadding;
   final double xMargin, yMargin;
   final VoidCallback? onPressed;
+  final Color? bgColor, fgColor;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,8 @@ class AvertButton extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: xMargin, vertical: yMargin),
       child:  FilledButton(
         style:  FilledButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: fgColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),

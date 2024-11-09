@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (App.company == null) {
       return noCompanyDisplay();
     }
+    printLog("name: ${App.company!.name}");
     printAssert(App.company != null, "Company null!!!!!!");
     return mainDisplay();
   }
@@ -106,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                   size: 36,
                 ),
-                Text("Create A Company",
+                Text("Create Company",
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.white,

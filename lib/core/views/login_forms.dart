@@ -58,8 +58,7 @@ class _LoginFormState extends State<LoginForm> {
         fontSize: 18,
         xMargin: 80,
         yMargin: 8,
-        // TODO: fix
-        // height:  60,
+        yPadding: 20,
         onPressed: authenticateUser,
       ),
       AvertLink(
@@ -215,10 +214,9 @@ class _SignUpFormState extends State<SignUpForm> {
       AvertButton(
         name:"Sign Up",
         fontSize: 18,
+        yPadding: 20,
         xMargin: 80,
         yMargin: 8,
-        // TODO: fix 2
-        // height:  60,
         onPressed: registerUser,
       ),
       AvertLink(
@@ -283,7 +281,7 @@ class _SignUpFormState extends State<SignUpForm> {
       return;
     }
     printAssert(results.isEmpty, "Username $username already exist in database where it should'nt dumping userdata: ${results.toString()}");
-    printLog("Creating user.....");
+    printLog("Preparing Creating user.....");
     int? status = await createUser(username, password);
     printAssert(status != 0 ,"insert finished with response code of [$status]");
     printLog("insert finished with response code of [$status]", level: LogLevel.warn);
@@ -293,7 +291,7 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<int?> createUser(String username, String password) async {
-    printLog("Creating user...");
+    printLog("Actually Creating user...");
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
     var values = {
@@ -312,7 +310,6 @@ class _SignUpFormState extends State<SignUpForm> {
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
         content: Center(
-          widthFactor: 1,
           heightFactor: 1,
           child: Text(msg),
         ),
