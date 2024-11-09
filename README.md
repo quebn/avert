@@ -1,4 +1,4 @@
-# Acqua (Tentative)
+# Avert
 
 An Android Finance Managements App.
 

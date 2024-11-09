@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/utils.dart";
-import "package:acqua/core.dart";
+import "package:avert/core/utils.dart";
+import "package:avert/core.dart";
 import "package:sqflite/sqflite.dart";
 
 class User implements Document {

@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/views/login_screen.dart";
-import "package:acqua/core/views/home_screen.dart";
-import "package:acqua/core.dart";
+import "package:avert/core/views/login_screen.dart";
+import "package:avert/core/views/home_screen.dart";
+import "package:avert/core.dart";
 import "package:sqflite/sqflite.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:permission_handler/permission_handler.dart";
@@ -10,10 +10,10 @@ import "dart:io";
 class App extends StatelessWidget {
   const App({super.key});
 
-  final String title = "Acqua";
+  final String title = "Avert";
 
   // TODO: let utils handle the access and write of these static data.
-  // static AcquaData;
+  // static AvertData;
   static Database? database;
   static bool hasUsers = false;
   static User? user;
@@ -48,7 +48,7 @@ class App extends StatelessWidget {
   }
   
   static Future<void> initDB({bool isDenied = false}) async {
-    final String dbFile = "acqua.db";
+    final String dbFile = "avert.db";
     database = await openDatabase(dbFile,
       version: 1,
       onCreate: _onCreate,
@@ -62,7 +62,7 @@ class App extends StatelessWidget {
     if (!Platform.isAndroid) {
       return false;
     }
-    const String path = "/storage/emulated/0/Acqua";
+    const String path = "/storage/emulated/0/Avert";
     var status = await Permission.manageExternalStorage.request();
     if (status.isDenied) {
       printLog("Storage access permission denied!", level: LogLevel.error);
@@ -70,7 +70,7 @@ class App extends StatelessWidget {
       printLog("Storage access permission granted!");
     }
     Directory dir = await Directory(path).create(recursive: true);
-    printLog("Acqua Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
+    printLog("Avert Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
     return status.isDenied;
   }
 

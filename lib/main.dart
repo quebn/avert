@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/app.dart";
+import "package:avert/core/app.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

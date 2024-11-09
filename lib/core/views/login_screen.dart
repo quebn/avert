@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/views/login_forms.dart";
-import "package:acqua/core/utils.dart";
-import "package:acqua/core/app.dart";
+import "package:avert/core/views/login_forms.dart";
+import "package:avert/core/utils.dart";
+import "package:avert/core/app.dart";
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.title});

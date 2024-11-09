@@ -1,10 +1,11 @@
 import "package:flutter/material.dart";
-export "package:acqua/core/app.dart";
-export "package:acqua/core/task.dart";
-export "package:acqua/core/user.dart";
-export "package:acqua/core/company.dart";
-export "package:acqua/core/utils.dart";
+export "package:avert/core/app.dart";
+export "package:avert/core/task.dart";
+export "package:avert/core/user.dart";
+export "package:avert/core/company.dart";
+export "package:avert/core/utils.dart";
 
+// TODO: Figure out how to test stuffs.
 abstract class Module {
   const Module({required this.name});
 

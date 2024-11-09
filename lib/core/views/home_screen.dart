@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:acqua/core.dart";
+import "package:avert/core.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});

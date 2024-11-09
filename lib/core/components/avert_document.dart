@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
-class AcquaDocument extends StatelessWidget {
-  const AcquaDocument({super.key, 
+class AvertDocument extends StatelessWidget {
+  const AvertDocument({super.key, 
     required this.title, 
     required this.widgetsBody,
     this.formKey,

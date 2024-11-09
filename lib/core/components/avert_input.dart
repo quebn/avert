@@ -1,30 +1,30 @@
 import "package:flutter/material.dart";
-import "package:acqua/core/utils.dart";
+import "package:avert/core/utils.dart";
 import "package:flutter/services.dart";
 
-enum AcquaInputType {
+enum AvertInputType {
   text,
   alphanumeric,
   password,
   datetime,
 }
 
-class AcquaInput extends StatefulWidget {
-  const AcquaInput({
+class AvertInput extends StatefulWidget {
+  const AvertInput({
     super.key,
     required this.name,
     required this.controller,
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
-    this.inputType = AcquaInputType.text,
+    this.inputType = AvertInputType.text,
     this.required = false,
     this.validator,
     this.forceErrMsg,
     this.onChanged,
   });
 
-  const AcquaInput.alphanumeric({
+  const AvertInput.alphanumeric({
     super.key, 
     required this.name, 
     required this.controller,
@@ -35,9 +35,9 @@ class AcquaInput extends StatefulWidget {
     this.validator,
     this.forceErrMsg,
     this.onChanged,
-  }) : inputType = AcquaInputType.alphanumeric;
+  }) : inputType = AvertInputType.alphanumeric;
 
-  const AcquaInput.password({
+  const AvertInput.password({
     super.key, 
     required this.controller,
     this.validator,
@@ -47,12 +47,12 @@ class AcquaInput extends StatefulWidget {
     this.name = "Password",
     this.forceErrMsg,
     this.onChanged,
-  }) : inputType = AcquaInputType.password, required = true ;
+  }) : inputType = AvertInputType.password, required = true ;
 
   final String name;
   final double xPadding, yPadding;
   final double gapPadding;
-  final AcquaInputType inputType;
+  final AvertInputType inputType;
   final TextEditingController controller;
   final bool required;
   final String? Function(String? value)? validator;
@@ -63,16 +63,16 @@ class AcquaInput extends StatefulWidget {
   State<StatefulWidget> createState() => _InputState();
 }
 
-class _InputState extends State<AcquaInput> {
+class _InputState extends State<AvertInput> {
 
   bool shouldObscure = true;
 
   @override
   Widget build(BuildContext context) {
     switch(widget.inputType) {
-      case AcquaInputType.alphanumeric:
+      case AvertInputType.alphanumeric:
         return alphanumeric(context);
-      case AcquaInputType.password:
+      case AvertInputType.password:
         return password(context);
       default:
         return text(context);

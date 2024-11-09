@@ -1,9 +1,9 @@
-import "package:acqua/core/views/home_screen.dart";
+import "package:avert/core/views/home_screen.dart";
 import "package:flutter/material.dart";
-import "package:acqua/core/components.dart";
-import "package:acqua/core/user.dart";
-import "package:acqua/core/app.dart";
-import "package:acqua/core/utils.dart";
+import "package:avert/core/components.dart";
+import "package:avert/core/user.dart";
+import "package:avert/core/app.dart";
+import "package:avert/core/utils.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
@@ -41,19 +41,19 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets = <Widget>[
-      AcquaInput.alphanumeric(
+      AvertInput.alphanumeric(
         name: "Username", 
         controller: controllers['username']!,
         forceErrMsg: userErrMsg,
         required: true,
         onChanged: onChangeUsername,
       ),
-      AcquaInput.password(
+      AvertInput.password(
         controller: controllers['password']!,
         forceErrMsg: passErrMsg,
         onChanged: onChangePassword,
       ),
-      AcquaButton(
+      AvertButton(
         name:"Login",
         fontSize: 18,
         xMargin: 80,
@@ -62,7 +62,7 @@ class _LoginFormState extends State<LoginForm> {
         // height:  60,
         onPressed: authenticateUser,
       ),
-      AcquaLink(
+      AvertLink(
         linkText: "Create a new user.",
         linkSize: 16,
         yMargin: 16,
@@ -193,7 +193,7 @@ class _SignUpFormState extends State<SignUpForm> {
       controllers['username']!.text = "Administrator";
     }
     List<Widget> widgets = <Widget>[
-      AcquaInput.alphanumeric(
+      AvertInput.alphanumeric(
         name:"Username", 
         controller: controllers['username']!,
         required: true,
@@ -201,10 +201,10 @@ class _SignUpFormState extends State<SignUpForm> {
         forceErrMsg: userErrMsg,
         onChanged: onChangeUsername,
       ),
-      AcquaInput.password(
+      AvertInput.password(
         controller: controllers['password']!,
       ),
-      AcquaInput.password(
+      AvertInput.password(
         name:  "Confirm Password", 
         controller: controllers['password_confirm']!,
         // TODO: add an onValueChange for this widget where is checks field must contain.
@@ -212,7 +212,7 @@ class _SignUpFormState extends State<SignUpForm> {
           return controllers['password']!.text != value ? "Password does not match!" : null;
         },
       ),
-      AcquaButton(
+      AvertButton(
         name:"Sign Up",
         fontSize: 18,
         xMargin: 80,
@@ -221,7 +221,7 @@ class _SignUpFormState extends State<SignUpForm> {
         // height:  60,
         onPressed: registerUser,
       ),
-      AcquaLink(
+      AvertLink(
         linkText: "Login",
         linkSize: 16,
         yMargin: 16,
@@ -317,14 +317,14 @@ class _SignUpFormState extends State<SignUpForm> {
           child: Text(msg),
         ),
         actions: [
-          AcquaButton(
+          AvertButton(
             name: "No",
             onPressed: (){
               Navigator.pop(context);
               printLog("Pressed No");
             },
           ),
-          AcquaButton(
+          AvertButton(
             name: "Yes",
             onPressed: (){
               Navigator.pop(context);

@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
-class AcquaButton extends StatelessWidget {
-  const AcquaButton({
+class AvertButton extends StatelessWidget {
+  const AvertButton({
     super.key, 
     required this.name, 
     required this.onPressed, 

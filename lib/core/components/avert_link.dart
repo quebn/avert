@@ -2,8 +2,8 @@ import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 
 
-class AcquaLink extends StatelessWidget {
-  const AcquaLink({super.key,
+class AvertLink extends StatelessWidget {
+  const AvertLink({super.key,
     required this.linkText, 
     required this.onPressed, 
     this.linkSize = 14, 
