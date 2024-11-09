@@ -41,9 +41,20 @@ class Task implements Document {
   """;
 
   @override
-  Widget viewDocument() {
-    // TODO: implement details
+  Future<bool> delete() {
+    // TODO: implement delete
     throw UnimplementedError();
   }
 
+  @override
+  Future<bool> insert() {
+    // TODO: implement insert
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> update() {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
 }

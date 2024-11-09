@@ -31,6 +31,7 @@ class Company implements Document {
     return name.isEmpty;
   }
 
+  @override
   Future<bool> update() async {
     if (valuesNotValid()) return false;
     Map<String, Object?> values = {
@@ -44,6 +45,7 @@ class Company implements Document {
     return r == 1;
   }
 
+  @override
   Future<bool> insert() async {
     if (id > 0) {
       // TODO: maybe have a prompt for this.
@@ -62,25 +64,20 @@ class Company implements Document {
     return id != 0;
   }
   
-  Future<int> deleteByID() async {
+  @override
+  Future<bool> delete() async {
     return await App.database!.delete("companies",
       where: "id = ?",
       whereArgs: [id],
-    );
-  }
-    
-  @override
-  Widget viewDocument() {
-    // TODO: implement details
-    throw UnimplementedError();
+    ) == id;
   }
 }
 
 // TODO: Do something on the ff. in the future.
 //  - show the fields from other modules like the default accounts of a company.
 //  - validation.
-class CompanyScreen extends StatefulWidget {
-  const CompanyScreen({super.key, 
+class CompanyView extends StatefulWidget {
+  const CompanyView({super.key,
     required this.company,
     this.onCreate,
     this.onSave,
@@ -90,13 +87,14 @@ class CompanyScreen extends StatefulWidget {
   });
 
   final Company company;
+  // NOTE: onDelete executes after the company is deleted in db.
   final VoidCallback? onCreate, onSave, onSubmit, onDelete, onPop;
   
   @override
-  State<StatefulWidget> createState() => _CompanyScreenState();
+  State<StatefulWidget> createState() => _CompanyViewState();
 }
 
-class _CompanyScreenState extends State<CompanyScreen> {
+class _CompanyViewState extends State<CompanyView> implements DocumentView {
 
   final GlobalKey<FormState> key = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {
@@ -128,22 +126,31 @@ class _CompanyScreenState extends State<CompanyScreen> {
   
   @override
   Widget build(BuildContext context) {
+    printLog("Building Company Document", level: LogLevel.warn);
     printLog("company.id = ${widget.company.id}");
     return AvertDocument(
-      onPop: (didPop, result){ printLog("didPop:$didPop | value:${result.toString()}");},
+      isDirty: isDirty,
+      onPop: (didPop, result){
+        confirmPop(context);
+      }, 
       yPadding: 16,
       xPadding: 16,
       actions: isNew ? null :  [
-        AvertButton(
-          name: "Set as Default",
-          onPressed: (){printLog("Delete Company");}, 
-          bgColor: Colors.white,
-          fgColor: Colors.black,
+        TextButton(
+          onPressed: setAsDefault,
+          child: const Text("Set as Default",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right:16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: IconButton(
-            onPressed: (){printLog("Delete Company");}, 
+            iconSize: 32,
+            onPressed: () => confirmDelete(context),
             icon: const Icon(Icons.delete_rounded,
             ),
           ),
@@ -181,12 +188,63 @@ class _CompanyScreenState extends State<CompanyScreen> {
     });
   }
 
+  void setAsDefault() {
+    String msg = "'${widget.company.name}' is already the default company!";
+    if (App.company != widget.company) {
+      App.company = widget.company;
+      App.rememberCompany(widget.company.id);
+      msg = "'${widget.company.name}' is now the Default Company!";
+    }
+    notifyUpdate(context, "Default Company", msg);
+  }
+
+  @override
+  void deleteDocument(BuildContext context) {
+    printLog("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
+    widget.company.delete();
+    if (widget.onDelete != null) widget.onDelete!();
+    popDocument(context);
+  }
+
+  @override
+  void popDocument(BuildContext context) {
+    printLog("Popping Document");
+    Navigator.pop(context, true);
+    if (widget.onPop != null) widget.onPop!();
+  }
+
   void onNameChange() => onFieldChange(<bool>() {
     return controllers['name']!.text != widget.company.name;
   });
 
-  // TODO: Implement document pop function.
-  Future<bool?> _showBackDialog(BuildContext context) {
+  Future<bool?> confirmDelete(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete '${widget.company.name}'?"),
+          content: const Text("Are you sure you want to delete this Company?"),
+          actions: <Widget>[
+            AvertButton(
+              name: "Yes", 
+              onPressed: () {
+                Navigator.pop(context);
+                //deleteDocument(context);
+              }
+            ),
+            AvertButton(
+              name: "No", 
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool?> confirmPop(BuildContext context) {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -207,10 +265,11 @@ class _CompanyScreenState extends State<CompanyScreen> {
               style: TextButton.styleFrom(
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
-              child: const Text("Leave"),
               onPressed: () {
-                Navigator.pop(context, true);
+                Navigator.pop(context);
+                //popDocument(context);
               },
+              child: const Text("Leave"),
             ),
           ],
         );
@@ -218,7 +277,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
     );
   }
 
-
+  @override
   Future<void> saveDocument() async {
     if (!key.currentState!.validate()) {
       return;

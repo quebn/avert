@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
       onTap: (int index) {
-        setState(() {currentIndex = index;});
+        setState(() => currentIndex = index);
       },
       showUnselectedLabels: true,
       currentIndex: currentIndex,
@@ -90,12 +90,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TextButton(
             onPressed: () {
-              App.company = Company();
               printLog("Redirecting to Company Creation Page.");
+              Company c = Company();
               Navigator.push(context,
                 MaterialPageRoute(
-                  builder: (context) => CompanyScreen(
-                    company: App.company!,
+                  builder: (context) => CompanyView(
+                    company: c,
+                    onCreate: () => setState(() => App.company = c),
                   ),
                 )
               );
@@ -122,11 +123,27 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   Widget appBar() => SliverAppBar(
-    title: Text(App.company!.name,
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.w900,
-        fontSize: 24,
+    title: TextButton(
+      onPressed: () { 
+        printLog("Viewing Current Company!");
+        Navigator.push(context,
+          // TODO: find way to update to home screen when a company is edited.
+          // - like the name that is displayed.
+          MaterialPageRoute(
+            builder: (context) => CompanyView(
+              company: App.company!,
+              onDelete: () => setState(() => App.company == null),
+              onSave: (){},
+            ),
+          )
+        );
+      },
+      child: Text(App.company!.name,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+          fontSize: 24,
+        ),
       ),
     ),
     actions: [

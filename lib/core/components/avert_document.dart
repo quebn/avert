@@ -12,6 +12,7 @@ class AvertDocument extends StatelessWidget {
     this.leading,
     this.onPop,
     this.actions,
+    this.isDirty = true,
   });
 
   final String title;
@@ -23,6 +24,7 @@ class AvertDocument extends StatelessWidget {
   final Widget? leading;
   final List<Widget>? actions;
   final void Function(bool, Object?)? onPop;
+  final bool isDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,7 @@ class AvertDocument extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Form(
-          canPop: false,
+          canPop: !isDirty,
           onPopInvokedWithResult: onPop,
           key: formKey,
           child: Padding(

@@ -40,10 +40,22 @@ class User implements Document {
       createdAt INTEGER NOT NULL
     )
   """;
-  
+
   @override
-  Widget viewDocument() {
-    // TODO: implement viewDetails
+  Future<bool> delete() {
+    // TODO: implement delete
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> insert() {
+    // TODO: implement insert
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> update() {
+    // TODO: implement update
     throw UnimplementedError();
   }
 }

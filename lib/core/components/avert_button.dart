@@ -8,8 +8,8 @@ class AvertButton extends StatelessWidget {
     this.fontSize = 16, 
     this.xMargin = 0, 
     this.yMargin = 0, 
-    this.xPadding = 0, 
-    this.yPadding = 0, 
+    this.xPadding = 8, 
+    this.yPadding = 8, 
     this.bgColor,
     this.fgColor,
   });
@@ -27,6 +27,7 @@ class AvertButton extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: xMargin, vertical: yMargin),
       child:  FilledButton(
         style:  FilledButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: xPadding, vertical: yPadding),
           backgroundColor: bgColor,
           foregroundColor: fgColor,
           shape: RoundedRectangleBorder(
@@ -34,15 +35,12 @@ class AvertButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed, 
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: xPadding, vertical: yPadding),
-          child: Text(name,
+        child: Text(name,
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
-        ),
       )
     );
   }

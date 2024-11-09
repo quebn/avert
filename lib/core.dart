@@ -28,5 +28,13 @@ abstract class Document {
   String name;
   DateTime createdAt;
 
-  Widget viewDocument();
+  Future<bool> update();
+  Future<bool> insert();
+  Future<bool> delete();
+}
+
+abstract class DocumentView {
+  void saveDocument();
+  void deleteDocument(BuildContext context);
+  void popDocument(BuildContext context);
 }
