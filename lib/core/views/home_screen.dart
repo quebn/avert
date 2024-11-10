@@ -93,9 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     company: c,
                     onCreate: () => setState(() => App.company = c),
                     onDelete: () => setState(() => App.company = null),
-                    onPop: () {
-                      printDebug("hello from home!");
-                    }
+                    // IMPORTANT: handle this event.
+                    onSave: () {},
                   ),
                 )
               );
@@ -130,9 +129,10 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => CompanyView(
               company: App.company!,
               onDelete: () => setState(() => App.company = null),
-              onSave: () {},
+              // IMPORTANT: handle this event.
               // TODO: find way to update to home screen when a company is edited.
               // - like the name that is displayed.
+              onSave: () {},
             ),
           )
         );

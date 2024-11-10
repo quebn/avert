@@ -27,13 +27,24 @@ class Company implements Document {
     )
   """;
 
-  bool valuesNotValid() {
-    return name.isEmpty;
+  Future<bool> valuesNotValid() async {
+    bool hasDuplicates = await checkIfExist();
+    return name.isEmpty || hasDuplicates;
   }
 
+  Future<bool> checkIfExist() async {
+    List<Map<String, Object?>> values = await App.database!.query("companies",
+      columns: ["id"],
+      where: "name = ?",
+      whereArgs: [name],
+    );
+    return values.isNotEmpty;
+  }
+
+  // TODO: make insert return a message on success and failure.
   @override
   Future<bool> update() async {
-    if (valuesNotValid()) return false;
+    if (await valuesNotValid() ) return false;
     Map<String, Object?> values = {
       "name": name,
     };
@@ -45,13 +56,14 @@ class Company implements Document {
     return r == 1;
   }
 
+  // TODO: make insert return a message on success and failure.
   @override
   Future<bool> insert() async {
     if (id > 0) {
-      printLog("Document is already inserted with id of '$id'");
+      printLog("Document is should already be in database with id of '$id'");
       return false;
     }
-    if (valuesNotValid()) return false;
+    if (await valuesNotValid()) return false;
     int now = DateTime.now().millisecondsSinceEpoch;
     Map<String, Object?> values = {
       "name": name,
@@ -193,7 +205,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
       App.rememberCompany(widget.company.id);
       msg = "'${widget.company.name}' is now the Default Company!";
     }
-    notifyUpdate("Default Company", msg);
+    notifyUpdate("Default Company", msg, true);
   }
 
   Future<bool?> confirmDelete() {
@@ -222,11 +234,11 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     );
   }
 
-  Future<bool?> notifyUpdate(String title, String msg) {
+  Future<bool?> notifyUpdate(String title, String msg, bool dismissible) {
     // TODO: make title or anything in the dialog change color depending on the results.
     return showDialog<bool>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: dismissible,
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
         content: Center(
@@ -262,7 +274,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
       if (widget.onDelete != null) widget.onDelete!();
       const String title = "Company Deleted";
       final String msg = "'${widget.company.name}' is deleted successfully!";
-      final bool shouldPop = await notifyUpdate(title, msg) ?? true;
+      final bool shouldPop = await notifyUpdate(title, msg, true) ?? true;
 
       if (shouldPop && mounted) {
         Navigator.maybePop(context);
@@ -330,6 +342,9 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     if (!isValid) {
       return;
     }
+
+    FocusScope.of(context).requestFocus(FocusNode());
+
     Company company = widget.company;
     company.name = controllers['name']!.value.text;
     String title = "Operation Failed!", msg = "Error writing the document to the database!";
@@ -348,11 +363,12 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
         msg = "Successfully changed company details";
       }
     }
-    final bool shouldUpdate = await notifyUpdate(title, msg) ?? false;
+    final bool shouldUpdate = await notifyUpdate(title, msg, true) ?? true;
     if (shouldUpdate) {
       setState(() {
-          isNew = formStatus;
+          // TEST: the double assigment maybe causing the the document to build twice.
           isDirty = false;
+          isNew = formStatus;
       });
     }
   }
