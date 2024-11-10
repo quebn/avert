@@ -17,6 +17,13 @@ enum LogLevel {
 // White:   \x1B[37m
 // Reset:   \x1B[0m
 
+void printTrack(String text) {
+  // Cyan:    \x1B[36m
+  debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
+  debugPrint("\x1B[36m [Track]: $text\x1B[0m");
+  debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
+}
+
 void printLog(String text) {
   // Green:   \x1B[32m
   debugPrint("\x1B[32m [LOG]: $text\x1B[0m");
@@ -33,7 +40,7 @@ void printError(String text) {
 }
 
 void printSuccess(String text) {
-  // Cyan:    \x1B[36m
+  // Cyan:    \x1B[34m
   debugPrint("\x1B[36m [SUCCESS]: $text\x1B[0m");
 }
 

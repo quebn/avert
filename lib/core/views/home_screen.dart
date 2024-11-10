@@ -16,9 +16,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // BUG: returning from company creation. doesnt update the HomeScreen Display.
-    // App.company!.deleteByID();
-    // App.company = null;
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
     printDebug("Building HomeScreen");
     if (App.company == null) {
@@ -42,9 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bottomNavigationBar: BottomNavigationBar(
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
-      onTap: (int index) {
-        setState(() => currentIndex = index);
-      },
+      onTap: (int index) => setState(() => currentIndex = index),
       showUnselectedLabels: true,
       currentIndex: currentIndex,
       items: const [
@@ -97,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => CompanyView(
                     company: c,
                     onCreate: () => setState(() => App.company = c),
+                    onDelete: () => setState(() => App.company = null),
                     onPop: () {
                       printDebug("hello from home!");
                     }
@@ -134,9 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => CompanyView(
               company: App.company!,
               onDelete: () => setState(() => App.company = null),
+              onSave: () {},
               // TODO: find way to update to home screen when a company is edited.
               // - like the name that is displayed.
-              onSave: (){},
             ),
           )
         );

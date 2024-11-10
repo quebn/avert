@@ -108,11 +108,9 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
   @override
   void initState() {
     super.initState();
+    setFieldValues();
     controllers['name']!.addListener(onNameChange);
     isNew = formStatus;
-    if(!isNew) {
-      setFieldValues();
-    }
   }
 
   @override
@@ -182,6 +180,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     if (isReallyDirty == isDirty) {
       return;
     }
+    printTrack("Setting state of is dirty = $isReallyDirty");
     setState(() {
       isDirty = isReallyDirty;
     });
@@ -239,7 +238,6 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
             name: "Close",
             onPressed: () {
               Navigator.pop(context, true);
-              setState(() => isNew = formStatus);
             }
           ),
         ]
@@ -328,7 +326,8 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
 
   @override
   Future<void> saveDocument() async {
-    if (!key.currentState!.validate()) {
+    final bool isValid = key.currentState?.validate() ?? false;
+    if (!isValid) {
       return;
     }
     Company company = widget.company;
@@ -349,9 +348,12 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
         msg = "Successfully changed company details";
       }
     }
-    if (mounted) {
-      notifyUpdate(title, msg);
+    final bool shouldUpdate = await notifyUpdate(title, msg) ?? false;
+    if (shouldUpdate) {
+      setState(() {
+          isNew = formStatus;
+          isDirty = false;
+      });
     }
   }
-
 }

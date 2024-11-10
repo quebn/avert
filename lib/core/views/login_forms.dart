@@ -110,8 +110,8 @@ class _LoginFormState extends State<LoginForm> {
 
   Future<void> authenticateUser() async {
     printDebug("Logging in!");
-    if (!key.currentState!.validate()) {
-      printDebug("Input field values are wrong", level: LogLevel.error);
+    final bool isValid = key.currentState?.validate() ?? false;
+    if (!isValid) {
       return;
     }
     String username = controllers['username']!.value.text;
@@ -261,8 +261,8 @@ class _SignUpFormState extends State<SignUpForm> {
   }
   
   Future<void> registerUser() async {
-    if (!key.currentState!.validate()) {
-      printDebug("WRONG!", level: LogLevel.error);
+    final bool isValid = key.currentState?.validate() ?? false;
+    if (!isValid) {
       return;
     }
     String username = controllers['username']!.value.text;
