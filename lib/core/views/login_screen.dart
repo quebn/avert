@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
   
   Widget get form {
-    printLog("printing bools: signup:$signup, App.Data.hasUsers${App.hasUsers}");
+    printDebug("printing bools: signup:$signup, App.Data.hasUsers${App.hasUsers}");
     if (signup) {
       return SignUpForm(title: widget.title, setLoginForm:loginForm);
     }
@@ -75,12 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void loginForm() {
-    printLog("Going to Login Form");
+    printDebug("Going to Login Form");
     setState(() => signup = false);
   }
 
   void signupForm() {
-    printLog("Going to SignUp Form");
+    printDebug("Going to SignUp Form");
     setState(() => signup = true);
   }
 }

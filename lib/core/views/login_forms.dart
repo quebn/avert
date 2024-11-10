@@ -109,14 +109,14 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> authenticateUser() async {
-    printLog("Logging in!");
+    printDebug("Logging in!");
     if (!key.currentState!.validate()) {
-      printLog("Input field values are wrong", level: LogLevel.error);
+      printDebug("Input field values are wrong", level: LogLevel.error);
       return;
     }
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
-    printLog("Validating the ff. values -> Username: $username | Password: $password");
+    printDebug("Validating the ff. values -> Username: $username | Password: $password");
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
     
@@ -262,7 +262,7 @@ class _SignUpFormState extends State<SignUpForm> {
   
   Future<void> registerUser() async {
     if (!key.currentState!.validate()) {
-      printLog("WRONG!", level: LogLevel.error);
+      printDebug("WRONG!", level: LogLevel.error);
       return;
     }
     String username = controllers['username']!.value.text;
@@ -277,21 +277,21 @@ class _SignUpFormState extends State<SignUpForm> {
       setState(() {
          userErrMsg = "Username '$username' already exists!";
       });
-      printLog(userErrMsg!, level:LogLevel.error);
+      printDebug(userErrMsg!, level:LogLevel.error);
       return;
     }
     printAssert(results.isEmpty, "Username $username already exist in database where it should'nt dumping userdata: ${results.toString()}");
-    printLog("Preparing Creating user.....");
+    printDebug("Preparing Creating user.....");
     int? status = await createUser(username, password);
     printAssert(status != 0 ,"insert finished with response code of [$status]");
-    printLog("insert finished with response code of [$status]", level: LogLevel.warn);
+    printDebug("insert finished with response code of [$status]", level: LogLevel.warn);
     final String t = "User '$username' created!";
     final String m = "User '$username' has been successfully created would you like to go to Login form?";
     notifyUserCreation(t, m);
   }
 
   Future<int?> createUser(String username, String password) async {
-    printLog("Actually Creating user...");
+    printDebug("Actually Creating user...");
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
     var values = {
@@ -299,7 +299,7 @@ class _SignUpFormState extends State<SignUpForm> {
       "password"  : digest.toString(),
       "createdAt" : DateTime.now().millisecondsSinceEpoch,
     };
-    printLog("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
+    printDebug("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
     return await App.database?.insert("users", values);
   }
 
@@ -318,7 +318,7 @@ class _SignUpFormState extends State<SignUpForm> {
             name: "No",
             onPressed: (){
               Navigator.pop(context);
-              printLog("Pressed No");
+              printDebug("Pressed No");
             },
           ),
           AvertButton(
@@ -326,7 +326,7 @@ class _SignUpFormState extends State<SignUpForm> {
             onPressed: (){
               Navigator.pop(context);
               widget.setLoginForm();
-              printLog("Pressed Yes");
+              printDebug("Pressed Yes");
             },
           ),
         ]

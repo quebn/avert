@@ -20,11 +20,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // App.company!.deleteByID();
     // App.company = null;
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
-    printLog("Building HomeScreen");
+    printDebug("Building HomeScreen");
     if (App.company == null) {
       return noCompanyDisplay();
     }
-    printLog("name: ${App.company!.name}");
+    printDebug("name: ${App.company!.name}");
     printAssert(App.company != null, "Company null!!!!!!");
     return mainDisplay();
   }
@@ -90,13 +90,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TextButton(
             onPressed: () {
-              printLog("Redirecting to Company Creation Page.");
+              printDebug("Redirecting to Company Creation Page.");
               Company c = Company();
               Navigator.push(context,
                 MaterialPageRoute(
                   builder: (context) => CompanyView(
                     company: c,
                     onCreate: () => setState(() => App.company = c),
+                    onPop: () {
+                      printDebug("hello from home!");
+                    }
                   ),
                 )
               );
@@ -125,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget appBar() => SliverAppBar(
     title: TextButton(
       onPressed: () { 
-        printLog("Viewing Current Company!");
+        printDebug("Viewing Current Company!");
         Navigator.push(context,
           // TODO: find way to update to home screen when a company is edited.
           // - like the name that is displayed.
@@ -151,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.only(right:16),
         icon: const Icon(Icons.notifications_rounded),
         iconSize: 30,
-        onPressed: () => printLog("Pressed Notification Button!"),
+        onPressed: () => printDebug("Pressed Notification Button!"),
         //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       Padding(
@@ -161,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
             radius: 24,
             backgroundColor: Colors.white,
           ),
-          onTap: () => printLog("Pressed Profile Picture."),
+          onTap: () => printDebug("Pressed Profile Picture."),
         ),
       ),
     ],

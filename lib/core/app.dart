@@ -54,7 +54,7 @@ class App extends StatelessWidget {
       onCreate: _onCreate,
       onOpen: _onOpen,
     );
-    printLog("After opening of Database Path:${database?.path}", level:LogLevel.warn);
+    printDebug("After opening of Database Path:${database?.path}", level:LogLevel.warn);
   }
 
   // NOTE: use the directory created as a storage for backup files.
@@ -65,26 +65,26 @@ class App extends StatelessWidget {
     const String path = "/storage/emulated/0/Avert";
     var status = await Permission.manageExternalStorage.request();
     if (status.isDenied) {
-      printLog("Storage access permission denied!", level: LogLevel.error);
+      printDebug("Storage access permission denied!", level: LogLevel.error);
     } else {
-      printLog("Storage access permission granted!");
+      printDebug("Storage access permission granted!");
     }
     Directory dir = await Directory(path).create(recursive: true);
-    printLog("Avert Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
+    printDebug("Avert Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
     return status.isDenied;
   }
 
   static void rememberUser(int userID, bool rememberLogin) {
     final SharedPreferencesAsync cachedPrefs = SharedPreferencesAsync();
     cachedPrefs.setInt("user_id", userID).then((r) {
-      printLog("user_id set with value of: $userID");
+      printDebug("user_id set with value of: $userID");
     });
   }
 
   static void rememberCompany(int companyID) {
     final SharedPreferencesAsync cachedPrefs = SharedPreferencesAsync();
     cachedPrefs.setInt("company_id", companyID).then((r) {
-      printLog("company_id set with values of: $companyID");
+      printDebug("company_id set with values of: $companyID");
     });
   }
   
@@ -119,12 +119,12 @@ class App extends StatelessWidget {
         );
       }
     }
-    printLog("${companies.length} companies found! with values of ${companies.toString()}");
+    printDebug("${companies.length} companies found! with values of ${companies.toString()}");
   }
 }
 
 _onCreate(Database db, int version) async {
-  printLog("Creating Database tables");
+  printDebug("Creating Database tables");
   Batch batch = db.batch();
   batch.execute(User.getTableQuery());
   batch.execute(Company.getTableQuery());
@@ -134,7 +134,7 @@ _onCreate(Database db, int version) async {
 }
 
 _onOpen(Database db) async {
-  printLog("Opening Database tables");
+  printDebug("Opening Database tables");
   final SharedPreferencesWithCache cachedPrefs = await SharedPreferencesWithCache.create(
     cacheOptions: const SharedPreferencesWithCacheOptions(
       allowList: <String>{"user_id", "company_id"},
@@ -146,7 +146,7 @@ _onOpen(Database db) async {
     columns: ["id", "name", "createdAt",],// "password", ],
   );
   App.hasUsers = users.isNotEmpty;
-  printLog("${users.length} user(s) found! with values of ${users.toString()}");
+  printDebug("${users.length} user(s) found! with values of ${users.toString()}");
 
   int companyID = cachedPrefs.getInt("company_id") ?? 0;
   await App.loadCompany(companyID, db);

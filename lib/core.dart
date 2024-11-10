@@ -36,5 +36,5 @@ abstract class Document {
 abstract class DocumentView {
   void saveDocument();
   void deleteDocument(BuildContext context);
-  void popDocument(BuildContext context);
+  Future<void> popDocument(bool didPop, Object? value);
 }

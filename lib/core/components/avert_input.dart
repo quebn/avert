@@ -155,9 +155,9 @@ class _InputState extends State<AvertInput> {
   );
 
   String? validate(String? value) {
-    printLog("validating value: $value");
+    printDebug("validating value: $value");
     if (widget.required && (value == null || value.isEmpty)) {
-      printLog("Required non empty field of ${widget.name}");
+      printDebug("Required non empty field of ${widget.name}");
       return "${widget.name} is required!";
     }
     return widget.validator == null ? null : widget.validator!(value);

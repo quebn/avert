@@ -37,7 +37,7 @@ class Company implements Document {
     Map<String, Object?> values = {
       "name": name,
     };
-    printLog("update with values of: ${values.toString()} of company with id of: $id!", level: LogLevel.warn);
+    printWarn("update with values of: ${values.toString()} of company with id of: $id!");
     int r = await App.database!.update("companies", values,
       where: "id = ?",
       whereArgs: [id],
@@ -58,18 +58,19 @@ class Company implements Document {
       "name": name,
       "createdAt": now,
     };
-    printLog("creating company with values of: ${values.toString()}", level: LogLevel.warn);
+    printWarn("creating company with values of: ${values.toString()}");
     id = await App.database!.insert("companies", values);
-    printLog("company created with id of $id", level: LogLevel.warn);
+    printWarn("company created with id of $id");
     return id != 0;
   }
   
   @override
   Future<bool> delete() async {
-    return await App.database!.delete("companies",
+    int result =  await App.database!.delete("companies",
       where: "id = ?",
       whereArgs: [id],
-    ) == id;
+    );
+    return result == id;
   }
 }
 
@@ -123,16 +124,14 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     }
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    printLog("Building Company Document", level: LogLevel.warn);
+    printWarn("Building Company Document");
     printLog("company.id = ${widget.company.id}");
     return AvertDocument(
       isDirty: isDirty,
-      onPop: (didPop, result){
-        confirmPop(context);
-      }, 
+      onPop: popDocument,
       yPadding: 16,
       xPadding: 16,
       actions: isNew ? null :  [
@@ -150,17 +149,17 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: IconButton(
             iconSize: 32,
-            onPressed: () => confirmDelete(context),
+            onPressed: () => confirmDelete(),
             icon: const Icon(Icons.delete_rounded,
             ),
           ),
         ),
       ],
-      floationActionButton: isDirty ? IconButton.filled(
+      floationActionButton: !isDirty ? null :IconButton.filled(
         onPressed: saveDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
-      ) : null,
+      ),
       formKey: key,
       title: isNew ? "New Company" : widget.company.name,
       widgetsBody: [
@@ -177,6 +176,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
   void setFieldValues() {
     controllers['name']!.text = widget.company.name;
   }
+
 
   void onFieldChange(Function<bool>() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
@@ -200,24 +200,30 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
 
   @override
   void deleteDocument(BuildContext context) {
-    printLog("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
+    printWarn("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
     widget.company.delete();
     if (widget.onDelete != null) widget.onDelete!();
-    popDocument(context);
+    //popDocument();
   }
 
   @override
-  void popDocument(BuildContext context) {
-    printLog("Popping Document");
-    Navigator.pop(context, true);
-    if (widget.onPop != null) widget.onPop!();
+  Future<void> popDocument(bool didPop, Object? result) async {
+    printLog("didPop: $didPop and result: $result");
+    if (didPop) {
+      return;
+    }
+    final bool shouldPop = await confirmPop() ?? false;
+    if (shouldPop && mounted) {
+      Navigator.pop(context);
+      if (widget.onPop != null) widget.onPop!();
+    }
   }
 
   void onNameChange() => onFieldChange(<bool>() {
     return controllers['name']!.text != widget.company.name;
   });
 
-  Future<bool?> confirmDelete(BuildContext context) {
+  Future<bool?> confirmDelete() {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -228,14 +234,14 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
             AvertButton(
               name: "Yes", 
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context, true);
                 //deleteDocument(context);
               }
             ),
             AvertButton(
               name: "No", 
               onPressed: () {
-                Navigator.pop(context, true);
+                Navigator.pop(context, false);
               },
             ),
           ],
@@ -244,7 +250,8 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     );
   }
 
-  Future<bool?> confirmPop(BuildContext context) {
+  Future<bool?> confirmPop() {
+    printWarn("showing pop confirmation dialog");
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -266,7 +273,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context, true);
                 //popDocument(context);
               },
               child: const Text("Leave"),
