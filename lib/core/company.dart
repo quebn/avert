@@ -48,7 +48,6 @@ class Company implements Document {
   @override
   Future<bool> insert() async {
     if (id > 0) {
-      // TODO: maybe have a prompt for this.
       printLog("Document is already inserted with id of '$id'");
       return false;
     }
@@ -63,7 +62,7 @@ class Company implements Document {
     printWarn("company created with id of $id");
     return id != 0;
   }
-  
+
   @override
   Future<bool> delete() async {
     int result =  await App.database!.delete("companies",
@@ -82,7 +81,7 @@ class CompanyView extends StatefulWidget {
     required this.company,
     this.onCreate,
     this.onSave,
-    this.onSubmit, 
+    this.onSubmit,
     this.onDelete,
     this.onPop
   });
@@ -90,7 +89,7 @@ class CompanyView extends StatefulWidget {
   final Company company;
   // NOTE: onDelete executes after the company is deleted in db.
   final VoidCallback? onCreate, onSave, onSubmit, onDelete, onPop;
-  
+
   @override
   State<StatefulWidget> createState() => _CompanyViewState();
 }
@@ -149,7 +148,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: IconButton(
             iconSize: 32,
-            onPressed: () => confirmDelete(),
+            onPressed: deleteDocument,
             icon: const Icon(Icons.delete_rounded,
             ),
           ),
@@ -195,33 +194,8 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
       App.rememberCompany(widget.company.id);
       msg = "'${widget.company.name}' is now the Default Company!";
     }
-    notifyUpdate(context, "Default Company", msg);
+    notifyUpdate("Default Company", msg);
   }
-
-  @override
-  void deleteDocument(BuildContext context) {
-    printWarn("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
-    widget.company.delete();
-    if (widget.onDelete != null) widget.onDelete!();
-    //popDocument();
-  }
-
-  @override
-  Future<void> popDocument(bool didPop, Object? result) async {
-    printLog("didPop: $didPop and result: $result");
-    if (didPop) {
-      return;
-    }
-    final bool shouldPop = await confirmPop() ?? false;
-    if (shouldPop && mounted) {
-      Navigator.pop(context);
-      if (widget.onPop != null) widget.onPop!();
-    }
-  }
-
-  void onNameChange() => onFieldChange(<bool>() {
-    return controllers['name']!.text != widget.company.name;
-  });
 
   Future<bool?> confirmDelete() {
     return showDialog<bool>(
@@ -232,14 +206,13 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
           content: const Text("Are you sure you want to delete this Company?"),
           actions: <Widget>[
             AvertButton(
-              name: "Yes", 
+              name: "Yes",
               onPressed: () {
                 Navigator.pop(context, true);
-                //deleteDocument(context);
               }
             ),
             AvertButton(
-              name: "No", 
+              name: "No",
               onPressed: () {
                 Navigator.pop(context, false);
               },
@@ -249,6 +222,75 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
       },
     );
   }
+
+  Future<bool?> notifyUpdate(String title, String msg) {
+    // TODO: make title or anything in the dialog change color depending on the results.
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(title),
+        content: Center(
+          heightFactor: 1,
+          child: Text(msg),
+        ),
+        actions: [
+          AvertButton(
+            name: "Close",
+            onPressed: () {
+              Navigator.pop(context, true);
+              setState(() => isNew = formStatus);
+            }
+          ),
+        ]
+      ),
+    );
+  }
+
+  @override
+  Future<void> deleteDocument() async {
+    final bool shouldDelete = await confirmDelete() ?? false;
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    final bool success = await widget.company.delete();
+    printWarn("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
+    printLog("success bool: $success");
+
+    if (success) {
+      printWarn("inside success block");
+      if (widget.onDelete != null) widget.onDelete!();
+      const String title = "Company Deleted";
+      final String msg = "'${widget.company.name}' is deleted successfully!";
+      final bool shouldPop = await notifyUpdate(title, msg) ?? true;
+
+      if (shouldPop && mounted) {
+        Navigator.maybePop(context);
+        if (widget.onPop != null) widget.onPop!();
+      }
+    }
+  }
+
+  @override
+  Future<void> popDocument(bool didPop, Object? result) async {
+    printLog("didPop: $didPop and result: $result");
+    if (didPop) {
+      printLog("did pop scope!");
+      return;
+    }
+
+    final bool shouldPop = await confirmPop() ?? false;
+    if (shouldPop && mounted) {
+      Navigator.pop(context);
+      if (widget.onPop != null) widget.onPop!();
+    }
+  }
+
+  void onNameChange() => onFieldChange(<bool>() {
+    return controllers['name']!.text != widget.company.name;
+  });
 
   Future<bool?> confirmPop() {
     printWarn("showing pop confirmation dialog");
@@ -289,51 +331,27 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     if (!key.currentState!.validate()) {
       return;
     }
-    widget.company.name = controllers['name']!.value.text;
+    Company company = widget.company;
+    company.name = controllers['name']!.value.text;
     String title = "Operation Failed!", msg = "Error writing the document to the database!";
     if (isNew) {
-      bool success =  await widget.company.insert();
-      printLog("id after widget.company: ${widget.company.id}");
-      if (widget.onCreate != null) {
-        widget.onCreate!();
-      }
+      bool success =  await company.insert();
+      printLog("id after company: ${company.id}");
+      if (widget.onCreate != null) widget.onCreate!();
       if (success) {
         title = "New Company Created!";
-        msg = "Company '${widget.company.name}' is successfully created!";
+        msg = "Company '${company.name}' is successfully created!";
       }
     } else {
-      bool success = await widget.company.update();
+      bool success = await company.update();
       if (success){
         title = "Changes Saved!";
         msg = "Successfully changed company details";
       }
     }
     if (mounted) {
-      notifyUpdate(context, title, msg);
+      notifyUpdate(title, msg);
     }
   }
-  
-  Future<void> notifyUpdate(BuildContext context, String title, String msg) {
-    // TODO: make title or anything in the dialog change color depending on the results.
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(title),
-        content: Center(
-          heightFactor: 1,
-          child: Text(msg),
-        ),
-        actions: [
-          AvertButton(
-            name: "Close",
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() => isNew = formStatus);
-            }
-          ),
-        ]
-      ),
-    );
-  }
+
 }

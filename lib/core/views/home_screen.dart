@@ -130,12 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () { 
         printDebug("Viewing Current Company!");
         Navigator.push(context,
-          // TODO: find way to update to home screen when a company is edited.
-          // - like the name that is displayed.
           MaterialPageRoute(
             builder: (context) => CompanyView(
               company: App.company!,
-              onDelete: () => setState(() => App.company == null),
+              onDelete: () => setState(() => App.company = null),
+              // TODO: find way to update to home screen when a company is edited.
+              // - like the name that is displayed.
               onSave: (){},
             ),
           )
