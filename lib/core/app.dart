@@ -13,7 +13,6 @@ class App extends StatelessWidget {
   final String title = "Avert";
 
   // TODO: let utils handle the access and write of these static data.
-  // static AvertData;
   static Database? database;
   static bool hasUsers = false;
   static User? user;

@@ -359,14 +359,15 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     } else {
       bool success = await company.update();
       if (success){
+        if (widget.onSave != null) widget.onSave!();
         title = "Changes Saved!";
         msg = "Successfully changed company details";
       }
     }
+
     final bool shouldUpdate = await notifyUpdate(title, msg, true) ?? true;
     if (shouldUpdate) {
       setState(() {
-          // TEST: the double assigment maybe causing the the document to build twice.
           isDirty = false;
           isNew = formStatus;
       });

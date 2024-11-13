@@ -27,6 +27,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget mainDisplay() => Scaffold(
+    endDrawer: Drawer(
+      width: 200,
+      child: ListView(
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.black,
+            ),
+            child: Text(App.user!.name),
+          ),
+        ]
+      )
+    ),
     drawer: Drawer(
       width: 200,
     ),
@@ -63,8 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     ),
   );
-  
-  
+
   Widget noCompanyDisplay() => Scaffold(
     body: Container(
       width: MediaQuery.sizeOf(context).width,
@@ -86,15 +98,14 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () {
               printDebug("Redirecting to Company Creation Page.");
-              Company c = Company();
+              Company company = Company();
               Navigator.push(context,
                 MaterialPageRoute(
                   builder: (context) => CompanyView(
-                    company: c,
-                    onCreate: () => setState(() => App.company = c),
+                    company: company,
+                    onCreate: () => setState(() => App.company = company),
                     onDelete: () => setState(() => App.company = null),
-                    // IMPORTANT: handle this event.
-                    onSave: () {},
+                    onSave: () => setState(() {}),
                   ),
                 )
               );
@@ -129,10 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => CompanyView(
               company: App.company!,
               onDelete: () => setState(() => App.company = null),
-              // IMPORTANT: handle this event.
-              // TODO: find way to update to home screen when a company is edited.
-              // - like the name that is displayed.
-              onSave: () {},
+              onSave: () => setState(() {}),
             ),
           )
         );
@@ -153,15 +161,17 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () => printDebug("Pressed Notification Button!"),
         //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
-      Padding(
-        padding: const EdgeInsets.only(right:16),
-        child: GestureDetector(
-          child: CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.white,
-          ),
-          onTap: () => printDebug("Pressed Profile Picture."),
-        ),
+      Builder(
+        builder: (BuildContext context) {
+          return IconButton(
+            padding: const EdgeInsets.only(right: 16),
+            icon: const CircleAvatar(
+              backgroundColor: Colors.white,
+            ),
+            iconSize: 36,
+            onPressed: () => Scaffold.of(context).openEndDrawer(),
+          );
+        },
       ),
     ],
     excludeHeaderSemantics: true,
