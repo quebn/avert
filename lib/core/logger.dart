@@ -40,8 +40,8 @@ void printError(String text) {
 }
 
 void printSuccess(String text) {
-  // Cyan:    \x1B[34m
-  debugPrint("\x1B[36m [SUCCESS]: $text\x1B[0m");
+  // Blue:    \x1B[34m
+  debugPrint("\x1B[34m [SUCCESS]: $text\x1B[0m");
 }
 
 void printDebug(String text, {LogLevel level = LogLevel.log}) {
@@ -65,6 +65,6 @@ void printDebug(String text, {LogLevel level = LogLevel.log}) {
 // TODO: turn this into a proper assert that exits or freezes the app when on assert.
 void printAssert(bool assertCondition, String errMsg) {
   if (!assertCondition) {
-    printDebug("[ASSERTION FAILED]: $errMsg", level: LogLevel.error);
+    printError("[ASSERTION FAILED]: $errMsg");
   }
 }

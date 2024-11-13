@@ -1,3 +1,4 @@
+import "package:avert/core/views/home_title.dart";
 import "package:flutter/material.dart";
 import "package:avert/core.dart";
 
@@ -17,31 +18,56 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     printAssert(App.user != null, "User null, is not set where it should be through login or auto login.");
-    printDebug("Building HomeScreen");
+    printSuccess("Building HomeScreen");
     if (App.company == null) {
       return noCompanyDisplay();
     }
-    printDebug("name: ${App.company!.name}");
+    printLog("name: ${App.company!.name}");
     printAssert(App.company != null, "Company null!!!!!!");
     return mainDisplay();
   }
 
   Widget mainDisplay() => Scaffold(
     endDrawer: Drawer(
-      width: 200,
+      width: 250,
       child: ListView(
         children: [
           DrawerHeader(
+            margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.black,
             ),
-            child: Text(App.user!.name),
+            child: SizedBox(
+              height: 350,
+              child: Center(
+                child: Text(App.user!.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_circle),
+            title: const Text("Profile",
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            onTap: () { printLog("Open Profile Page.");}
+          ),
+          Divider(
+            height: 8,
+            thickness: 1,
           ),
         ]
       )
     ),
     drawer: Drawer(
-      width: 200,
+      width: 250,
     ),
     body: CustomScrollView(
       slivers: [
@@ -132,26 +158,8 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   Widget appBar() => SliverAppBar(
-    title: TextButton(
-      onPressed: () { 
-        printDebug("Viewing Current Company!");
-        Navigator.push(context,
-          MaterialPageRoute(
-            builder: (context) => CompanyView(
-              company: App.company!,
-              onDelete: () => setState(() => App.company = null),
-              onSave: () => setState(() {}),
-            ),
-          )
-        );
-      },
-      child: Text(App.company!.name,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w900,
-          fontSize: 24,
-        ),
-      ),
+    title: HomeTitle(
+      onDelete: () => setState(() => App.company = null),
     ),
     actions: [
       IconButton(

@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 export "package:avert/core/app.dart";
-export "package:avert/core/task.dart";
-export "package:avert/core/user.dart";
-export "package:avert/core/company.dart";
+export "package:avert/core/documents/task.dart";
+export "package:avert/core/documents/user.dart";
+export "package:avert/core/documents/company.dart";
 export "package:avert/core/utils.dart";
 
 // TODO: Figure out how to test stuffs.

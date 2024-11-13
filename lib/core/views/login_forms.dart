@@ -1,7 +1,7 @@
 import "package:avert/core/views/home_screen.dart";
 import "package:flutter/material.dart";
 import "package:avert/core/components.dart";
-import "package:avert/core/user.dart";
+import "package:avert/core/documents/user.dart";
 import "package:avert/core/app.dart";
 import "package:avert/core/utils.dart";
 import "package:crypto/crypto.dart";

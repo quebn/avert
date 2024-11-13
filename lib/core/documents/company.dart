@@ -136,7 +136,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
 
   @override
   Widget build(BuildContext context) {
-    printWarn("Building Company Document");
+    printSuccess("Building Company Document");
     printLog("company.id = ${widget.company.id}");
     return AvertDocument(
       isDirty: isDirty,

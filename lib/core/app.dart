@@ -24,8 +24,12 @@ class App extends StatelessWidget {
       title: title,
       //debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        dividerTheme: DividerThemeData(
+          indent: 8,
+          endIndent: 8,
+          color: Colors.grey,
+        ),
         appBarTheme: AppBarTheme(
-          //color: Colors.white,
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
         ),
