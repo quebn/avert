@@ -1,17 +1,25 @@
-import "package:flutter/material.dart";
-import "package:avert/core.dart";
+import "package:avert/core/core.dart";
 
 class HomeTitle extends StatefulWidget {
-  const HomeTitle({super.key, required this.onDelete});
+  const HomeTitle({super.key, required this.company, required this.onDelete});
 
+  final Company company;
   final void Function()? onDelete;
+
   @override
   State<StatefulWidget> createState() => _TitleState();
 }
 
 class _TitleState extends State<HomeTitle> {
 
-  String title = App.company!.name;
+  String title = "N/A";
+
+  @override
+  void initState() {
+      printTrack("initializing HomeTitle!");
+      super.initState();
+      title = widget.company.name;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +30,14 @@ class _TitleState extends State<HomeTitle> {
         Navigator.push(context,
           MaterialPageRoute(
             builder: (context) => CompanyView(
-              company: App.company!,
+              company: widget.company,
               onDelete: widget.onDelete,
-              onSave: () => setState(() => title = App.company!.name)
+              onSave: update,
             ),
           )
         );
       },
-      child: Text(App.company!.name,
+      child: Text(title,
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w900,
@@ -37,5 +45,9 @@ class _TitleState extends State<HomeTitle> {
         ),
       ),
     );
+  }
+
+  void update() {
+    setState(() => title = widget.company.name);
   }
 }

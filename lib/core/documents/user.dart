@@ -1,26 +1,19 @@
-import "package:flutter/material.dart";
-import "package:avert/core/utils.dart";
-import "package:avert/core.dart";
-import "package:sqflite/sqflite.dart";
+import "package:avert/core/core.dart";
+import "package:permission_handler/permission_handler.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class User implements Document {
   User({
-    required this.id, 
-    required this.name, 
-    required this.createdAt, 
+    required this.id,
+    required this.name,
+    required this.createdAt,
   });
 
-  User.login({
-    required Object id, 
-    required Object name, 
-    required Object createdAt, 
-  }):
-    id = id as int,
-    name = name as String,
-    createdAt =  DateTime.fromMillisecondsSinceEpoch(createdAt as int)
-  {
-    App.user = this;
-  }
+  User.fromQuery({
+    required Object id,
+    required Object name,
+    required Object createdAt,
+  }): id = id as int, name = name as String, createdAt =  DateTime.fromMillisecondsSinceEpoch(createdAt as int);
 
   @override
   int id;
@@ -31,7 +24,7 @@ class User implements Document {
   @override
   DateTime createdAt;
 
-  
+
   static String getTableQuery() => """
     CREATE TABLE users(
       id INTEGER PRIMARY KEY,
@@ -57,5 +50,10 @@ class User implements Document {
   Future<bool> update() {
     // TODO: implement update
     throw UnimplementedError();
+  }
+
+  void remember() {
+    final SharedPreferencesAsync sharedPrefs = SharedPreferencesAsync();
+    sharedPrefs.setInt("user_id", id);
   }
 }

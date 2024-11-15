@@ -1,5 +1,8 @@
 import "package:flutter/material.dart";
-export "package:avert/core/app.dart";
+import "package:sqflite/sqflite.dart";
+
+export "package:flutter/material.dart";
+export "package:sqflite/sqflite.dart";
 export "package:avert/core/documents/task.dart";
 export "package:avert/core/documents/user.dart";
 export "package:avert/core/documents/company.dart";
@@ -28,6 +31,7 @@ abstract class Document {
   String name;
   DateTime createdAt;
 
+  // TODO: make insert return a message on success and failure.
   Future<bool> update();
   Future<bool> insert();
   Future<bool> delete();
@@ -37,4 +41,8 @@ abstract class DocumentView {
   void saveDocument();
   Future<void> deleteDocument();
   Future<void> popDocument(bool didPop, Object? value);
+}
+
+class Core {
+  static Database? database;
 }

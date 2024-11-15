@@ -1,174 +1,24 @@
-import "package:avert/core/views/home_screen.dart";
-import "package:flutter/material.dart";
-import "package:avert/core/components.dart";
-import "package:avert/core/documents/user.dart";
-import "package:avert/core/app.dart";
-import "package:avert/core/utils.dart";
+import "package:avert/core/components/avert_input.dart";
+import "package:avert/core/components/avert_button.dart";
+import "package:avert/core/components/avert_link.dart";
+import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
-
-// NOTE: LOGIN FORM.
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key, required this.title, required this.setSignupForm});
-  
-  final String title;
-  final VoidCallback setSignupForm;
-
-  @override
-  State<StatefulWidget> createState() => _LoginFormState();
-}
-
-class _LoginFormState extends State<LoginForm> {
-
-  final GlobalKey<FormState> key = GlobalKey<FormState>();
-  final Map<String, TextEditingController> controllers = {
-    "username": TextEditingController(),
-    "password": TextEditingController(),
-  };
-
-  String? userErrMsg, passErrMsg;
-  bool rememberLogin = true;
-
-  @override
-  void dispose() {
-    for (TextEditingController controller in controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> widgets = <Widget>[
-      AvertInput.alphanumeric(
-        name: "Username", 
-        controller: controllers['username']!,
-        forceErrMsg: userErrMsg,
-        required: true,
-        onChanged: onChangeUsername,
-      ),
-      AvertInput.password(
-        controller: controllers['password']!,
-        forceErrMsg: passErrMsg,
-        onChanged: onChangePassword,
-      ),
-      AvertButton(
-        name:"Login",
-        fontSize: 18,
-        xMargin: 80,
-        yMargin: 8,
-        yPadding: 20,
-        onPressed: authenticateUser,
-      ),
-      AvertLink(
-        linkText: "Create a new user.",
-        linkSize: 16,
-        yMargin: 16,
-        onPressed: widget.setSignupForm,
-      ),
-    ];
-
-    return Form(
-      key:key,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 12.0,
-            ),
-            child: const Text( "LOGIN",
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              physics: ClampingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              children: widgets,
-            )
-          ),
-        ]
-      ),
-    );
-  }
-
-  void onChangeUsername(String? value) {
-    if (userErrMsg != null) {
-      setState(() => userErrMsg = null);
-    }
-  }
-
-  void onChangePassword(String? value) {
-    if (passErrMsg != null) {
-      setState(() => passErrMsg = null);
-    }
-  }
-
-  Future<void> authenticateUser() async {
-    printDebug("Logging in!");
-    final bool isValid = key.currentState?.validate() ?? false;
-    if (!isValid) {
-      return;
-    }
-    String username = controllers['username']!.value.text;
-    String password = controllers['password']!.value.text;
-    printDebug("Validating the ff. values -> Username: $username | Password: $password");
-    var bytes = utf8.encode(password);
-    Digest digest = sha256.convert(bytes);
-    
-    var result = await App.database!.query("users", 
-      columns: ["id", "name", "password", "createdAt"],
-      where:"name = ?",
-      whereArgs: [username],
-    );
-    
-    if (result.isEmpty) {
-      setState(() => userErrMsg = "Username '$username' does not exist!");
-      return;
-    }
-
-    for (Map<String, Object?> item in result) {
-      if (item['password'] == digest.toString() && mounted) {
-        User.login(
-          id: item['id']!,
-          name: item['name']!,
-          createdAt: item['createdAt']!,
-        );
-        // TODO: have a setting to check whether this function should be called or not.
-        App.rememberUser(item['id'] as int, rememberLogin);
-        Navigator.pop(context);
-        Navigator.push(context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(title: widget.title),
-          )
-        );
-        return;
-      }
-    }
-    setState(() => passErrMsg = "Incorrect Password!");
-  }
-
-}
-
-
-
 // NOTE: SIGNUP FORM.
 class SignUpForm extends StatefulWidget {
-  const SignUpForm({super.key, required this.title, required this.setLoginForm});
-  
+  const SignUpForm(this.title, this.setLoginForm, {super.key, this.hasUsers = true});
+
   final String title;
   final VoidCallback setLoginForm;
+  final bool hasUsers;
 
   @override
-  State<StatefulWidget> createState() => _SignUpFormState();
+  State<StatefulWidget> createState() => _FormState();
 }
 
-class _SignUpFormState extends State<SignUpForm> {
-  
+class _FormState extends State<SignUpForm> {
+
 
   final GlobalKey<FormState> key = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {
@@ -188,12 +38,13 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (!App.hasUsers){
+    printSuccess("Building SignUpForm");
+    if (widget.hasUsers){
       controllers['username']!.text = "Administrator";
     }
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
-        name:"Username", 
+        name:"Username",
         controller: controllers['username']!,
         required: true,
         validator: (value) {return null;},
@@ -204,7 +55,7 @@ class _SignUpFormState extends State<SignUpForm> {
         controller: controllers['password']!,
       ),
       AvertInput.password(
-        name:  "Confirm Password", 
+        name:  "Confirm Password",
         controller: controllers['password_confirm']!,
         // TODO: add an onValueChange for this widget where is checks field must contain.
         validator: (value) {
@@ -231,11 +82,11 @@ class _SignUpFormState extends State<SignUpForm> {
       key:key,
       child: Column(
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.symmetric(
               vertical: 12.0,
             ),
-            child: const Text( "REGISTER",
+            child: Text( "REGISTER",
               style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
@@ -244,8 +95,8 @@ class _SignUpFormState extends State<SignUpForm> {
           ),
           Expanded(
             child: ListView(
-              physics: ClampingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               children: widgets,
             )
           ),
@@ -259,7 +110,7 @@ class _SignUpFormState extends State<SignUpForm> {
       setState(() => userErrMsg = null);
     }
   }
-  
+
   Future<void> registerUser() async {
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
@@ -268,7 +119,7 @@ class _SignUpFormState extends State<SignUpForm> {
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
     printAssert(username.isNotEmpty && password.isNotEmpty, "Username and Password is Empty!");
-    List<Map<String, Object?>> results = await App.database!.query("users", 
+    List<Map<String, Object?>> results = await Core.database!.query("users",
       where:"name = ?",
       whereArgs: [username],
     );
@@ -300,7 +151,7 @@ class _SignUpFormState extends State<SignUpForm> {
       "createdAt" : DateTime.now().millisecondsSinceEpoch,
     };
     printDebug("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
-    return await App.database?.insert("users", values);
+    return await Core.database?.insert("users", values);
   }
 
   Future<void> notifyUserCreation(String title, String msg) {

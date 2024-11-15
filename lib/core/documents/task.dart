@@ -1,5 +1,4 @@
-import "package:flutter/material.dart";
-import "package:avert/core.dart";
+import "package:avert/core/core.dart";
 
 enum TaskPriority {
   low,

@@ -1,23 +1,29 @@
-import "package:flutter/material.dart";
-import "package:avert/core/views/login_forms.dart";
-import "package:avert/core/utils.dart";
-import "package:avert/core/app.dart";
+import "package:avert/core/core.dart";
+import "form_login.dart";
+import "form_signup.dart";
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.title});
+// IMPORTANT: change login and signup form switching into a tab like functionality.
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key, required this.title });
 
   final String title;
 
   @override
-  State<StatefulWidget> createState() => _LoginScreenState();
+  State<StatefulWidget> createState() => _ScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ScreenState extends State<AuthScreen> {
+  User? user;
+  Database? database;
+  bool isLogin = true;
 
-  bool signup = !App.hasUsers;
-
- @override
+  @override
+  void initState() {
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
+    checkUsers();
     return Scaffold(
       body: Stack(
         children: [
@@ -58,29 +64,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(15),
               ),
               shadowColor: Colors.black,
-              child: form,
+              child: isLogin
+                ? LoginForm(widget.title, () => setState(() => isLogin = false))
+                : SignUpForm(widget.title, () => setState(() => isLogin = true)),
             ),
           ),
         ],
       ),
     );
   }
-  
-  Widget get form {
-    printDebug("printing bools: signup:$signup, App.Data.hasUsers${App.hasUsers}");
-    if (signup) {
-      return SignUpForm(title: widget.title, setLoginForm:loginForm);
+
+  void checkUsers() async {
+    List<Map<String, Object?>> results = await Core.database!.query("users",
+      columns: ["id"],
+    );
+    if (isLogin && results.isEmpty) {
+      setState(() => isLogin = false);
     }
-    return LoginForm(title:widget.title, setSignupForm:signupForm);
-  }
-
-  void loginForm() {
-    printDebug("Going to Login Form");
-    setState(() => signup = false);
-  }
-
-  void signupForm() {
-    printDebug("Going to SignUp Form");
-    setState(() => signup = true);
   }
 }

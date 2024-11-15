@@ -1,6 +1,8 @@
-import "package:flutter/material.dart";
-import "package:avert/core.dart";
-import "package:avert/core/components.dart";
+import "package:avert/core/core.dart";
+import "package:avert/core/components/avert_button.dart";
+import "package:avert/core/components/avert_document.dart";
+import "package:avert/core/components/avert_input.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 // NOTE: should be a document in core.
 class Company implements Document {
@@ -33,7 +35,7 @@ class Company implements Document {
   }
 
   Future<bool> checkIfExist() async {
-    List<Map<String, Object?>> values = await App.database!.query("companies",
+    List<Map<String, Object?>> values = await Core.database!.query("companies",
       columns: ["id"],
       where: "name = ?",
       whereArgs: [name],
@@ -41,7 +43,11 @@ class Company implements Document {
     return values.isNotEmpty;
   }
 
-  // TODO: make insert return a message on success and failure.
+  void remember() {
+    SharedPreferencesAsync sp = SharedPreferencesAsync();
+    sp.setInt("company_id", id);
+  }
+
   @override
   Future<bool> update() async {
     if (await valuesNotValid() ) return false;
@@ -49,14 +55,13 @@ class Company implements Document {
       "name": name,
     };
     printWarn("update with values of: ${values.toString()} of company with id of: $id!");
-    int r = await App.database!.update("companies", values,
+    int r = await Core.database!.update("companies", values,
       where: "id = ?",
       whereArgs: [id],
     );
     return r == 1;
   }
 
-  // TODO: make insert return a message on success and failure.
   @override
   Future<bool> insert() async {
     if (id > 0) {
@@ -70,14 +75,14 @@ class Company implements Document {
       "createdAt": now,
     };
     printWarn("creating company with values of: ${values.toString()}");
-    id = await App.database!.insert("companies", values);
+    id = await Core.database!.insert("companies", values);
     printWarn("company created with id of $id");
     return id != 0;
   }
 
   @override
   Future<bool> delete() async {
-    int result =  await App.database!.delete("companies",
+    int result =  await Core.database!.delete("companies",
       where: "id = ?",
       whereArgs: [id],
     );
@@ -95,12 +100,14 @@ class CompanyView extends StatefulWidget {
     this.onSave,
     this.onSubmit,
     this.onDelete,
-    this.onPop
+    this.onPop,
+    this.onSetDefault
   });
 
   final Company company;
   // NOTE: onDelete executes after the company is deleted in db.
   final VoidCallback? onCreate, onSave, onSubmit, onDelete, onPop;
+  final bool Function()? onSetDefault;
 
   @override
   State<StatefulWidget> createState() => _CompanyViewState();
@@ -199,13 +206,14 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
   }
 
   void setAsDefault() {
-    String msg = "'${widget.company.name}' is already the default company!";
-    if (App.company != widget.company) {
-      App.company = widget.company;
-      App.rememberCompany(widget.company.id);
-      msg = "'${widget.company.name}' is now the Default Company!";
+    widget.company.remember();
+    if (widget.onSetDefault != null) {
+      bool success = widget.onSetDefault!();
+      if (success) {
+        notifyUpdate("Default Company","'${widget.company.name}' is now the Default Company!", true);
+      }
     }
-    notifyUpdate("Default Company", msg, true);
+    notifyUpdate("Default Company", "'${widget.company.name}' is already the default company!", true);
   }
 
   Future<bool?> confirmDelete() {
