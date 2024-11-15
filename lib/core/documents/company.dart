@@ -93,6 +93,7 @@ class Company implements Document {
 // TODO: Do something on the ff. in the future.
 //  - show the fields from other modules like the default accounts of a company.
 //  - validation.
+//  - onSave should have parameters of the values of controllers in a dict.
 class CompanyView extends StatefulWidget {
   const CompanyView({super.key,
     required this.company,
@@ -106,7 +107,8 @@ class CompanyView extends StatefulWidget {
 
   final Company company;
   // NOTE: onDelete executes after the company is deleted in db.
-  final VoidCallback? onCreate, onSave, onSubmit, onDelete, onPop;
+  final void Function()? onCreate, onSave, onSubmit, onDelete, onPop;
+  //final void Function(Map<String, Object?> values)? onSave;
   final bool Function()? onSetDefault;
 
   @override
@@ -286,7 +288,6 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
 
       if (shouldPop && mounted) {
         Navigator.maybePop(context);
-        if (widget.onPop != null) widget.onPop!();
       }
     }
   }
@@ -295,6 +296,7 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
   Future<void> popDocument(bool didPop, Object? result) async {
     printLog("didPop: $didPop and result: $result");
     if (didPop) {
+      if (widget.onPop != null && !isDirty) widget.onPop!();
       printLog("did pop scope!");
       return;
     }
@@ -302,7 +304,6 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     final bool shouldPop = await confirmPop() ?? false;
     if (shouldPop && mounted) {
       Navigator.pop(context);
-      if (widget.onPop != null) widget.onPop!();
     }
   }
 

@@ -1,6 +1,5 @@
 import "package:avert/core/core.dart";
-import "./title.dart";
-import "./dashboard.dart";
+import "dashboard.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key,
@@ -64,11 +63,11 @@ class _HomeScreenState extends State<HomeScreen> {
       Company c = Company();
       return EmptyScreen(
         company: c,
-        // TODO: this events need to make title update somehow.
-        onSave:   () => setState(() {}),
-        onCreate: () => setState(() => company = c),
+        onPop: () {
+          printTrack("Pooping");
+          setState(() => company = c);
+        },
         onDelete: () => setState(() => company = null),
-        //onSave: () => setState(() {title}),
       );
     }
     printAssert(company != null, "Company null!!!!!!");
@@ -78,9 +77,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget mainDisplay() => Scaffold(
     appBar: AppBar(
-      title: HomeTitle(
-        company: company!,
-        onDelete: () => setState(() => company = null)
+      title: TextButton(
+        onPressed: () {
+          printDebug("Viewing Current Company!");
+          Navigator.push(context,
+            MaterialPageRoute(
+              builder: (context) => CompanyView(
+                company: company!,
+                onDelete: () => setState(() => company = null),
+                onSave: () => setState(() {}),
+              ),
+            )
+          );
+        },
+        child: Text(company!.name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 24,
+          ),
+        ),
       ),
       actions: [
         IconButton(
@@ -216,10 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget appBar() => SliverAppBar(
-    title: HomeTitle(
-      company: company!,
-      onDelete: () => setState(() => company = null)
-    ),
     actions: [
       IconButton(
         padding: const EdgeInsets.only(right:16),
@@ -308,15 +320,13 @@ class _HomeScreenState extends State<HomeScreen> {
 class EmptyScreen extends StatelessWidget {
   const EmptyScreen({super.key,
     required this.company,
-    required this.onCreate,
-    required this.onSave,
     required this.onDelete,
+    required this.onPop,
   });
 
 
   final Company company;
-  final void Function()? onCreate;
-  final void Function()? onSave;
+  final void Function()? onPop;
   final void Function()? onDelete;
 
   @override
@@ -347,9 +357,8 @@ class EmptyScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => CompanyView(
                       company: company,
-                      onCreate: onCreate,
+                      onPop: onPop,
                       onDelete: onDelete,
-                      onSave: onSave,
                     ),
                   )
                 );

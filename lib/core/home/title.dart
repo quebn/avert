@@ -32,7 +32,7 @@ class _TitleState extends State<HomeTitle> {
             builder: (context) => CompanyView(
               company: widget.company,
               onDelete: widget.onDelete,
-              onSave: update,
+              onSave: () => setState(() => title = widget.company.name),
             ),
           )
         );
@@ -45,9 +45,5 @@ class _TitleState extends State<HomeTitle> {
         ),
       ),
     );
-  }
-
-  void update() {
-    setState(() => title = widget.company.name);
   }
 }
