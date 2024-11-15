@@ -1,4 +1,6 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/auth/screen.dart";
+import "package:avert/core/components/avert_button.dart";
 import "dashboard.dart";
 
 class HomeScreen extends StatefulWidget {
@@ -58,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    printSuccess("Building HomeScreen");
     if (company == null) {
       Company c = Company();
       return EmptyScreen(
@@ -221,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 16,
                       ),
                     ),
-                  onTap: () { printLog("Redirecting to Login Screen");}
+                  onTap: () => logout(),
                   ),
               ]
             ),
@@ -308,12 +309,54 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+
   }
 
   Widget mainContent() {
     return SingleChildScrollView(
       child: Column(),
     );
+  }
+
+  Future<void> logout() async {
+    bool shouldLogout = await confirmLogout() ?? false;
+    if (shouldLogout && mounted) {
+      widget.user.forget();
+      Navigator.pop(context);
+      Navigator.push(context,
+        MaterialPageRoute(
+          builder: (context) => AuthScreen(
+            title: "Avert",
+          ),
+        )
+      );
+    }
+  }
+
+  Future<bool?> confirmLogout() async {
+  // TODO: make title or anything in the dialog change color depending on the results.
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Log out user?"),
+        content: Center(
+          heightFactor: 1,
+          child: Text("Are you sure you want to logout user '${widget.user.name}'?"),
+        ),
+        actions: [
+          AvertButton(
+            name: "No",
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          AvertButton(
+            name: "Yes",
+            onPressed: () => Navigator.pop(context, true)
+
+          ),
+        ]
+      ),
+    );
+
   }
 }
 

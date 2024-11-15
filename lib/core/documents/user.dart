@@ -53,7 +53,12 @@ class User implements Document {
   }
 
   void remember() {
-    final SharedPreferencesAsync sharedPrefs = SharedPreferencesAsync();
-    sharedPrefs.setInt("user_id", id);
+    final SharedPreferencesAsync sp = SharedPreferencesAsync();
+    sp.setInt("user_id", id);
+  }
+
+  void forget() {
+    final SharedPreferencesAsync sp = SharedPreferencesAsync();
+    sp.remove("user_id");
   }
 }
