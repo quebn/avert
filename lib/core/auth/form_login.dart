@@ -6,6 +6,8 @@ import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
+import "package:shared_preferences/shared_preferences.dart";
+
 // NOTE: LOGIN FORM.
 class LoginForm extends StatefulWidget {
   const LoginForm(this.title, this.setSignupForm, {super.key});
@@ -107,6 +109,7 @@ class _FormState extends State<LoginForm> {
     }
   }
 
+  // IMPORTANT: create company on successful auth if company exist.
   Future<void> authenticateUser() async {
     printDebug("Logging in!");
     final bool isValid = key.currentState?.validate() ?? false;
@@ -124,7 +127,6 @@ class _FormState extends State<LoginForm> {
       where:"name = ?",
       whereArgs: [username],
     );
-
     if (result.isEmpty) {
       setState(() => userErrMsg = "Username '$username' does not exist!");
       return;
@@ -137,19 +139,24 @@ class _FormState extends State<LoginForm> {
           name: item['name']!,
           createdAt: item['createdAt']!,
         );
+        SharedPreferencesWithCache sp = await SharedPreferencesWithCache.create(
+          cacheOptions: SharedPreferencesWithCacheOptions(allowList: {"company_id"}),
+        );
+        Company? company = await Company.fetchDefault(Core.database!, sp);
         // TODO: have a setting to check whether this function should be called or not.
         if (rememberLogin) user.remember();
+        if(!mounted) return;
         Navigator.pop(context);
         Navigator.push(context,
           MaterialPageRoute(
             builder: (context) => HomeScreen(
               title: widget.title,
               user: user,
-              company: null,
+              company: company,
             ),
           )
         );
-        return;
+
       }
     }
     setState(() => passErrMsg = "Incorrect Password!");

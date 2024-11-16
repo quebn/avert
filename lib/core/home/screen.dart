@@ -1,7 +1,6 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
-import "dashboard.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key,
@@ -58,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  // Company selector
   @override
   Widget build(BuildContext context) {
     if (company == null) {
@@ -75,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
     printLog("name: ${company!.name}");
     return mainDisplay();
   }
+
 
   Widget mainDisplay() => Scaffold(
     appBar: AppBar(

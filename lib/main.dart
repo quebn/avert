@@ -20,7 +20,8 @@ void main() async {
         )
       );
       user = await _getUser(db, cachedPrefs);
-      company = await _getCompany(db, cachedPrefs);
+      company = await Company.fetchDefault(db, cachedPrefs);
+      //company = await _getCompany(db, cachedPrefs);
     },
   );
   printWarn("After opening of Database Path:${Core.database!.path}");
@@ -105,36 +106,6 @@ Future<User?> _getUser(Database db, SharedPreferencesWithCache sharedPrefs) asyn
   return null;
 }
 
-Future<Company?> _getCompany(Database db, SharedPreferencesWithCache sharedPrefs) async {
-  List<Map<String, Object?>> results = await db.query("companies",
-    columns: ["id", "name", "createdAt",]
-  );
-
-  if (results.isEmpty ) {
-    return null;
-  }
-
-  printLog("${results.length} companies found with values of: ${results.toString()}");
-  int companyID = sharedPrefs.getInt("company_id") ?? 0;
-  if (companyID == 0) {
-    return Company(
-      id: results[0]['id']! as int,
-      name: results[0]['name']! as String,
-      createdAt: results[0]['createdAt']! as int,
-    );
-  }
-
-  for (Map<String, Object?> data in results) {
-    if (companyID == data['id']) {
-      return Company(
-        id: data['id']! as int,
-        name: data['name']! as String,
-        createdAt: data['createdAt']! as int,
-      );
-    }
-  }
-  return null;
-}
 
 Future<bool> _createAppDir() async {
   if (!Platform.isAndroid) {

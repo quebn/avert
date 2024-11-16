@@ -88,6 +88,38 @@ class Company implements Document {
     );
     return result == id;
   }
+
+  static Future<Company?> fetchDefault(Database db, SharedPreferencesWithCache sp) async {
+    List<Map<String, Object?>> results = await db.query("companies",
+      columns: ["id", "name", "createdAt",]
+    );
+
+    if (results.isEmpty) {
+      return null;
+    }
+
+    printLog("${results.length} companies found with values of: ${results.toString()}");
+    int companyID = sp.getInt("company_id") ?? 0;
+    if (companyID == 0) {
+      return Company(
+        id: results[0]['id']! as int,
+        name: results[0]['name']! as String,
+        createdAt: results[0]['createdAt']! as int,
+      );
+    }
+
+    for (Map<String, Object?> data in results) {
+      if (companyID == data['id']) {
+        return Company(
+          id: data['id']! as int,
+          name: data['name']! as String,
+          createdAt: data['createdAt']! as int,
+        );
+      }
+      break;
+    }
+    return null;
+  }
 }
 
 // TODO: Do something on the ff. in the future.
