@@ -1,6 +1,5 @@
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/components/avert_link.dart";
 import "package:avert/core/home/screen.dart";
 import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
@@ -10,10 +9,8 @@ import "package:shared_preferences/shared_preferences.dart";
 
 // NOTE: LOGIN FORM.
 class LoginForm extends StatefulWidget {
-  const LoginForm(this.title, this.setSignupForm, {super.key});
+  const LoginForm({super.key});
 
-  final String title;
-  final VoidCallback setSignupForm;
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -62,37 +59,16 @@ class _FormState extends State<LoginForm> {
         yPadding: 20,
         onPressed: authenticateUser,
       ),
-      AvertLink(
-        linkText: "Create a new user.",
-        linkSize: 16,
-        yMargin: 16,
-        onPressed: widget.setSignupForm,
-      ),
     ];
 
-    return Form(
-      key:key,
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 12.0,
-            ),
-            child: Text( "LOGIN",
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              children: widgets,
-            )
-          ),
-        ]
+    return Padding(
+      padding: EdgeInsetsDirectional.only(top: 8),
+      child: Form(
+        key:key,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          children: widgets,
+        ),
       ),
     );
   }
@@ -109,7 +85,6 @@ class _FormState extends State<LoginForm> {
     }
   }
 
-  // IMPORTANT: create company on successful auth if company exist.
   Future<void> authenticateUser() async {
     printDebug("Logging in!");
     final bool isValid = key.currentState?.validate() ?? false;
@@ -150,13 +125,12 @@ class _FormState extends State<LoginForm> {
         Navigator.push(context,
           MaterialPageRoute(
             builder: (context) => HomeScreen(
-              title: widget.title,
+              title: "Avert",
               user: user,
               company: company,
             ),
           )
         );
-
       }
     }
     setState(() => passErrMsg = "Incorrect Password!");

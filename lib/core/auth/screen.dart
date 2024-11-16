@@ -12,17 +12,27 @@ class AuthScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _ScreenState();
 }
 
-class _ScreenState extends State<AuthScreen> {
+class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
   User? user;
   Database? database;
-  bool isLogin = true;
+  bool hasUsers = true;
 
+  late final TabController _tabController;
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
   }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    printTrack("Building AuthScreen");
     checkUsers();
     return Scaffold(
       body: Stack(
@@ -64,13 +74,51 @@ class _ScreenState extends State<AuthScreen> {
                 borderRadius: BorderRadius.circular(15),
               ),
               shadowColor: Colors.black,
-              child: isLogin
-                ? LoginForm(widget.title, () => setState(() => isLogin = false))
-                : SignUpForm(widget.title, () => setState(() => isLogin = true)),
-            ),
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Scaffold(
+                  appBar: formTab(),
+                  body: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      const LoginForm(),
+                      SignUpForm(
+                        hasUsers: hasUsers,
+                        setLoginForm: () => setState(() =>  _tabController.index = 0)
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
           ),
         ],
       ),
+    );
+  }
+
+  PreferredSizeWidget formTab() {
+    return TabBar(
+      dividerColor: Colors.white,
+      controller: _tabController,
+      tabs: [
+        Tab(
+          child: Text( "Log In",
+            style: TextStyle(
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Tab(
+          child: Text( "Register",
+            style: TextStyle(
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ]
     );
   }
 
@@ -78,8 +126,9 @@ class _ScreenState extends State<AuthScreen> {
     List<Map<String, Object?>> results = await Core.database!.query("users",
       columns: ["id"],
     );
-    if (isLogin && results.isEmpty) {
-      setState(() => isLogin = false);
+    hasUsers = results.isNotEmpty;
+    if (_tabController.index == 0 && results.isEmpty) {
+      setState(() => _tabController.index = 1);
     }
   }
 }

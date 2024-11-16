@@ -1,17 +1,15 @@
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/components/avert_link.dart";
 import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
 // NOTE: SIGNUP FORM.
 class SignUpForm extends StatefulWidget {
-  const SignUpForm(this.title, this.setLoginForm, {super.key, this.hasUsers = true});
+  const SignUpForm({super.key, this.hasUsers = true, required this.setLoginForm});
 
-  final String title;
-  final VoidCallback setLoginForm;
   final bool hasUsers;
+  final VoidCallback setLoginForm;
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -39,7 +37,7 @@ class _FormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     printSuccess("Building SignUpForm");
-    if (widget.hasUsers){
+    if (!widget.hasUsers){
       controllers['username']!.text = "Administrator";
     }
     List<Widget> widgets = <Widget>[
@@ -70,37 +68,16 @@ class _FormState extends State<SignUpForm> {
         yMargin: 8,
         onPressed: registerUser,
       ),
-      AvertLink(
-        linkText: "Login",
-        linkSize: 16,
-        yMargin: 16,
-        onPressed: widget.setLoginForm
-      ),
     ];
 
-    return Form(
-      key:key,
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 12.0,
-            ),
-            child: Text( "REGISTER",
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              children: widgets,
-            )
-          ),
-        ]
+    return Padding(
+      padding: EdgeInsetsDirectional.only(top: 8),
+      child: Form(
+        key:key,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          children: widgets,
+        ),
       ),
     );
   }
@@ -154,8 +131,8 @@ class _FormState extends State<SignUpForm> {
     return await Core.database?.insert("users", values);
   }
 
-  Future<void> notifyUserCreation(String title, String msg) {
-    return showDialog<void>(
+  Future<bool?> notifyUserCreation(String title, String msg) {
+    return showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
@@ -168,14 +145,14 @@ class _FormState extends State<SignUpForm> {
           AvertButton(
             name: "No",
             onPressed: (){
-              Navigator.pop(context);
+              Navigator.pop(context, false);
               printDebug("Pressed No");
             },
           ),
           AvertButton(
             name: "Yes",
             onPressed: (){
-              Navigator.pop(context);
+              Navigator.pop(context, true);
               widget.setLoginForm();
               printDebug("Pressed Yes");
             },
