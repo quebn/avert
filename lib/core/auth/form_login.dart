@@ -7,7 +7,6 @@ import "dart:convert";
 
 import "package:shared_preferences/shared_preferences.dart";
 
-// NOTE: LOGIN FORM.
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
 

@@ -2,7 +2,6 @@ import "package:avert/core/core.dart";
 import "form_login.dart";
 import "form_signup.dart";
 
-// IMPORTANT: change login and signup form switching into a tab like functionality.
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, required this.title });
 

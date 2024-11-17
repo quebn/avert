@@ -1,6 +1,7 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
+import "package:avert/core/home/dashboard.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key,
@@ -18,14 +19,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Company? company;
   int currentIndex = 0;
+  int currntModule = 0;
   bool lastStatus = true;
   double height = 390;
 
+  late Company? company = widget.company;
   late ScrollController _scrollController;
   late List<Widget> pages = [
-    mainContent(),
+    HomeDashboard(company!),
     const Center(child: Text("Documents")),
     const Center(child: Text("Reports")),
     const Center(child: Text("Settings")),
@@ -34,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    company = widget.company;
     _scrollController = ScrollController()..addListener(_scrollListener);
   }
 
@@ -144,21 +145,25 @@ class _HomeScreenState extends State<HomeScreen> {
       currentIndex: currentIndex,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard_rounded),
+          icon: Icon(Icons.dashboard_outlined),
           label: "Dashboard",
+          activeIcon: Icon(Icons.dashboard_sharp)
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.library_books_rounded),
+          icon: Icon(Icons.library_books_outlined),
           label: "Documents",
+          activeIcon: Icon(Icons.library_books_sharp),
         ),
         // TODO: might add create button for quick document creation.
         BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart_rounded),
+          icon: Icon(Icons.bar_chart_outlined),
           label: "Reports",
+          activeIcon: Icon(Icons.bar_chart_sharp),
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings_rounded),
+          icon: Icon(Icons.settings_outlined),
           label: "Settings",
+          activeIcon: Icon(Icons.bar_chart_rounded),
         ),
       ],
     ),
@@ -168,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget leftDrawer() {
     return const Drawer(
       width: 250,
+      //child: Listjk
     );
   }
 
@@ -313,12 +319,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   }
 
-  Widget mainContent() {
-    return SingleChildScrollView(
-      child: Column(),
-    );
-  }
-
   Future<void> logout() async {
     bool shouldLogout = await confirmLogout() ?? false;
     if (shouldLogout && mounted) {
@@ -367,7 +367,6 @@ class EmptyScreen extends StatelessWidget {
     required this.onDelete,
     required this.onPop,
   });
-
 
   final Company company;
   final void Function()? onPop;

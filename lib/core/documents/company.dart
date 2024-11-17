@@ -4,7 +4,6 @@ import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
-// NOTE: should be a document in core.
 class Company implements Document {
   Company({
     this.id = 0,
@@ -126,6 +125,7 @@ class Company implements Document {
 //  - show the fields from other modules like the default accounts of a company.
 //  - validation.
 //  - onSave should have parameters of the values of controllers in a dict.
+// IMPORTANT: Implement snackbar to replace some of the notif dialogs.
 class CompanyView extends StatefulWidget {
   const CompanyView({super.key,
     required this.company,
