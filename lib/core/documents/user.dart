@@ -1,5 +1,4 @@
 import "package:avert/core/core.dart";
-import "package:permission_handler/permission_handler.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class User implements Document {
@@ -60,5 +59,38 @@ class User implements Document {
   void forget() {
     final SharedPreferencesAsync sp = SharedPreferencesAsync();
     sp.remove("user_id");
+  }
+}
+
+class UserView extends StatefulWidget  {
+  const UserView({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ViewState();
+}
+
+class _ViewState extends State<UserView> implements DocumentView {
+
+  @override
+  Future<void> deleteDocument() {
+    // TODO: implement deleteDocument
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> popDocument(bool didPop, Object? value) {
+    // TODO: implement popDocument
+    throw UnimplementedError();
+  }
+
+  @override
+  void saveDocument() {
+    // TODO: implement saveDocument
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
   }
 }

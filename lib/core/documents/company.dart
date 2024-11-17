@@ -1,7 +1,7 @@
 import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
+import "package:avert/core/components/avert_input.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class Company implements Document {
@@ -143,10 +143,10 @@ class CompanyView extends StatefulWidget {
   final bool Function()? onSetDefault;
 
   @override
-  State<StatefulWidget> createState() => _CompanyViewState();
+  State<StatefulWidget> createState() => _ViewState();
 }
 
-class _CompanyViewState extends State<CompanyView> implements DocumentView {
+class _ViewState extends State<CompanyView> implements DocumentView {
 
   final GlobalKey<FormState> key = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {

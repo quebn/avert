@@ -208,6 +208,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Divider(),
           ListTile(
+            leading: const Icon(Icons.check_box_rounded),
+            title: const Text("Tasks",
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            onTap: () { printLog("Open Task list");}
+          ),
+          Divider(),
+          ListTile(
+            leading: const Icon(Icons.groups_3_rounded),
+            title: const Text("Users",
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            onTap: () { printLog("Open User list");}
+          ),
+          Divider(),
+          ListTile(
+            leading: const Icon(Icons.business_rounded),
+            title: const Text("Companies",
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            onTap: () { printLog("Open Company list");}
+          ),
+          Divider(),
+          ListTile(
             leading: const Icon(Icons.settings),
             title: const Text("App Settings",
               style: TextStyle(

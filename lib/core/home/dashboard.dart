@@ -11,6 +11,7 @@ class HomeDashboard extends StatefulWidget {
 
 class _DashboardState extends State<HomeDashboard> {
 
+  // int currentModule = 0
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +20,6 @@ class _DashboardState extends State<HomeDashboard> {
         children: [
           headerContent(),
           SizedBox(
-            child: Center(
-              child: Text("Dashboard: ${widget.company.name}"),
-            )
           ),
         ]
       ),
@@ -41,7 +39,7 @@ class _DashboardState extends State<HomeDashboard> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: const Text("Current Module",
+                child: const Text("Dashboard",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
