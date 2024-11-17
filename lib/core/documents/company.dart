@@ -1,7 +1,7 @@
-import "package:avert/core/core.dart";
 import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
+import "package:avert/core/core.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class Company implements Document {
@@ -125,7 +125,6 @@ class Company implements Document {
 //  - show the fields from other modules like the default accounts of a company.
 //  - validation.
 //  - onSave should have parameters of the values of controllers in a dict.
-// IMPORTANT: Implement snackbar to replace some of the notif dialogs.
 class CompanyView extends StatefulWidget {
   const CompanyView({super.key,
     required this.company,
@@ -244,10 +243,10 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     if (widget.onSetDefault != null) {
       bool success = widget.onSetDefault!();
       if (success) {
-        notifyUpdate("Default Company","'${widget.company.name}' is now the Default Company!", true);
+        notifyUpdate("'${widget.company.name}' is now the Default Company!");
       }
     }
-    notifyUpdate("Default Company", "'${widget.company.name}' is already the default company!", true);
+    notifyUpdate("'${widget.company.name}' is already the default company!");
   }
 
   Future<bool?> confirmDelete() {
@@ -276,27 +275,14 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     );
   }
 
-  Future<bool?> notifyUpdate(String title, String msg, bool dismissible) {
-    // TODO: make title or anything in the dialog change color depending on the results.
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: dismissible,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(title),
-        content: Center(
-          heightFactor: 1,
-          child: Text(msg),
-        ),
-        actions: [
-          AvertButton(
-            name: "Close",
-            onPressed: () {
-              Navigator.pop(context, true);
-            }
-          ),
-        ]
+  void notifyUpdate(String msg) {
+    final SnackBar snackBar = SnackBar(
+      showCloseIcon: true,
+      content: Center(
+        child: Text(msg),
       ),
     );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -311,16 +297,11 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
     printWarn("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
     printLog("success bool: $success");
 
-    if (success) {
+    if (success && mounted) {
       printWarn("inside success block");
       if (widget.onDelete != null) widget.onDelete!();
-      const String title = "Company Deleted";
-      final String msg = "'${widget.company.name}' is deleted successfully!";
-      final bool shouldPop = await notifyUpdate(title, msg, true) ?? true;
-
-      if (shouldPop && mounted) {
-        Navigator.maybePop(context);
-      }
+      Navigator.maybePop(context);
+      // TODO: add a snackbar notification that this document is deleted.
     }
   }
 
@@ -388,30 +369,26 @@ class _CompanyViewState extends State<CompanyView> implements DocumentView {
 
     Company company = widget.company;
     company.name = controllers['name']!.value.text;
-    String title = "Operation Failed!", msg = "Error writing the document to the database!";
+    String msg = "Error writing the document to the database!";
     if (isNew) {
       bool success =  await company.insert();
       printLog("id after company: ${company.id}");
       if (widget.onCreate != null) widget.onCreate!();
       if (success) {
-        title = "New Company Created!";
         msg = "Company '${company.name}' is successfully created!";
       }
     } else {
       bool success = await company.update();
       if (success){
         if (widget.onSave != null) widget.onSave!();
-        title = "Changes Saved!";
         msg = "Successfully changed company details";
       }
     }
 
-    final bool shouldUpdate = await notifyUpdate(title, msg, true) ?? true;
-    if (shouldUpdate) {
-      setState(() {
-          isDirty = false;
-          isNew = formStatus;
-      });
-    }
+    notifyUpdate(msg);
+    setState(() {
+      isDirty = false;
+      isNew = formStatus;
+    });
   }
 }

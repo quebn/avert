@@ -5,10 +5,9 @@ import "package:crypto/crypto.dart";
 import "dart:convert";
 
 class SignUpForm extends StatefulWidget {
-  const SignUpForm({super.key, this.hasUsers = true, required this.setLoginForm});
+  const SignUpForm({super.key, this.hasUsers = true});
 
   final bool hasUsers;
-  final VoidCallback setLoginForm;
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -112,9 +111,7 @@ class _FormState extends State<SignUpForm> {
     int? status = await createUser(username, password);
     printAssert(status != 0 ,"insert finished with response code of [$status]");
     printDebug("insert finished with response code of [$status]", level: LogLevel.warn);
-    final String t = "User '$username' created!";
-    final String m = "User '$username' has been successfully created would you like to go to Login form?";
-    notifyUserCreation(t, m);
+    notifyUserCreation(username);
   }
 
   Future<int?> createUser(String username, String password) async {
@@ -130,34 +127,14 @@ class _FormState extends State<SignUpForm> {
     return await Core.database?.insert("users", values);
   }
 
-  Future<bool?> notifyUserCreation(String title, String msg) {
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(title),
-        content: Center(
-          heightFactor: 1,
-          child: Text(msg),
+  void notifyUserCreation(String username) {
+    final SnackBar snackBar = SnackBar(
+      content: Center(
+        child: Text(
+          "User '$username' has been successfully created would you like to go to Login form?"
         ),
-        actions: [
-          AvertButton(
-            name: "No",
-            onPressed: (){
-              Navigator.pop(context, false);
-              printDebug("Pressed No");
-            },
-          ),
-          AvertButton(
-            name: "Yes",
-            onPressed: (){
-              Navigator.pop(context, true);
-              widget.setLoginForm();
-              printDebug("Pressed Yes");
-            },
-          ),
-        ]
       ),
     );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
