@@ -160,7 +160,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   @override
   void initState() {
     super.initState();
-    setFieldValues();
+    initDocumentFields();
     controllers['name']!.addListener(onNameChange);
     isNew = formStatus;
   }
@@ -222,7 +222,8 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     );
   }
 
-  void setFieldValues() {
+  @override
+  void initDocumentFields() {
     controllers['name']!.text = widget.company.name;
   }
 
@@ -296,10 +297,8 @@ class _ViewState extends State<CompanyView> implements DocumentView {
 
   @override
   Future<void> popDocument(bool didPop, Object? value) async {
-    printLog("didPop: $didPop and result: $value");
     if (didPop) {
       if (widget.onPop != null && !isDirty) widget.onPop!();
-      printLog("did pop scope!");
       return;
     }
 

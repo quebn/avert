@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
           printTrack("Pooping");
           setState(() => company = c);
         },
-        onDelete: () => setState(() => company = null),
+        onDelete: onCompanyDelete,
       );
     }
     printAssert(company != null, "Company null!!!!!!");
@@ -77,6 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return mainDisplay();
   }
 
+  void onCompanyDelete() {
+    String name = company!.name;
+    setState(() => company = null);
+    notifyUpdate(context, "Company '$name' Deleted!");
+  }
 
   Widget mainDisplay() => Scaffold(
     appBar: AppBar(
@@ -87,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(
               builder: (context) => CompanyView(
                 company: company!,
-                onDelete: () => setState(() => company = null),
+                onDelete: onCompanyDelete,
                 onSave: () => setState(() {}),
               ),
             )
@@ -204,7 +209,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 16,
               ),
             ),
-            onTap: () { printLog("Open Profile Page.");}
+            onTap: () {
+              printLog("Open Profile Page.");
+              Navigator.push(context,
+                MaterialPageRoute(
+                  builder: (context) => UserView(
+                    user: widget.user,
+                    onDelete: () {},
+                    onSave: () {},
+                  ),
+                )
+              );
+            }
           ),
           Divider(),
           ListTile(

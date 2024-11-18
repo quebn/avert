@@ -1,6 +1,7 @@
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/components/avert_button.dart";
+import "package:avert/core/components/avert_text_editable.dart";
 import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -166,6 +167,27 @@ class _ViewState extends State<UserView> implements DocumentView {
     );
   }
 
+  void onNameChange() => onFieldChange(<bool>() {
+    return controllers['name']!.text != widget.user.name;
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    initDocumentFields();
+    controllers['name']!.addListener(onNameChange);
+
+  }
+
+  @override
+  void dispose() {
+    controllers['name']!.removeListener(onNameChange);
+    for (TextEditingController controller in controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Future<void> deleteDocument() async {
     final bool shouldDelete = await confirmDelete() ?? false;
@@ -186,10 +208,8 @@ class _ViewState extends State<UserView> implements DocumentView {
 
   @override
   Future<void> popDocument(bool didPop, Object? value) async {
-    printLog("didPop: $didPop and result: $value");
     if (didPop) {
       if (widget.onPop != null && !isDirty) widget.onPop!();
-      printLog("did pop scope!");
       return;
     }
 
@@ -224,11 +244,26 @@ class _ViewState extends State<UserView> implements DocumentView {
     });
   }
 
+  void onFieldChange(Function<bool>() isDirtyCallback) {
+    final bool isReallyDirty = isDirtyCallback();
+    if (isReallyDirty == isDirty) {
+      return;
+    }
+    printTrack("Setting state of is dirty = $isReallyDirty");
+    setState(() {
+      isDirty = isReallyDirty;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AvertDocument(
-      title: widget.user.name,
+      bgColor: Colors.black,
+      onPop: popDocument,
       widgetsBody: [
+        // IMPORTANT: make proper profile page look.
+        // Card
+        profileHeader(),
         AvertInput(
           yPadding: 8,
           name: "Name",
@@ -236,6 +271,61 @@ class _ViewState extends State<UserView> implements DocumentView {
           required: true,
         ),
       ],
+      floationActionButton: !isDirty ? null : IconButton.filled(
+        onPressed: saveDocument,
+        iconSize: 48,
+        icon: Icon(Icons.save_rounded)
+      ),
+    );
+  }
+
+  @override
+  void initDocumentFields() {
+    controllers['name']!.text = widget.user.name;
+  }
+
+  Widget profileHeader() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      height: 400,
+      child: Stack(
+        alignment: AlignmentDirectional.topCenter,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 72),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              shadowColor: Colors.black,
+              child: Padding(
+                padding: EdgeInsets.only(top: 72),
+                child: Column(
+                  //crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: AvertTextEditable(
+                        fontSize: 24,
+                        name: "Username",
+                        controller: controllers["name"]!
+                      )
+                    ),
+                    const Text("Bar"),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const CircleAvatar(
+              backgroundColor: Colors.grey,
+              radius: 72,
+            ),
+            onPressed: () => printLog("Pressed Profile Pic"),
+          ),
+        ]
+      ),
     );
   }
 }
