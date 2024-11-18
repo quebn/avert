@@ -53,7 +53,7 @@ class Company implements Document {
     Map<String, Object?> values = {
       "name": name,
     };
-    printWarn("update with values of: ${values.toString()} of company with id of: $id!");
+    printWarn("update with values of: ${values.toString()} on company with id of: $id!");
     int r = await Core.database!.update("companies", values,
       where: "id = ?",
       whereArgs: [id],
@@ -214,7 +214,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
       widgetsBody: [
         AvertInput(
           yPadding: 8,
-          name: "Company Name",
+          name: "Name",
           controller: controllers['name']!,
           required: true,
         ),
@@ -243,10 +243,10 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     if (widget.onSetDefault != null) {
       bool success = widget.onSetDefault!();
       if (success) {
-        notifyUpdate("'${widget.company.name}' is now the Default Company!");
+        notifyUpdate(context, "'${widget.company.name}' is now the Default Company!");
       }
     }
-    notifyUpdate("'${widget.company.name}' is already the default company!");
+    notifyUpdate(context, "'${widget.company.name}' is already the default company!");
   }
 
   Future<bool?> confirmDelete() {
@@ -275,15 +275,6 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     );
   }
 
-  void notifyUpdate(String msg) {
-    final SnackBar snackBar = SnackBar(
-      showCloseIcon: true,
-      content: Center(
-        child: Text(msg),
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
 
   @override
   Future<void> deleteDocument() async {
@@ -295,26 +286,24 @@ class _ViewState extends State<CompanyView> implements DocumentView {
 
     final bool success = await widget.company.delete();
     printWarn("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
-    printLog("success bool: $success");
 
     if (success && mounted) {
-      printWarn("inside success block");
-      if (widget.onDelete != null) widget.onDelete!();
       Navigator.maybePop(context);
-      // TODO: add a snackbar notification that this document is deleted.
+      // NOTE: snackbar notification should be handled inside the onDelete function.
+      if (widget.onDelete != null) widget.onDelete!();
     }
   }
 
   @override
-  Future<void> popDocument(bool didPop, Object? result) async {
-    printLog("didPop: $didPop and result: $result");
+  Future<void> popDocument(bool didPop, Object? value) async {
+    printLog("didPop: $didPop and result: $value");
     if (didPop) {
       if (widget.onPop != null && !isDirty) widget.onPop!();
       printLog("did pop scope!");
       return;
     }
 
-    final bool shouldPop = await confirmPop() ?? false;
+    final bool shouldPop = await confirmPop(context) ?? false;
     if (shouldPop && mounted) {
       Navigator.pop(context);
     }
@@ -323,40 +312,6 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   void onNameChange() => onFieldChange(<bool>() {
     return controllers['name']!.text != widget.company.name;
   });
-
-  Future<bool?> confirmPop() {
-    printWarn("showing pop confirmation dialog");
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Are you sure?"),
-          content: const Text("Are you sure you want to leave this page?"),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text("Stay"),
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              onPressed: () {
-                Navigator.pop(context, true);
-                //popDocument(context);
-              },
-              child: const Text("Leave"),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Future<void> saveDocument() async {
@@ -385,7 +340,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
       }
     }
 
-    notifyUpdate(msg);
+    if (mounted) notifyUpdate(context, msg);
     setState(() {
       isDirty = false;
       isNew = formStatus;

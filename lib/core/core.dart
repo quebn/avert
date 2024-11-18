@@ -6,7 +6,8 @@ export "package:sqflite/sqflite.dart";
 export "package:avert/core/documents/task.dart";
 export "package:avert/core/documents/user.dart";
 export "package:avert/core/documents/company.dart";
-export "package:avert/core/utils.dart";
+export "package:avert/core/utils/logger.dart";
+export "package:avert/core/utils/common.dart";
 
 // TODO: Figure out how to test stuffs.
 abstract class Module {

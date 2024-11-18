@@ -91,50 +91,28 @@ class _FormState extends State<SignUpForm> {
     if (!isValid) {
       return;
     }
-    String username = controllers['username']!.value.text;
-    String password = controllers['password']!.value.text;
-    printAssert(username.isNotEmpty && password.isNotEmpty, "Username and Password is Empty!");
-    List<Map<String, Object?>> results = await Core.database!.query("users",
-      where:"name = ?",
-      whereArgs: [username],
+    User user = User(
+      name: controllers['username']!.value.text,
     );
-
-    if (results.isNotEmpty) {
+    var bytes = utf8.encode(controllers['password']!.value.text);
+    user.password = sha256.convert(bytes);
+    // todo: should be this in later
+    bool userExist = await user.nameExist();
+    if (userExist) {
       setState(() {
-         userErrMsg = "Username '$username' already exists!";
+         userErrMsg = "Username '${user.name}' already exists!";
       });
       printDebug(userErrMsg!, level:LogLevel.error);
       return;
     }
-    printAssert(results.isEmpty, "Username $username already exist in database where it should'nt dumping userdata: ${results.toString()}");
+    printAssert(userExist, "Username ${user.name} already exist in database where it should'nt");
     printDebug("Preparing Creating user.....");
-    int? status = await createUser(username, password);
-    printAssert(status != 0 ,"insert finished with response code of [$status]");
-    printDebug("insert finished with response code of [$status]", level: LogLevel.warn);
-    notifyUserCreation(username);
-  }
-
-  Future<int?> createUser(String username, String password) async {
-    printDebug("Actually Creating user...");
-    var bytes = utf8.encode(password);
-    Digest digest = sha256.convert(bytes);
-    var values = {
-      "name"      : username,
-      "password"  : digest.toString(),
-      "createdAt" : DateTime.now().millisecondsSinceEpoch,
-    };
-    printDebug("Inserting to users table values: ${values.toString()}", level: LogLevel.warn);
-    return await Core.database?.insert("users", values);
-  }
-
-  void notifyUserCreation(String username) {
-    final SnackBar snackBar = SnackBar(
-      content: Center(
-        child: Text(
-          "User '$username' has been successfully created would you like to go to Login form?"
-        ),
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    bool success = await user.insert();
+    if (mounted && success) {
+      notifyUpdate(
+        context,
+        "User '${user.name}' has been successfully created!"
+      );
+    }
   }
 }

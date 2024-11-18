@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:avert/core/utils.dart";
+import "package:avert/core/utils/logger.dart";
 import "package:flutter/services.dart";
 
 enum AvertInputType {

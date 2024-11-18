@@ -84,7 +84,7 @@ class App extends StatelessWidget {
 
 Future<User?> _getUser(Database db, SharedPreferencesWithCache sharedPrefs) async {
   List<Map<String, Object?>> results = await db.query("users",
-    columns: ["id", "name", "createdAt",]
+    columns: ["id", "name", "createdAt", "password"]
   );
 
   int userID = sharedPrefs.getInt("user_id") ?? 0;
