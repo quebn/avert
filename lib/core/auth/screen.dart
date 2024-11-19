@@ -3,9 +3,10 @@ import "form_login.dart";
 import "form_signup.dart";
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key, required this.title });
+  const AuthScreen({super.key, required this.title , this.hasUsers});
 
   final String title;
+  final bool? hasUsers;
 
   @override
   State<StatefulWidget> createState() => _ScreenState();
@@ -14,13 +15,14 @@ class AuthScreen extends StatefulWidget {
 class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
   User? user;
   Database? database;
-  bool hasUsers = true;
+  late bool hasUsers = widget.hasUsers ?? true;
 
   late final TabController _tabController;
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.index = hasUsers ? 0 : 1;
   }
 
   @override
@@ -32,7 +34,7 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     printTrack("Building AuthScreen");
-    checkUsers();
+    if(widget.hasUsers == null) checkUsers();
     return Scaffold(
       body: Stack(
         children: [

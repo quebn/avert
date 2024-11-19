@@ -206,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
         MaterialPageRoute(
           builder: (context) => AuthScreen(
             title: "Avert",
+            hasUsers: true,
           ),
         )
       );
