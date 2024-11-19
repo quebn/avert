@@ -4,6 +4,8 @@ import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
+// IMPORTANT: do this first.
+// TEST: user registration.
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key, this.hasUsers = true});
 

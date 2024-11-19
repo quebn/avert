@@ -1,7 +1,8 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/home/dashboard.dart";
+import "dashboard.dart";
+import "profile_drawer.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key,
@@ -139,7 +140,21 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     ),
-    endDrawer: rightDrawer(),
+    endDrawer: HomeProfileDrawer(
+      user: widget.user,
+      onLogout: () => logout(),
+      onUserDelete: () {
+        widget.user.forget();
+        Navigator.pop(context);
+        Navigator.push(context,
+          MaterialPageRoute(
+            builder: (context) => AuthScreen(
+              title: "Avert",
+            ),
+          )
+        );
+      },
+    ),
     drawer: leftDrawer(),
     body: pages[currentIndex],
     bottomNavigationBar: BottomNavigationBar(
@@ -179,109 +194,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return const Drawer(
       width: 250,
       //child: Listjk
-    );
-  }
-
-  Widget rightDrawer() {
-    return Drawer(
-      width: 250,
-      child: Column(
-        children: [
-          DrawerHeader(
-            margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8, top: 32),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-            ),
-            child: Center(
-              child: Text(widget.user.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.account_circle),
-            title: const Text("Profile",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () {
-              printLog("Open Profile Page.");
-              Navigator.push(context,
-                MaterialPageRoute(
-                  builder: (context) => UserView(
-                    user: widget.user,
-                    onDelete: () {},
-                    onSave: () {},
-                  ),
-                )
-              );
-            }
-          ),
-          Divider(),
-          ListTile(
-            leading: const Icon(Icons.check_box_rounded),
-            title: const Text("Tasks",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printLog("Open Task list");}
-          ),
-          Divider(),
-          ListTile(
-            leading: const Icon(Icons.groups_3_rounded),
-            title: const Text("Users",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printLog("Open User list");}
-          ),
-          Divider(),
-          ListTile(
-            leading: const Icon(Icons.business_rounded),
-            title: const Text("Companies",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printLog("Open Company list");}
-          ),
-          Divider(),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text("App Settings",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printLog("Open Settings App Settings.");}
-          ),
-          Divider(),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout_rounded),
-                  title: const Text("Log Out",
-                    style: TextStyle(
-                      fontSize: 16,
-                      ),
-                    ),
-                  onTap: () => logout(),
-                  ),
-              ]
-            ),
-          ),
-        ]
-      )
     );
   }
 

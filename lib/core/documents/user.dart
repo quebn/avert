@@ -1,7 +1,5 @@
 import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/components/avert_text_editable.dart";
 import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "package:shared_preferences/shared_preferences.dart";
@@ -63,9 +61,12 @@ class User implements Document {
   }
 
   @override
-  Future<bool> delete() {
-    // TODO: implement delete
-    throw UnimplementedError();
+  Future<bool> delete() async {
+    int result =  await Core.database!.delete("users",
+      where: "id = ?",
+      whereArgs: [id],
+    );
+    return result == id;
   }
 
   @override
@@ -146,10 +147,13 @@ class _ViewState extends State<UserView> implements DocumentView {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Delete '${widget.user.name}'?"),
-          content: const Text("Are you sure you want to delete this Company?"),
+          title: const Text("Delete User?"),
+          content: Text(
+            "Are you sure you want to delete '${widget.user.name}'? deleting this user will direct you to Login Screen."
+          ),
           actions: <Widget>[
             AvertButton(
+              bgColor: Colors.red,
               name: "Yes",
               onPressed: () {
                 Navigator.pop(context, true);
@@ -200,9 +204,12 @@ class _ViewState extends State<UserView> implements DocumentView {
     printWarn("Deleting user:${widget.user.name} with id of: ${widget.user.id}");
 
     if (success && mounted) {
+      printSuccess("User Deleted!");
       Navigator.maybePop(context);
       // NOTE: snackbar notification should be handled inside the onDelete function.
       if (widget.onDelete != null) widget.onDelete!();
+    } else {
+      printLog("User not Deleted!");
     }
   }
 
@@ -264,12 +271,7 @@ class _ViewState extends State<UserView> implements DocumentView {
         // IMPORTANT: make proper profile page look.
         // Card
         profileHeader(),
-        AvertInput(
-          yPadding: 8,
-          name: "Name",
-          controller: controllers['name']!,
-          required: true,
-        ),
+        profileBody(),
       ],
       floationActionButton: !isDirty ? null : IconButton.filled(
         onPressed: saveDocument,
@@ -288,7 +290,6 @@ class _ViewState extends State<UserView> implements DocumentView {
     return Container(
       margin: EdgeInsets.only(bottom: 8),
       padding: EdgeInsets.symmetric(horizontal: 16),
-      height: 400,
       child: Stack(
         alignment: AlignmentDirectional.topCenter,
         children: [
@@ -300,18 +301,24 @@ class _ViewState extends State<UserView> implements DocumentView {
               ),
               shadowColor: Colors.black,
               child: Padding(
-                padding: EdgeInsets.only(top: 72),
+                padding: EdgeInsets.only(top: 80, bottom: 16),
                 child: Column(
                   //crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // TODO: add indicator for when if user is admin. (maybe a crown icon)
+                    // user is admin if id is 1.
                     Center(
-                      child: AvertTextEditable(
-                        fontSize: 24,
-                        name: "Username",
-                        controller: controllers["name"]!
-                      )
+                      child: TextButton(
+                        onPressed: () {},//promptEditField(),
+                        child: Text(widget.user.name,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                    const Text("Bar"),
+                    // NOTE: add header widgets here.
                   ],
                 ),
               ),
@@ -328,4 +335,51 @@ class _ViewState extends State<UserView> implements DocumentView {
       ),
     );
   }
+
+  Widget profileBody() {
+    return Container(
+      margin: EdgeInsets.only(top: 24),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        shadowColor: Colors.black,
+        child: Column(
+          children: [
+            // TODO: add indicator for when if user is admin. (maybe a crown icon)
+            // user is admin if id is 1.
+            dangerSection(),
+            // NOTE: add header widgets here.
+          ],
+        ),
+      ),
+    );
+
+  }
+
+  Widget dangerSection() => Container(
+    padding:EdgeInsets.symmetric(vertical: 16),
+    child: Column(
+      children: [
+        const Padding(
+          padding:EdgeInsets.only(bottom: 8),
+          child: Center(
+            child: Text("Danger Zone",
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        AvertButton(
+          bgColor: Colors.red,
+          name: "Delete User",
+          onPressed: deleteDocument,
+          ),
+      ]
+    ),
+  );
 }
