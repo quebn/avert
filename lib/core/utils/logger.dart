@@ -24,9 +24,9 @@ void printTrack(String text) {
   debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
 }
 
-void printLog(String text) {
+void printInfo(String text) {
   // Green:   \x1B[32m
-  debugPrint("\x1B[32m [LOG]: $text\x1B[0m");
+  debugPrint("\x1B[32m [INFO]: $text\x1B[0m");
 }
 
 void printWarn(String text) {

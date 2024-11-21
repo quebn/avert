@@ -119,17 +119,18 @@ class _FormState extends State<LoginForm> {
         Company? company = await Company.fetchDefault(Core.database!, sp);
         // TODO: have a setting to check whether this function should be called or not.
         if (rememberLogin) user.remember();
-        if(!mounted) return;
-        Navigator.pop(context);
-        Navigator.push(context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(
-              title: "Avert",
-              user: user,
-              company: company,
-            ),
-          )
-        );
+        if(mounted) {
+          Navigator.pop(context);
+          Navigator.push(context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(
+                title: "Avert",
+                user: user,
+                company: company,
+              ),
+            )
+          );
+        }
       }
     }
     setState(() => passErrMsg = "Incorrect Password!");

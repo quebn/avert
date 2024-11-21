@@ -48,7 +48,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
               ),
             ),
             onTap: () {
-              printLog("Open Profile Page.");
+              printInfo("Open Profile Page.");
               Navigator.push(context,
                 MaterialPageRoute(
                   builder: (context) => UserView(
@@ -68,7 +68,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                 fontSize: 16,
               ),
             ),
-            onTap: () { printLog("Open Task list");}
+            onTap: () { printInfo("Open Task list");}
           ),
           Divider(),
           ListTile(
@@ -78,7 +78,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                 fontSize: 16,
               ),
             ),
-            onTap: () { printLog("Open User list");}
+            onTap: () { printInfo("Open User list");}
           ),
           Divider(),
           ListTile(
@@ -88,7 +88,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                 fontSize: 16,
               ),
             ),
-            onTap: () { printLog("Open Company list");}
+            onTap: () { printInfo("Open Company list");}
           ),
           Divider(),
           ListTile(
@@ -98,7 +98,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                 fontSize: 16,
               ),
             ),
-            onTap: () { printLog("Open Settings App Settings.");}
+            onTap: () { printInfo("Open Settings App Settings.");}
           ),
           Divider(),
           Expanded(

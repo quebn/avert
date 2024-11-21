@@ -32,6 +32,8 @@ class User implements Document {
   DateTime createdAt;
 
   String _password = "";
+  bool get isAdmin => id == 1;
+
   set password(Digest value) => _password = value.toString();
 
   static String getTableQuery() => """
@@ -108,6 +110,7 @@ class User implements Document {
   void remember() {
     final SharedPreferencesAsync sp = SharedPreferencesAsync();
     sp.setInt("user_id", id);
+    printInfo("saving user: '$name's ID in cache with value of:[$id]!");
   }
 
   void forget() {
@@ -209,7 +212,7 @@ class _ViewState extends State<UserView> implements DocumentView {
       // NOTE: snackbar notification should be handled inside the onDelete function.
       if (widget.onDelete != null) widget.onDelete!();
     } else {
-      printLog("User not Deleted!");
+      printInfo("User not Deleted!");
     }
   }
 
@@ -265,6 +268,7 @@ class _ViewState extends State<UserView> implements DocumentView {
   @override
   Widget build(BuildContext context) {
     return AvertDocument(
+      isDirty: isDirty,
       bgColor: Colors.black,
       onPop: popDocument,
       widgetsBody: [
@@ -329,7 +333,7 @@ class _ViewState extends State<UserView> implements DocumentView {
               backgroundColor: Colors.grey,
               radius: 72,
             ),
-            onPressed: () => printLog("Pressed Profile Pic"),
+            onPressed: () => printInfo("Pressed Profile Pic"),
           ),
         ]
       ),

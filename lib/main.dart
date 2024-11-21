@@ -8,6 +8,7 @@ import "dart:io";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _createAppDir();
+  List<Map<String, Object?>> results = [];
   User? user;
   Company? company;
   Core.database = await openDatabase("avert.db",
@@ -19,7 +20,8 @@ void main() async {
           allowList: <String>{"user_id", "company_id"},
         )
       );
-      user = await _getUser(db, cachedPrefs);
+      user = await _fetchUser(db, cachedPrefs, results);
+      printAssert(user != null ,"User is null");
       company = await Company.fetchDefault(db, cachedPrefs);
       //company = await _getCompany(db, cachedPrefs);
     },
@@ -29,6 +31,7 @@ void main() async {
     title: "Avert",
     user: user,
     company: company,
+    hasUsers: results.isNotEmpty,
   ));
 }
 
@@ -38,11 +41,13 @@ class App extends StatelessWidget {
     required this.title,
     required this.user,
     required this.company,
+    this.hasUsers = true,
   });
 
   final String title;
   final User? user;
   final Company? company;
+  final bool hasUsers;
 
   bool get hasUser => user != null;
 
@@ -77,24 +82,26 @@ class App extends StatelessWidget {
       ),
       home: hasUser
         ? HomeScreen(title: title, user: user!, company: company)
-        : AuthScreen(title: title),
+        : AuthScreen(title: title, hasUsers: hasUsers),
     );
   }
 }
 
-Future<User?> _getUser(Database db, SharedPreferencesWithCache sharedPrefs) async {
-  List<Map<String, Object?>> results = await db.query("users",
+Future<User?> _fetchUser(Database db, SharedPreferencesWithCache sharedPrefs, List<Map<String, Object?>> results) async {
+  results = await db.query("users",
     columns: ["id", "name", "createdAt", "password"]
   );
 
   int userID = sharedPrefs.getInt("user_id") ?? 0;
+  printTrack("userID:$userID");
   if (results.isEmpty || userID == 0) {
     return null;
   }
 
-  printLog("${results.length} user(s) found with values of: ${results.toString()}");
+  printInfo("${results.length} user(s) found with values of: ${results.toString()}");
   for (Map<String, Object?> data in results) {
     if (userID == data['id']) {
+      printTrack("User found! setting user!");
       return User.fromQuery(
         id: data['id']!,
         name: data['name']!,
@@ -102,7 +109,6 @@ Future<User?> _getUser(Database db, SharedPreferencesWithCache sharedPrefs) asyn
       );
     }
   }
-
   return null;
 }
 

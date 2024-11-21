@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     printAssert(company != null, "Company null!!!!!!");
-    printLog("name: ${company!.name}");
+    printInfo("name: ${company!.name}");
     return mainDisplay();
   }
 
@@ -189,7 +189,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 
-
   Widget leftDrawer() {
     return const Drawer(
       width: 250,
@@ -231,7 +230,6 @@ class _HomeScreenState extends State<HomeScreen> {
           AvertButton(
             name: "Yes",
             onPressed: () => Navigator.pop(context, true)
-
           ),
         ]
       ),
@@ -253,7 +251,7 @@ class EmptyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    printLog("Building EmptyScreen");
+    printInfo("Building EmptyScreen");
     return Scaffold(
       body: Container(
         width: MediaQuery.sizeOf(context).width,

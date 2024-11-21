@@ -64,7 +64,7 @@ class Company implements Document {
   @override
   Future<bool> insert() async {
     if (id > 0) {
-      printLog("Document is should already be in database with id of '$id'");
+      printInfo("Document is should already be in database with id of '$id'");
       return false;
     }
     if (await valuesNotValid()) return false;
@@ -97,7 +97,7 @@ class Company implements Document {
       return null;
     }
 
-    printLog("${results.length} companies found with values of: ${results.toString()}");
+    printInfo("${results.length} companies found with values of: ${results.toString()}");
     int companyID = sp.getInt("company_id") ?? 0;
     if (companyID == 0) {
       return Company(
@@ -177,7 +177,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   @override
   Widget build(BuildContext context) {
     printSuccess("Building Company Document");
-    printLog("company.id = ${widget.company.id}");
+    printInfo("company.id = ${widget.company.id}");
     return AvertDocument(
       isDirty: isDirty,
       onPop: popDocument,
@@ -326,7 +326,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     String msg = "Error writing the document to the database!";
     if (isNew) {
       bool success =  await company.insert();
-      printLog("id after company: ${company.id}");
+      printInfo("id after company: ${company.id}");
       if (widget.onCreate != null) widget.onCreate!();
       if (success) {
         msg = "Company '${company.name}' is successfully created!";
