@@ -8,9 +8,9 @@ import "dart:io";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _createAppDir();
-  List<Map<String, Object?>> results = [];
   User? user;
   Company? company;
+  bool hasUsers = false;
   Core.database = await openDatabase("avert.db",
     version: 1,
     onCreate: _onCreate,
@@ -20,8 +20,19 @@ void main() async {
           allowList: <String>{"user_id", "company_id"},
         )
       );
-      user = await _fetchUser(db, cachedPrefs, results);
-      printAssert(user != null ,"User is null");
+
+      int userID = cachedPrefs.getInt("user_id") ?? 0;
+      if ( userID != 0 ) {
+        user = await _fetchUser(db, userID);
+      }
+      hasUsers = user != null;
+      if (!hasUsers) {
+        List<Map<String, Object?>> results = await db.query("users",
+          columns: ["id"],
+        );
+        printInfo("${results.length} user(s) found with values of: ${results.toString()}");
+        hasUsers = results.isNotEmpty;
+      }
       company = await Company.fetchDefault(db, cachedPrefs);
       //company = await _getCompany(db, cachedPrefs);
     },
@@ -31,7 +42,7 @@ void main() async {
     title: "Avert",
     user: user,
     company: company,
-    hasUsers: results.isNotEmpty,
+    hasUsers: hasUsers,
   ));
 }
 
@@ -87,20 +98,20 @@ class App extends StatelessWidget {
   }
 }
 
-Future<User?> _fetchUser(Database db, SharedPreferencesWithCache sharedPrefs, List<Map<String, Object?>> results) async {
-  results = await db.query("users",
-    columns: ["id", "name", "createdAt", "password"]
+Future<User?> _fetchUser(Database db, int id) async {
+ List<Map<String, Object?>> results = await db.query("users",
+    columns: ["id", "name", "createdAt", "password"],
+    where: "id = ?",
+    whereArgs: [id],
   );
 
-  int userID = sharedPrefs.getInt("user_id") ?? 0;
-  printTrack("userID:$userID");
-  if (results.isEmpty || userID == 0) {
+  printInfo("${results.length} user(s) found with values of: ${results.toString()}");
+  if (results.isEmpty || id == 0) {
     return null;
   }
 
-  printInfo("${results.length} user(s) found with values of: ${results.toString()}");
   for (Map<String, Object?> data in results) {
-    if (userID == data['id']) {
+    if (id == data['id']) {
       printTrack("User found! setting user!");
       return User.fromQuery(
         id: data['id']!,
