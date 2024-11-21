@@ -3,9 +3,9 @@ import "package:sqflite/sqflite.dart";
 
 export "package:flutter/material.dart";
 export "package:sqflite/sqflite.dart";
-export "package:avert/core/documents/task.dart";
-export "package:avert/core/documents/user.dart";
-export "package:avert/core/documents/company.dart";
+export "package:avert/core/documents/task/document.dart";
+export "package:avert/core/documents/user/document.dart";
+export "package:avert/core/documents/company/document.dart";
 export "package:avert/core/utils/logger.dart";
 export "package:avert/core/utils/common.dart";
 

@@ -1,3 +1,4 @@
+import "package:avert/core/documents/user/view.dart";
 import "package:avert/core/core.dart";
 
 class HomeProfileDrawer extends StatefulWidget {

@@ -1,6 +1,7 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
+import "package:avert/core/documents/company/view.dart";
 import "dashboard.dart";
 import "profile_drawer.dart";
 
