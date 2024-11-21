@@ -271,20 +271,54 @@ class _ViewState extends State<UserView> implements DocumentView {
 }
 
 class UserListView extends StatefulWidget {
-  const UserListView({super.key, });
+  const UserListView({super.key, required this.user});
 
+  final User user;
   @override
   State<StatefulWidget> createState() => _ListViewState();
 }
 
 class _ListViewState extends State<UserListView> {
+  List<User> users = [];
+
   @override
   Widget build(BuildContext context) {
+    if (users.isEmpty) {
+      users.add(widget.user);
+      fetchOtherUsers();
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("Users"),
       ),
+      body: ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(users[index].name),
+          );
+       },
+      ),
     );
+  }
+
+  Future<void> fetchOtherUsers() async {
+    List<Map<String, Object?>> results = await Core.database!.query("users",
+      columns: ["id", "name", "createdAt"],
+      where: "id != ?",
+      whereArgs: [widget.user.id]
+    );
+    List<User> localUser = users;
+    for (Map<String, Object?> result in results ) {
+      localUser.add(User.fromQuery(
+        id: result["id"]!,
+        name: result["name"]!,
+        createdAt: result["createdAt"]!,
+      ));
+    }
+    if (results.isNotEmpty) {
+      setState(() => users = localUser);
+    }
   }
 }
 

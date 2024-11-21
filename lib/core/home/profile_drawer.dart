@@ -80,11 +80,10 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
               ),
             ),
             onTap: () {
-              return;
               Navigator.push(context, MaterialPageRoute(
                 builder: (BuildContext context) {
                   return UserListView(
-
+                    user: widget.user,
                   );
                 }
               ));
