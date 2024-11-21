@@ -1,4 +1,5 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/documents/user/views.dart";
 
 class HomeProfileDrawer extends StatefulWidget {
   const HomeProfileDrawer({super.key,
@@ -78,7 +79,16 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                 fontSize: 16,
               ),
             ),
-            onTap: () { printInfo("Open User list");}
+            onTap: () {
+              return;
+              Navigator.push(context, MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return UserListView(
+
+                  );
+                }
+              ));
+            }
           ),
           Divider(),
           ListTile(
