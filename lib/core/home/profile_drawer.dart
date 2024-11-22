@@ -22,6 +22,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    printTrack("Building Home Profile Drawer!");
     return Drawer(
       width: 250,
       child: Column(
@@ -55,7 +56,8 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                   builder: (context) => UserView(
                     user: widget.user,
                     onDelete: widget.onUserDelete,
-                    onSave: () {},
+                    onSave: () => setState(() => username = widget.user.name),
+                    viewOnly: false,
                   ),
                 )
               );

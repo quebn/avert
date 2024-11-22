@@ -22,6 +22,9 @@ class AvertInput extends StatefulWidget {
     this.validator,
     this.forceErrMsg,
     this.onChanged,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.decoration,
   });
 
   const AvertInput.alphanumeric({
@@ -35,6 +38,9 @@ class AvertInput extends StatefulWidget {
     this.validator,
     this.forceErrMsg,
     this.onChanged,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.decoration,
   }) : inputType = AvertInputType.alphanumeric;
 
   const AvertInput.password({
@@ -47,6 +53,9 @@ class AvertInput extends StatefulWidget {
     this.name = "Password",
     this.forceErrMsg,
     this.onChanged,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.decoration,
   }) : inputType = AvertInputType.password, required = true ;
 
   final String name;
@@ -54,11 +63,12 @@ class AvertInput extends StatefulWidget {
   final double gapPadding;
   final AvertInputType inputType;
   final TextEditingController controller;
-  final bool required;
+  final bool required, readOnly, autofocus;
   final String? Function(String? value)? validator;
   final String? forceErrMsg;
   final void Function(String? value)? onChanged;
-  
+  final InputDecoration? decoration;
+
   @override
   State<StatefulWidget> createState() => _InputState();
 }
@@ -82,14 +92,16 @@ class _InputState extends State<AvertInput> {
   Widget alphanumeric(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
     child: TextFormField(
+      readOnly: widget.readOnly,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
       ],
+      autofocus: widget.autofocus,
       validator: validate,
       controller: widget.controller,
       forceErrorText: widget.forceErrMsg,
       onChanged: widget.onChanged,
-      decoration: InputDecoration(
+      decoration: widget.decoration ?? InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
           gapPadding: widget.gapPadding,
@@ -104,11 +116,12 @@ class _InputState extends State<AvertInput> {
   Widget text(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
     child: TextFormField(
+      readOnly: widget.readOnly,
       validator: validate,
       controller: widget.controller,
       forceErrorText: widget.forceErrMsg,
       onChanged: widget.onChanged,
-      decoration: InputDecoration(
+      decoration: widget.decoration ?? InputDecoration(
         iconColor: Colors.white,
         border: OutlineInputBorder(
           gapPadding: widget.gapPadding,
@@ -122,6 +135,7 @@ class _InputState extends State<AvertInput> {
   Widget password(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
     child: TextFormField(
+      readOnly: widget.readOnly,
       validator: validate,
       obscureText: shouldObscure,
       forceErrorText: widget.forceErrMsg,
@@ -129,7 +143,7 @@ class _InputState extends State<AvertInput> {
       enableSuggestions: false,
       autocorrect: false,
       controller: widget.controller,
-      decoration: InputDecoration(
+      decoration: widget.decoration ?? InputDecoration(
         suffixIcon: showButton(context),
         iconColor: Colors.white,
         border: OutlineInputBorder(
@@ -155,9 +169,9 @@ class _InputState extends State<AvertInput> {
   );
 
   String? validate(String? value) {
-    printDebug("validating value: $value");
+    printInfo("validating value: $value");
     if (widget.required && (value == null || value.isEmpty)) {
-      printDebug("Required non empty field of ${widget.name}");
+      printInfo("Required non empty field of ${widget.name}");
       return "${widget.name} is required!";
     }
     return widget.validator == null ? null : widget.validator!(value);

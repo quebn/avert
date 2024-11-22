@@ -58,7 +58,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
 
   @override
   Widget build(BuildContext context) {
-    printSuccess("Building Company Document");
+    printTrack("Building Company Document");
     printInfo("company.id = ${widget.company.id}");
     return AvertDocument(
       isDirty: isDirty,

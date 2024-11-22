@@ -36,7 +36,7 @@ class _FormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    printSuccess("Building LoginForm");
+    printTrack("Building LoginForm");
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
         name: "Username",

@@ -12,9 +12,9 @@ class HomeScreen extends StatefulWidget {
     required this.company,
   });
 
- final String title;
- final User user;
- final Company? company;
+  final String title;
+  final User user;
+  final Company? company;
 
   @override
   State<StatefulWidget> createState() => _HomeScreenState();
@@ -74,8 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onDelete: onCompanyDelete,
       );
     }
-    printAssert(company != null, "Company null!!!!!!");
-    printInfo("name: ${company!.name}");
+    printTrack("Building EmptyScreen");
     return mainDisplay();
   }
 
@@ -252,7 +251,7 @@ class EmptyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    printInfo("Building EmptyScreen");
+    printTrack("Building EmptyScreen");
     return Scaffold(
       body: Container(
         width: MediaQuery.sizeOf(context).width,

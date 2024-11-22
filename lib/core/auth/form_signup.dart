@@ -4,8 +4,6 @@ import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "dart:convert";
 
-// IMPORTANT: do this first.
-// TEST: user registration.
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key, this.hasUsers = true});
 
@@ -36,12 +34,13 @@ class _FormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-    printSuccess("Building SignUpForm");
+    printTrack("Building SignUpForm");
     if (!widget.hasUsers){
       controllers['username']!.text = "Administrator";
     }
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
+        autofocus: true,
         name:"Username",
         controller: controllers['username']!,
         required: true,

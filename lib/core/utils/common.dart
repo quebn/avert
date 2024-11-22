@@ -45,7 +45,7 @@ Future<bool?> confirmPop(BuildContext context) {
   );
 }
 
-Future<bool?> promptEditField(BuildContext context, String title) {
+Future<bool?> promptConfirmPop(BuildContext context, String title) {
   printWarn("showing pop confirmation dialog");
   return showDialog<bool>(
     context: context,

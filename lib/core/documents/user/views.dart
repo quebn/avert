@@ -1,3 +1,4 @@
+import "package:avert/core/components/avert_input_prompt.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_button.dart";
@@ -8,14 +9,15 @@ class UserView extends StatefulWidget  {
     this.onSave,
     this.onDelete,
     this.onPop,
-    this.onSetDefault
+    this.onSetDefault,
+    this.viewOnly = true,
   });
 
   final User user;
   // NOTE: onDelete executes after the company is deleted in db.
   final void Function()? onSave, onDelete, onPop;
-  //final void Function(Map<String, Object?> values)? onSave;
   final bool Function()? onSetDefault;
+  final bool viewOnly;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
@@ -26,6 +28,7 @@ class _ViewState extends State<UserView> implements DocumentView {
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
   };
+
   bool isDirty = false;
 
   Future<bool?> confirmDelete() {
@@ -114,21 +117,20 @@ class _ViewState extends State<UserView> implements DocumentView {
 
   @override
   void saveDocument() async {
+    printInfo("Pressed save user.");
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
+      printInfo("not Valid apparently");
       return;
     }
 
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    User user = widget.user;
-    user.name = controllers['name']!.value.text;
+    widget.user.name = controllers['name']!.value.text;
     String msg = "Error writing the document to the database!";
 
-    bool success = await user.update();
+    bool success = await widget.user.update();
     if (success){
       if (widget.onSave != null) widget.onSave!();
-      msg = "Successfully changed company details";
+      msg = "Successfully changed user details";
     }
 
     if (mounted) notifyUpdate(context, msg);
@@ -150,13 +152,14 @@ class _ViewState extends State<UserView> implements DocumentView {
 
   @override
   Widget build(BuildContext context) {
+    printTrack("Building UserView");
     return AvertDocument(
+      formKey: key,
       isDirty: isDirty,
       bgColor: Colors.black,
       onPop: popDocument,
       widgetsBody: [
-        // IMPORTANT: make proper profile page look.
-        // Card
+        // TODO: edit user.name
         profileHeader(),
         profileBody(),
       ],
@@ -190,21 +193,21 @@ class _ViewState extends State<UserView> implements DocumentView {
               child: Padding(
                 padding: EdgeInsets.only(top: 80, bottom: 16),
                 child: Column(
-                  //crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // NOTE: probably not a great impl but is cool.
+                    AvertInputPrompt(
+                      controller: controllers['name']!,
+                      text: widget.user.name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onValueChange: onNameChange,
+                      viewOnly: widget.viewOnly,
+                    ),
                     // TODO: add indicator for when if user is admin. (maybe a crown icon)
                     // user is admin if id is 1.
-                    Center(
-                      child: TextButton(
-                        onPressed: () {},//promptEditField(),
-                        child: Text(widget.user.name,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // probably overdoing this thing.
                     // NOTE: add header widgets here.
                   ],
                 ),
@@ -234,10 +237,7 @@ class _ViewState extends State<UserView> implements DocumentView {
         shadowColor: Colors.black,
         child: Column(
           children: [
-            // TODO: add indicator for when if user is admin. (maybe a crown icon)
-            // user is admin if id is 1.
             dangerSection(),
-            // NOTE: add header widgets here.
           ],
         ),
       ),
@@ -246,7 +246,7 @@ class _ViewState extends State<UserView> implements DocumentView {
 
   Widget dangerSection() => Container(
     padding:EdgeInsets.symmetric(vertical: 16),
-    child: Column(
+    child: widget.viewOnly ? Container() : Column(
       children: [
         const Padding(
           padding:EdgeInsets.only(bottom: 8),
@@ -283,6 +283,7 @@ class _ListViewState extends State<UserListView> {
 
   @override
   Widget build(BuildContext context) {
+    printTrack("Building User List View");
     if (users.isEmpty) {
       users.add(widget.user);
       fetchOtherUsers();
@@ -292,10 +293,11 @@ class _ListViewState extends State<UserListView> {
         title: const Text("Users"),
       ),
       body: ListView.builder(
+        padding: EdgeInsets.all(8),
         itemCount: users.length,
         itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: Text(users[index].name),
+          return UserListTile(
+            user: users[index],
           );
        },
       ),
@@ -322,22 +324,67 @@ class _ListViewState extends State<UserListView> {
   }
 }
 
-class UserListTile extends StatefulWidget {
+class UserListTile extends StatelessWidget {
   const UserListTile({super.key,
     required this.user,
+    this.bgColor = Colors.black,
+    this.fgColor,
+    this.subColor,
+    this.onTap,
+    this.viewOnly = true,
   });
 
   final User user;
-  @override
-  State<StatefulWidget> createState() => _ListTileState();
-}
-
-class _ListTileState extends State<UserListTile> {
+  final Color bgColor;
+  final Color? fgColor, subColor;
+  final void Function()? onTap;
+  final bool viewOnly;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(widget.user.name),
+    printTrack("Building List Tile View!");
+    return Card(
+      color: bgColor,
+      child: ListTile(
+        selectedColor: bgColor,
+        selectedTileColor: bgColor,
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (BuildContext context) {
+              // NOTE: make userview from listview read only if user want to change his/her profile,
+              // it should be done in in profile tile from home profile drawer.
+              return UserView(
+                user: user,
+                viewOnly: viewOnly,
+              );
+            }
+          ));
+        },
+        contentPadding: const EdgeInsets.all(10),
+        leading: CircleAvatar(
+          backgroundColor: Colors.white,
+          radius: 32,
+          // NOTE: use first letter in Username if no image is provided.
+          // TODO: add profile image for user later.
+          child: Text(user.name[0],
+            style: TextStyle(
+              color: fgColor,
+              fontSize: 24,
+            ),
+          )
+        ),
+        subtitle: Text(user.isAdmin ? "Admin" : "User"),
+        title: Text(user.name,
+        ),
+        subtitleTextStyle: const TextStyle(
+          fontSize: 20,
+        ),
+        titleTextStyle: TextStyle(
+          color: fgColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+        ),
+      ),
     );
   }
 }
