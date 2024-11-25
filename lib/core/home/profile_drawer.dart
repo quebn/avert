@@ -18,8 +18,7 @@ class HomeProfileDrawer extends StatefulWidget {
 
 class _ProfileDrawerState extends State<HomeProfileDrawer> {
   late String username = widget.user.name;
-  // todo: have a variable that will update the users picture if changed.
-
+  // TODO: have a variable that will update the users picture if changed.
   @override
   Widget build(BuildContext context) {
     printTrack("Building Home Profile Drawer!");
@@ -64,16 +63,16 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
             }
           ),
           Divider(),
-          ListTile(
-            leading: const Icon(Icons.check_box_rounded),
-            title: const Text("Tasks",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printInfo("Open Task list");}
-          ),
-          Divider(),
+          //ListTile(
+          //  leading: const Icon(Icons.check_box_rounded),
+          //  title: const Text("Tasks",
+          //    style: TextStyle(
+          //      fontSize: 16,
+          //    ),
+          //  ),
+          //  onTap: () { printInfo("Open Task list");}
+          //),
+          //Divider(),
           ListTile(
             leading: const Icon(Icons.groups_3_rounded),
             title: const Text("Users",
@@ -122,10 +121,10 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                   title: const Text("Log Out",
                     style: TextStyle(
                       fontSize: 16,
-                      ),
                     ),
-                  onTap: widget.onLogout,
                   ),
+                  onTap: widget.onLogout,
+                ),
               ]
             ),
           ),

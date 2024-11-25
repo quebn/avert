@@ -40,9 +40,13 @@ abstract class Document {
 
 abstract class DocumentView {
   void initDocumentFields();
-  void saveDocument();
+  void updateDocument();
   Future<void> deleteDocument();
-  Future<void> popDocument(bool didPop, Object? value);
+}
+
+abstract class DocumentNew {
+  void initDocumentFields();
+  void insertDocument();
 }
 
 class Core {

@@ -1,6 +1,5 @@
 import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
 
 // TODO: Do something on the ff. in the future.
@@ -10,9 +9,7 @@ import "package:avert/core/core.dart";
 class CompanyView extends StatefulWidget {
   const CompanyView({super.key,
     required this.company,
-    this.onCreate,
-    this.onSave,
-    this.onSubmit,
+    this.onUpdate,
     this.onDelete,
     this.onPop,
     this.onSetDefault
@@ -20,8 +17,7 @@ class CompanyView extends StatefulWidget {
 
   final Company company;
   // NOTE: onDelete executes after the company is deleted in db.
-  final void Function()? onCreate, onSave, onSubmit, onDelete, onPop;
-  //final void Function(Map<String, Object?> values)? onSave;
+  final void Function()? onUpdate, onDelete, onPop;
   final bool Function()? onSetDefault;
 
   @override
@@ -36,7 +32,6 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   };
 
   bool isDirty = false;
-  bool isNew = true;
   bool get formStatus => widget.company.id == 0;
 
   @override
@@ -44,7 +39,6 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     super.initState();
     initDocumentFields();
     controllers['name']!.addListener(onNameChange);
-    isNew = formStatus;
   }
 
   @override
@@ -61,11 +55,36 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     printTrack("Building Company Document");
     printInfo("company.id = ${widget.company.id}");
     return AvertDocument(
+      name: widget.company.name,
+      image: IconButton(
+        icon: CircleAvatar(
+          radius: 50,
+          child: Text(widget.company.name[0].toUpperCase(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 50,
+            ),
+          ),
+        ),
+        onPressed: () => printInfo("Pressed Profile Pic"),
+      ),
+      titleChildren: [
+        Text(widget.company.name,
+          style: const TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Text("Current Company",
+          style: TextStyle(
+            fontSize: 18,
+          ),
+        ),
+
+      ],
       isDirty: isDirty,
-      onPop: popDocument,
-      yPadding: 16,
-      xPadding: 16,
-      actions: isNew ? null :  [
+      onPop: widget.onPop,
+      actions: [
         TextButton(
           onPressed: setAsDefault,
           child: const Text("Set as Default",
@@ -87,20 +106,12 @@ class _ViewState extends State<CompanyView> implements DocumentView {
         ),
       ],
       floationActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: saveDocument,
+        onPressed: updateDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
       formKey: key,
-      title: isNew ? "New Company" : widget.company.name,
-      widgetsBody: [
-        AvertInput(
-          yPadding: 8,
-          name: "Name",
-          controller: controllers['name']!,
-          required: true,
-        ),
-      ],
+      body: Container(),
     );
   }
 
@@ -177,54 +188,34 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     }
   }
 
-  @override
-  Future<void> popDocument(bool didPop, Object? value) async {
-    if (didPop) {
-      if (widget.onPop != null && !isDirty) widget.onPop!();
-      return;
-    }
-
-    final bool shouldPop = await confirmPop(context) ?? false;
-    if (shouldPop && mounted) {
-      Navigator.pop(context);
-    }
-  }
-
   void onNameChange() => onFieldChange(<bool>() {
     return controllers['name']!.text != widget.company.name;
   });
 
   @override
-  Future<void> saveDocument() async {
+  void updateDocument() async {
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }
-
     FocusScope.of(context).requestFocus(FocusNode());
 
     Company company = widget.company;
     company.name = controllers['name']!.value.text;
+
     String msg = "Error writing the document to the database!";
-    if (isNew) {
-      bool success =  await company.insert();
-      printInfo("id after company: ${company.id}");
-      if (widget.onCreate != null) widget.onCreate!();
-      if (success) {
-        msg = "Company '${company.name}' is successfully created!";
-      }
-    } else {
-      bool success = await company.update();
-      if (success){
-        if (widget.onSave != null) widget.onSave!();
-        msg = "Successfully changed company details";
-      }
+
+    bool success = await company.update();
+
+    if (success) {
+      if (widget.onUpdate != null) widget.onUpdate!();
+      msg = "Successfully changed company details";
     }
 
     if (mounted) notifyUpdate(context, msg);
+
     setState(() {
       isDirty = false;
-      isNew = formStatus;
     });
   }
 }

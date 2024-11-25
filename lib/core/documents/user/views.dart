@@ -1,4 +1,3 @@
-import "package:avert/core/components/avert_input_prompt.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_button.dart";
@@ -102,21 +101,7 @@ class _ViewState extends State<UserView> implements DocumentView {
     }
   }
 
-  @override
-  Future<void> popDocument(bool didPop, Object? value) async {
-    if (didPop) {
-      if (widget.onPop != null && !isDirty) widget.onPop!();
-      return;
-    }
-
-    final bool shouldPop = await confirmPop(context) ?? false;
-    if (shouldPop && mounted) {
-      Navigator.pop(context);
-    }
-  }
-
-  @override
-  void saveDocument() async {
+  void insertDocument() async {
     printInfo("Pressed save user.");
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
@@ -154,17 +139,37 @@ class _ViewState extends State<UserView> implements DocumentView {
   Widget build(BuildContext context) {
     printTrack("Building UserView");
     return AvertDocument(
+      name: widget.user.name,
+      image: IconButton(
+        icon: CircleAvatar(
+          radius: 50,
+          child: Text(widget.user.name[0].toUpperCase(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 50,
+            ),
+          ),
+        ),
+        onPressed: () => printInfo("Pressed Profile Pic"),
+      ),
+      titleChildren: [
+        Text(widget.user.name,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(widget.user.isAdmin ? "Admin" : "User",
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
+      ],
       formKey: key,
       isDirty: isDirty,
-      bgColor: Colors.black,
-      onPop: popDocument,
-      widgetsBody: [
-        // TODO: edit user.name
-        profileHeader(),
-        profileBody(),
-      ],
+      body: profileBody(),
       floationActionButton: !isDirty ? null : IconButton.filled(
-        onPressed: saveDocument,
+        onPressed: insertDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
@@ -176,76 +181,18 @@ class _ViewState extends State<UserView> implements DocumentView {
     controllers['name']!.text = widget.user.name;
   }
 
-  Widget profileHeader() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        alignment: AlignmentDirectional.topCenter,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: 72),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              shadowColor: Colors.black,
-              child: Padding(
-                padding: EdgeInsets.only(top: 80, bottom: 16),
-                child: Column(
-                  children: [
-                    // NOTE: probably not a great impl but is cool.
-                    AvertInputPrompt(
-                      controller: controllers['name']!,
-                      text: widget.user.name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      onValueChange: onNameChange,
-                      viewOnly: widget.viewOnly,
-                    ),
-                    // TODO: add indicator for when if user is admin. (maybe a crown icon)
-                    // user is admin if id is 1.
-                    // probably overdoing this thing.
-                    // NOTE: add header widgets here.
-                  ],
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const CircleAvatar(
-              backgroundColor: Colors.grey,
-              radius: 72,
-            ),
-            onPressed: () => printInfo("Pressed Profile Pic"),
-          ),
-        ]
-      ),
-    );
-  }
-
   Widget profileBody() {
     return Container(
-      margin: EdgeInsets.only(top: 24),
       padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        shadowColor: Colors.black,
-        child: Column(
-          children: [
-            dangerSection(),
-          ],
-        ),
+      child: Column(
+        children: [
+          dangerSection(),
+        ],
       ),
     );
   }
 
   Widget dangerSection() => Container(
-    padding:EdgeInsets.symmetric(vertical: 16),
     child: widget.viewOnly ? Container() : Column(
       children: [
         const Padding(
@@ -268,6 +215,11 @@ class _ViewState extends State<UserView> implements DocumentView {
       ]
     ),
   );
+
+  @override
+  void updateDocument() {
+    // TODO: implement updateDocument
+  }
 }
 
 class UserListView extends StatefulWidget {
@@ -299,7 +251,7 @@ class _ListViewState extends State<UserListView> {
           return UserListTile(
             user: users[index],
           );
-       },
+        },
       ),
     );
   }
@@ -366,17 +318,17 @@ class UserListTile extends StatelessWidget {
           radius: 32,
           // NOTE: use first letter in Username if no image is provided.
           // TODO: add profile image for user later.
-          child: Text(user.name[0],
+          child: Text(user.name[0].toUpperCase(),
             style: TextStyle(
-              color: fgColor,
+              color: bgColor,
               fontSize: 24,
             ),
           )
         ),
         subtitle: Text(user.isAdmin ? "Admin" : "User"),
-        title: Text(user.name,
-        ),
-        subtitleTextStyle: const TextStyle(
+        title: Text(user.name),
+        subtitleTextStyle: TextStyle(
+          color: fgColor,
           fontSize: 20,
         ),
         titleTextStyle: TextStyle(

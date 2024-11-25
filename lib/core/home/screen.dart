@@ -1,7 +1,8 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/documents/company/views.dart";
+import "package:avert/core/documents/company/new.dart";
+import "package:avert/core/documents/company/view.dart";
 import "dashboard.dart";
 import "profile_drawer.dart";
 
@@ -71,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
           printTrack("Pooping");
           setState(() => company = c);
         },
-        onDelete: onCompanyDelete,
       );
     }
     printTrack("Building EmptyScreen");
@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => CompanyView(
                 company: company!,
                 onDelete: onCompanyDelete,
-                onSave: () => setState(() {}),
+                onUpdate: () => setState(() {}),
               ),
             )
           );
@@ -241,13 +241,11 @@ class _HomeScreenState extends State<HomeScreen> {
 class EmptyScreen extends StatelessWidget {
   const EmptyScreen({super.key,
     required this.company,
-    required this.onDelete,
     required this.onPop,
   });
 
   final Company company;
   final void Function()? onPop;
-  final void Function()? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -275,10 +273,9 @@ class EmptyScreen extends StatelessWidget {
                 printDebug("Redirecting to Company Creation Page.");
                 Navigator.push(context,
                   MaterialPageRoute(
-                    builder: (context) => CompanyView(
+                    builder: (context) => CompanyNew(
                       company: company,
                       onPop: onPop,
-                      onDelete: onDelete,
                     ),
                   )
                 );

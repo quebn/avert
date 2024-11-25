@@ -145,7 +145,7 @@ _onCreate(Database db, int version) async {
   Batch batch = db.batch();
   batch.execute(User.getTableQuery());
   batch.execute(Company.getTableQuery());
-  batch.execute(Task.getTableQuery());
+  //batch.execute(Task.getTableQuery()); // NOTE: Not planned for first release.
   //batch.execute(Accounting.getTableQuery()):
   await batch.commit();
 }
