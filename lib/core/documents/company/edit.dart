@@ -1,26 +1,22 @@
 import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
-import "view.dart";
 
-class CompanyNewForm extends StatefulWidget {
-  const CompanyNewForm({super.key,
+class CompanyEditForm extends StatefulWidget {
+  const CompanyEditForm({super.key,
     required this.company,
-    this.onInsert,
+    this.onUpdate,
     this.onPop,
-    this.onSetDefault,
   });
 
   final Company company;
-  final void Function()? onInsert, onPop;
-  final bool Function()? onSetDefault;
+  final void Function()? onUpdate, onPop;
 
   @override
-  State<StatefulWidget> createState() => _NewState();
+  State<StatefulWidget> createState() => _ViewState();
 }
 
-class _NewState extends State<CompanyNewForm> implements DocumentNew {
+class _ViewState extends State<CompanyEditForm> implements DocumentEdit {
 
   final GlobalKey<FormState> key = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {
@@ -48,32 +44,22 @@ class _NewState extends State<CompanyNewForm> implements DocumentNew {
 
   @override
   Widget build(BuildContext context) {
-    printTrack("Building Company Document");
+    printTrack("Building Company Document View");
     printInfo("company.id = ${widget.company.id}");
+    // IMPORTANT: Should be CompanyDocumentView
     return AvertDocumentForm(
-      xPadding: 16,
-      name: "Company",
-      widgetsBody: [
-        AvertInput(
-          name: "Name",
-          controller: controllers['name']!,
-        )
-      ],
-      isDirty: isDirty,
-      floatingActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: insertDocument,
+      name: widget.company.name,
+      widgetsBody: [],
+      //isDirty: isDirty,
+      onPop: widget.onPop,
+      floatingActionButton:IconButton.filled(
+        onPressed: updateDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
-      formKey: key,
+      //formKey: key,
     );
   }
-
-  @override
-  void initDocumentFields() {
-    controllers['name']!.text = widget.company.name;
-  }
-
 
   void onFieldChange(Function<bool>() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
@@ -117,38 +103,34 @@ class _NewState extends State<CompanyNewForm> implements DocumentNew {
   });
 
   @override
-  Future<void> insertDocument() async {
+  void updateDocument() async {
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }
-
     FocusScope.of(context).requestFocus(FocusNode());
 
     Company company = widget.company;
     company.name = controllers['name']!.value.text;
 
-
-    bool success =  await company.insert();
-
     String msg = "Error writing the document to the database!";
 
-    if (success) {
-      if (widget.onInsert != null) widget.onInsert!();
-      msg = "Company '${company.name}' is successfully created!";
+    bool success = await company.update();
 
-      if (mounted) {
-        Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(
-          builder: (BuildContext context) {
-            return CompanyView(
-              company: widget.company,
-              onPop: widget.onPop,
-            );
-          }
-        ));
-        notifyUpdate(context, msg);
-      }
+    if (success) {
+      if (widget.onUpdate != null) widget.onUpdate!();
+      msg = "Successfully changed company details";
     }
+
+    if (mounted) notifyUpdate(context, msg);
+
+    setState(() {
+      isDirty = false;
+    });
+  }
+
+  @override
+  void initDocumentFields() {
+    controllers['name']!.text = widget.company.name;
   }
 }

@@ -273,7 +273,7 @@ class EmptyScreen extends StatelessWidget {
                 printDebug("Redirecting to Company Creation Page.");
                 Navigator.push(context,
                   MaterialPageRoute(
-                    builder: (context) => CompanyNew(
+                    builder: (context) => CompanyNewForm(
                       company: company,
                       onPop: onPop,
                     ),

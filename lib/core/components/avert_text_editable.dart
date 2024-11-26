@@ -16,7 +16,6 @@ class AvertTextEditable extends StatefulWidget {
     this.onChanged,
   });
 
-
   final String name;
   final double xPadding, yPadding;
   final double gapPadding;
@@ -32,12 +31,14 @@ class AvertTextEditable extends StatefulWidget {
 }
 
 class _TextEditableState extends State<AvertTextEditable> {
+  bool editing = false;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
       child: TextFormField(
+        readOnly: !editing,
         style: TextStyle(
           fontSize: widget.fontSize,
           fontWeight: FontWeight.bold,
@@ -48,7 +49,11 @@ class _TextEditableState extends State<AvertTextEditable> {
         forceErrorText: widget.forceErrMsg,
         onChanged: widget.onChanged,
         expands: false,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
+          suffix: editing ? null : IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.edit_outlined),
+          ),
           border: InputBorder.none,
         ),
       )

@@ -1,5 +1,5 @@
 import "package:avert/core/core.dart";
-import "package:avert/core/documents/user/views.dart";
+import "package:avert/core/documents/user/view.dart";
 
 class HomeProfileDrawer extends StatefulWidget {
   const HomeProfileDrawer({super.key,

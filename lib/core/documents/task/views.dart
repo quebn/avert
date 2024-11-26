@@ -22,7 +22,7 @@ class _ViewState extends State<TaskView> implements DocumentView {
     List<Widget> widgets = [
       // TODO: create Todo document view look.
     ];
-    return AvertDocumentNew(
+    return AvertDocumentForm(
       name: "Task",
       widgetsBody: widgets,
     );
@@ -34,13 +34,4 @@ class _ViewState extends State<TaskView> implements DocumentView {
     throw UnimplementedError();
   }
 
-  @override
-  void initDocumentFields() {
-    // TODO: implement initDocumentFields
-  }
-
-  @override
-  void updateDocument() {
-    // TODO: implement updateDocument
-  }
 }

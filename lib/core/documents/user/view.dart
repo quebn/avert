@@ -23,12 +23,12 @@ class UserView extends StatefulWidget  {
 }
 
 class _ViewState extends State<UserView> implements DocumentView {
-  final GlobalKey<FormState> key = GlobalKey<FormState>();
-  final Map<String, TextEditingController> controllers = {
-    'name': TextEditingController(),
-  };
+  //final GlobalKey<FormState> key = GlobalKey<FormState>();
+  //final Map<String, TextEditingController> controllers = {
+  //  'name': TextEditingController(),
+  //};
 
-  bool isDirty = false;
+  //bool isDirty = false;
 
   Future<bool?> confirmDelete() {
     return showDialog<bool>(
@@ -59,26 +59,25 @@ class _ViewState extends State<UserView> implements DocumentView {
     );
   }
 
-  void onNameChange() => onFieldChange(<bool>() {
-    return controllers['name']!.text != widget.user.name;
-  });
+  //void onNameChange() => onFieldChange(<bool>() {
+  //  return controllers['name']!.text != widget.user.name;
+  //});
+  //
+  //@override
+  //void initState() {
+  //  super.initState();
+  //  controllers['name']!.addListener(onNameChange);
+  //
+  //}
 
-  @override
-  void initState() {
-    super.initState();
-    initDocumentFields();
-    controllers['name']!.addListener(onNameChange);
-
-  }
-
-  @override
-  void dispose() {
-    controllers['name']!.removeListener(onNameChange);
-    for (TextEditingController controller in controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+  //@override
+  //void dispose() {
+  //  controllers['name']!.removeListener(onNameChange);
+  //  for (TextEditingController controller in controllers.values) {
+  //    controller.dispose();
+  //  }
+  //  super.dispose();
+  //}
 
   @override
   Future<void> deleteDocument() async {
@@ -101,44 +100,44 @@ class _ViewState extends State<UserView> implements DocumentView {
     }
   }
 
-  void insertDocument() async {
-    printInfo("Pressed save user.");
-    final bool isValid = key.currentState?.validate() ?? false;
-    if (!isValid) {
-      printInfo("not Valid apparently");
-      return;
-    }
+  //void insertDocument() async {
+  //  printInfo("Pressed save user.");
+  //  final bool isValid = key.currentState?.validate() ?? false;
+  //  if (!isValid) {
+  //    printInfo("not Valid apparently");
+  //    return;
+  //  }
+  //
+  //  widget.user.name = controllers['name']!.value.text;
+  //  String msg = "Error writing the document to the database!";
+  //
+  //  bool success = await widget.user.update();
+  //  if (success){
+  //    if (widget.onSave != null) widget.onSave!();
+  //    msg = "Successfully changed user details";
+  //  }
+  //
+  //  if (mounted) notifyUpdate(context, msg);
+  //  setState(() {
+  //    isDirty = false;
+  //  });
+  //}
 
-    widget.user.name = controllers['name']!.value.text;
-    String msg = "Error writing the document to the database!";
-
-    bool success = await widget.user.update();
-    if (success){
-      if (widget.onSave != null) widget.onSave!();
-      msg = "Successfully changed user details";
-    }
-
-    if (mounted) notifyUpdate(context, msg);
-    setState(() {
-      isDirty = false;
-    });
-  }
-
-  void onFieldChange(Function<bool>() isDirtyCallback) {
-    final bool isReallyDirty = isDirtyCallback();
-    if (isReallyDirty == isDirty) {
-      return;
-    }
-    printTrack("Setting state of is dirty = $isReallyDirty");
-    setState(() {
-      isDirty = isReallyDirty;
-    });
-  }
+  //void onFieldChange(Function<bool>() isDirtyCallback) {
+  //  final bool isReallyDirty = isDirtyCallback();
+  //  if (isReallyDirty == isDirty) {
+  //    return;
+  //  }
+  //  printTrack("Setting state of is dirty = $isReallyDirty");
+  //  setState(() {
+  //    isDirty = isReallyDirty;
+  //  });
+  //}
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building UserView");
-    return AvertDocument(
+    return AvertDocumentView(
       name: widget.user.name,
       image: IconButton(
         icon: CircleAvatar(
@@ -165,20 +164,15 @@ class _ViewState extends State<UserView> implements DocumentView {
           ),
         ),
       ],
-      formKey: key,
-      isDirty: isDirty,
+      //formKey: key,
+      //isDirty: isDirty,
       body: profileBody(),
-      floationActionButton: !isDirty ? null : IconButton.filled(
-        onPressed: insertDocument,
-        iconSize: 48,
-        icon: Icon(Icons.save_rounded)
-      ),
+      //floationActionButton: !isDirty ? null : IconButton.filled(
+      //  onPressed: insertDocument,
+      //  iconSize: 48,
+      //  icon: Icon(Icons.save_rounded)
+      //),
     );
-  }
-
-  @override
-  void initDocumentFields() {
-    controllers['name']!.text = widget.user.name;
   }
 
   Widget profileBody() {
@@ -215,11 +209,6 @@ class _ViewState extends State<UserView> implements DocumentView {
       ]
     ),
   );
-
-  @override
-  void updateDocument() {
-    // TODO: implement updateDocument
-  }
 }
 
 class UserListView extends StatefulWidget {

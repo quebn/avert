@@ -1,35 +1,29 @@
 import "package:flutter/material.dart";
 import "package:avert/core/utils/common.dart";
 
-class AvertDocument extends StatelessWidget {
-  const AvertDocument({super.key,
+class AvertDocumentView extends StatelessWidget {
+  const AvertDocumentView({super.key,
     required this.name,
     required this.titleChildren,
-    this.onPop,
     this.image,
     this.body,
     this.headerContent,
-    this.formKey,
     this.headerPadding,
     this.headerTitlePadding,
     this.headerContentPadding,
     this.bodyPadding,
-    this.floationActionButton,
     this.actions,
-    this.isDirty = true,
+    this.floatingActionButton,
   });
 
   final String name;
   final EdgeInsetsGeometry? headerPadding, bodyPadding;
   final EdgeInsetsGeometry? headerContentPadding;
   final EdgeInsetsGeometry? headerTitlePadding;
-  final Widget? floationActionButton;
+  final Widget? floatingActionButton;
   final Widget? image, headerContent, body;
-  final GlobalKey<FormState>? formKey;
   final List<Widget>? actions;
   final List<Widget> titleChildren;
-  final void Function()? onPop;
-  final bool isDirty;
 
   @override
   Widget build(BuildContext context) {
@@ -38,28 +32,14 @@ class AvertDocument extends StatelessWidget {
       appBar: AppBar(
         actions: actions,
       ),
-      body: Form(
-          canPop: !isDirty,
-          onPopInvokedWithResult: (bool didPop, Object? value) async {
-            if (didPop) {
-              if (onPop != null && !isDirty) onPop!();
-              return;
-            }
-            final bool shouldPop = await confirmPop(context) ?? false;
-            if (shouldPop && context.mounted) {
-              Navigator.pop(context);
-            }
-          },
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _headerContent(),
-              _bodyContent(),
-            ]
-          ),
-        ),
-      floatingActionButton: floationActionButton,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _headerContent(),
+          _bodyContent(),
+        ]
+      ),
+      floatingActionButton: floatingActionButton,
     );
   }
 
@@ -106,16 +86,15 @@ class AvertDocument extends StatelessWidget {
   }
 }
 
-// IMPORTANT: should only be use for new Documents.
-class AvertDocumentNew extends StatelessWidget {
-  const AvertDocumentNew({super.key,
+class AvertDocumentForm extends StatelessWidget {
+  const AvertDocumentForm({super.key,
     required this.widgetsBody,
     required this.name,
     this.onPop,
     this.formKey,
     this.xPadding = 0,
     this.yPadding = 0,
-    this.floationActionButton,
+    this.floatingActionButton,
     this.widgetsFooter,
     this.leading,
     this.actions,
@@ -128,7 +107,7 @@ class AvertDocumentNew extends StatelessWidget {
   final List<Widget> widgetsBody;
   final GlobalKey<FormState>? formKey;
   final List<Widget>? widgetsFooter;
-  final Widget? floationActionButton;
+  final Widget? floatingActionButton;
   final Widget? leading;
   final List<Widget>? actions;
   final void Function()? onPop;
@@ -174,7 +153,7 @@ class AvertDocumentNew extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: floationActionButton,
+      floatingActionButton: floatingActionButton,
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: widgetsFooter,
     );
