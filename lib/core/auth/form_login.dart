@@ -85,14 +85,14 @@ class _FormState extends State<LoginForm> {
   }
 
   Future<void> authenticateUser() async {
-    printDebug("Logging in!");
+    printInfo("Logging in!");
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
-    printDebug("Validating the ff. values -> Username: $username | Password: $password");
+    printInfo("Validating the ff. values -> Username: $username | Password: $password");
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
 

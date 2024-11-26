@@ -91,16 +91,16 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
             }
           ),
           Divider(),
-          ListTile(
-            leading: const Icon(Icons.business_rounded),
-            title: const Text("Companies",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printInfo("Open Company list");}
-          ),
-          Divider(),
+          //ListTile(
+          //  leading: const Icon(Icons.business_rounded),
+          //  title: const Text("Companies",
+          //    style: TextStyle(
+          //      fontSize: 16,
+          //    ),
+          //  ),
+          //  onTap: () { printInfo("Open Company list");}
+          //),
+          //Divider(),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text("App Settings",

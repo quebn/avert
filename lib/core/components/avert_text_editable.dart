@@ -61,9 +61,9 @@ class _TextEditableState extends State<AvertTextEditable> {
   }
 
   String? validate(String? value) {
-    printDebug("validating value: $value");
+    printInfo("validating value: $value");
     if (widget.required && (value == null || value.isEmpty)) {
-      printDebug("Required non empty field of ${widget.name}");
+      printInfo("Required non empty field of ${widget.name}");
       return "${widget.name} is required!";
     }
     return widget.validator == null ? null : widget.validator!(value);

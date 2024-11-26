@@ -68,15 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
       Company c = Company();
       return EmptyScreen(
         company: c,
-        // HACK: this two call could be better.
-        onCreate: () {
-          printWarn("On Create from EmptyScreen");
-          setState(() => company = c);
-        },
-        onUpdate: () {
-          printTrack("On Update from EmptyScreen", id:"THIS");
-          setState(() {});
-        }
+        onCreate: () => setState(() => company = c),
+        onUpdate: () => setState(() {}),
       );
     }
     printTrack("Building HomeSceen");
@@ -91,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
     appBar: AppBar(
       title: TextButton(
         onPressed: () {
-          printDebug("Viewing Current Company!");
+          printInfo("Viewing Current Company!");
           Navigator.push(context,
             MaterialPageRoute(
               builder: (context) => CompanyView(
@@ -118,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.only(right:16),
           icon: const Icon(Icons.notifications_rounded),
           iconSize: 30,
-          onPressed: () => printDebug("Pressed Notification Button!"),
+          onPressed: () => printInfo("Pressed Notification Button!"),
           //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
         ),
         Builder(
@@ -180,7 +173,6 @@ class _HomeScreenState extends State<HomeScreen> {
           label: "Documents",
           activeIcon: Icon(Icons.library_books_sharp),
         ),
-        // TODO: might add create button for quick document creation.
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart_outlined),
           label: "Reports",
@@ -219,7 +211,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<bool?> confirmLogout() async {
-  // TODO: make title or anything in the dialog change color depending on the results.
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -277,7 +268,7 @@ class EmptyScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                printDebug("Redirecting to Company Creation Page.");
+                printInfo("Redirecting to Company Creation Page.");
                 Navigator.push(context,
                   MaterialPageRoute(
                     builder: (context) => CompanyForm(

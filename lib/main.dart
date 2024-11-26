@@ -131,21 +131,21 @@ Future<bool> _createAppDir() async {
   const String path = "/storage/emulated/0/Avert";
   var status = await Permission.manageExternalStorage.request();
   if (status.isDenied) {
-    printDebug("Storage access permission denied!", level: LogLevel.error);
+    printError("Storage access permission denied!");
   } else {
-    printDebug("Storage access permission granted!");
+    printInfo("Storage access permission granted!");
   }
   Directory dir = await Directory(path).create(recursive: true);
-  printDebug("Avert Directory path: ${dir.path} uri: ${dir.uri}", level:LogLevel.warn);
+  printWarn("Avert Directory path: ${dir.path} uri: ${dir.uri}");
   return status.isDenied;
 }
 
 _onCreate(Database db, int version) async {
-  printDebug("Creating Database tables");
+  printInfo("Creating Database tables");
   Batch batch = db.batch();
   batch.execute(User.getTableQuery());
   batch.execute(Company.getTableQuery());
-  //batch.execute(Task.getTableQuery()); // NOTE: Not planned for first release.
+  //batch.execute(Task.getTableQuery()); // NOTE: Not planned.
   //batch.execute(Accounting.getTableQuery()):
   await batch.commit();
 }

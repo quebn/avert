@@ -13,7 +13,6 @@ class UserView extends StatefulWidget  {
   });
 
   final User user;
-  // NOTE: onDelete executes after the company is deleted in db.
   final void Function()? onSave, onDelete, onPop;
   final bool Function()? onSetDefault;
   final bool viewOnly;
@@ -93,7 +92,6 @@ class _ViewState extends State<UserView> implements DocumentView {
     if (success && mounted) {
       printSuccess("User Deleted!");
       Navigator.maybePop(context);
-      // NOTE: snackbar notification should be handled inside the onDelete function.
       if (widget.onDelete != null) widget.onDelete!();
     } else {
       printInfo("User not Deleted!");
@@ -292,8 +290,6 @@ class UserListTile extends StatelessWidget {
         onTap: () {
           Navigator.push(context, MaterialPageRoute(
             builder: (BuildContext context) {
-              // NOTE: make userview from listview read only if user want to change his/her profile,
-              // it should be done in in profile tile from home profile drawer.
               return UserView(
                 user: user,
                 viewOnly: viewOnly,
@@ -305,7 +301,6 @@ class UserListTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: Colors.white,
           radius: 32,
-          // NOTE: use first letter in Username if no image is provided.
           // TODO: add profile image for user later.
           child: Text(user.name[0].toUpperCase(),
             style: TextStyle(

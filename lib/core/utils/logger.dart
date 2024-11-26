@@ -46,27 +46,6 @@ void printSuccess(String text) {
   debugPrint("\x1B[34m [SUCCESS]: $text\x1B[0m");
 }
 
-void printDebug(String text, {LogLevel level = LogLevel.log}) {
-  switch (level) {
-    case LogLevel.log:
-      debugPrint("\x1B[32m [LOG]: $text\x1B[0m");
-      break;
-    case LogLevel.warn:
-      debugPrint("\x1B[33m [WARN]: $text\x1B[0m");
-      break;
-    case LogLevel.error:
-      debugPrint("\x1B[31m [ERROR]: $text\x1B[0m");
-      break;
-    case LogLevel.success:
-      debugPrint("\x1B[32m [ERROR]: $text\x1B[0m");
-      break;
-  }
-}
-
-// NOTE: currently a soft assert.
-// TODO: turn this into a proper assert that exits or freezes the app when on assert.
 void printAssert(bool assertCondition, String errMsg) {
-  if (!assertCondition) {
-    printError("[ASSERTION FAILED]: $errMsg");
-  }
+  assert(assertCondition, "\x1B[33m[ASSERTION FAILED]: $errMsg\x1B[0m");
 }

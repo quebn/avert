@@ -103,11 +103,11 @@ class _FormState extends State<SignUpForm> {
       setState(() {
          userErrMsg = "Username '${user.name}' already exists!";
       });
-      printDebug(userErrMsg!, level:LogLevel.error);
+      printError(userErrMsg!);
       return;
     }
     printAssert(userExist, "Username ${user.name} already exist in database where it should'nt");
-    printDebug("Preparing Creating user.....");
+    printInfo("Preparing Creating user.....");
     bool success = await user.insert();
     if (mounted && success) {
       notifyUpdate(
