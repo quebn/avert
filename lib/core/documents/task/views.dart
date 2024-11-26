@@ -23,7 +23,7 @@ class _ViewState extends State<TaskView> implements DocumentView {
       // TODO: create Todo document view look.
     ];
     return AvertDocumentForm(
-      name: "Task",
+      title: "Task",
       widgetsBody: widgets,
     );
   }

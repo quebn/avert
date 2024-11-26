@@ -136,7 +136,7 @@ class _ViewState extends State<UserView> implements DocumentView {
 
   @override
   Widget build(BuildContext context) {
-    printTrack("Building UserView");
+    printTrack("Building User Document View");
     return AvertDocumentView(
       name: widget.user.name,
       image: IconButton(

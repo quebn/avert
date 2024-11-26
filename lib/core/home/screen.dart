@@ -1,7 +1,7 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/documents/company/new.dart";
+import "package:avert/core/documents/company/form.dart";
 import "package:avert/core/documents/company/view.dart";
 import "dashboard.dart";
 import "profile_drawer.dart";
@@ -68,20 +68,23 @@ class _HomeScreenState extends State<HomeScreen> {
       Company c = Company();
       return EmptyScreen(
         company: c,
-        onPop: () {
-          printTrack("Pooping");
+        // HACK: this two call could be better.
+        onCreate: () {
+          printWarn("On Create from EmptyScreen");
           setState(() => company = c);
         },
+        onUpdate: () {
+          printTrack("On Update from EmptyScreen", id:"THIS");
+          setState(() {});
+        }
       );
     }
-    printTrack("Building EmptyScreen");
+    printTrack("Building HomeSceen");
     return mainDisplay();
   }
 
   void onCompanyDelete() {
-    String name = company!.name;
     setState(() => company = null);
-    notifyUpdate(context, "Company '$name' Deleted!");
   }
 
   Widget mainDisplay() => Scaffold(
@@ -94,7 +97,10 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => CompanyView(
                 company: company!,
                 onDelete: onCompanyDelete,
-                onUpdate: () => setState(() {}),
+                onUpdate: () {
+                  printError("From Main Display of HomeScreen");
+                  setState(() {});
+                }
               ),
             )
           );
@@ -241,11 +247,12 @@ class _HomeScreenState extends State<HomeScreen> {
 class EmptyScreen extends StatelessWidget {
   const EmptyScreen({super.key,
     required this.company,
-    required this.onPop,
+    required this.onCreate,
+    required this.onUpdate,
   });
 
   final Company company;
-  final void Function()? onPop;
+  final void Function() onCreate, onUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -273,9 +280,10 @@ class EmptyScreen extends StatelessWidget {
                 printDebug("Redirecting to Company Creation Page.");
                 Navigator.push(context,
                   MaterialPageRoute(
-                    builder: (context) => CompanyNewForm(
+                    builder: (context) => CompanyForm(
                       company: company,
-                      onPop: onPop,
+                      onInsert: onCreate,
+                      onUpdate: onUpdate,
                     ),
                   )
                 );

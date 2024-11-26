@@ -89,8 +89,7 @@ class AvertDocumentView extends StatelessWidget {
 class AvertDocumentForm extends StatelessWidget {
   const AvertDocumentForm({super.key,
     required this.widgetsBody,
-    required this.name,
-    this.onPop,
+    required this.title,
     this.formKey,
     this.xPadding = 0,
     this.yPadding = 0,
@@ -100,9 +99,10 @@ class AvertDocumentForm extends StatelessWidget {
     this.actions,
     this.isDirty = true,
     this.bgColor = Colors.white,
+    //this.onPop,
   });
 
-  final String name;
+  final String title;
   final double xPadding, yPadding;
   final List<Widget> widgetsBody;
   final GlobalKey<FormState>? formKey;
@@ -110,9 +110,9 @@ class AvertDocumentForm extends StatelessWidget {
   final Widget? floatingActionButton;
   final Widget? leading;
   final List<Widget>? actions;
-  final void Function()? onPop;
   final bool isDirty;
   final Color? bgColor;
+  //final void Function()? onPop;
 
 
   @override
@@ -122,7 +122,7 @@ class AvertDocumentForm extends StatelessWidget {
       appBar: AppBar(
         actions: actions,
         leading: leading,
-        title:Text("New $name",
+        title:Text(title,
           style: TextStyle(
             fontWeight: FontWeight.w800,
             color: Colors.white,
@@ -135,7 +135,7 @@ class AvertDocumentForm extends StatelessWidget {
           canPop: !isDirty,
           onPopInvokedWithResult: (bool didPop, Object? value) async {
             if (didPop) {
-              if (onPop != null && !isDirty) onPop!();
+              //if (onPop != null && !isDirty) onPop!();
               return;
             }
             final bool shouldPop = await confirmPop(context) ?? false;

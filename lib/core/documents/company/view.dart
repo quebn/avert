@@ -2,7 +2,7 @@ import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
 
-import "edit.dart";
+import "form.dart";
 
 // TODO: Do something on the ff. in the future.
 //  - show the fields from other modules like the default accounts of a company.
@@ -13,13 +13,11 @@ class CompanyView extends StatefulWidget {
     required this.company,
     this.onUpdate,
     this.onDelete,
-    this.onPop,
     this.onSetDefault
   });
 
   final Company company;
-  // NOTE: onDelete executes after the company is deleted in db.
-  final void Function()? onUpdate, onDelete, onPop;
+  final void Function()? onUpdate, onDelete;// onPop;
   final bool Function()? onSetDefault;
 
   @override
@@ -28,34 +26,10 @@ class CompanyView extends StatefulWidget {
 
 class _ViewState extends State<CompanyView> implements DocumentView {
 
-  //final GlobalKey<FormState> key = GlobalKey<FormState>();
-  //final Map<String, TextEditingController> controllers = {
-  //  'name': TextEditingController(),
-  //};
-  //
-  //bool isDirty = false;
-  //bool get formStatus => widget.company.id == 0;
-  //
-  //@override
-  //void initState() {
-  //  super.initState();
-  //  controllers['name']!.addListener(onNameChange);
-  //}
-  //
-  //@override
-  //void dispose() {
-  //  controllers['name']!.removeListener(onNameChange);
-  //  for (TextEditingController controller in controllers.values) {
-  //    controller.dispose();
-  //  }
-  //  super.dispose();
-  //}
-
   @override
   Widget build(BuildContext context) {
     printTrack("Building Company Document View");
     printInfo("company.id = ${widget.company.id}");
-    // IMPORTANT: Should be CompanyDocumentView
     return AvertDocumentView(
       name: widget.company.name,
       image: IconButton(
@@ -85,7 +59,6 @@ class _ViewState extends State<CompanyView> implements DocumentView {
 
       ],
       //isDirty: isDirty,
-      //onPop: widget.onPop,
       actions: [
         TextButton(
           onPressed: setAsDefault,
@@ -107,36 +80,30 @@ class _ViewState extends State<CompanyView> implements DocumentView {
           ),
         ),
       ],
-      floatingActionButton:IconButton.filled(
+      floatingActionButton: IconButton.filled(
         onPressed: editDocument,
         iconSize: 48,
-        icon: Icon(Icons.save_rounded)
+        icon: Icon(Icons.edit_rounded,
+        )
       ),
       //formKey: key,
       body: Container(),
     );
   }
 
-  //void onFieldChange(Function<bool>() isDirtyCallback) {
-  //  final bool isReallyDirty = isDirtyCallback();
-  //  if (isReallyDirty == isDirty) {
-  //    return;
-  //  }
-  //  printTrack("Setting state of is dirty = $isReallyDirty");
-  //  setState(() {
-  //    isDirty = isReallyDirty;
-  //  });
-  //}
-
   void editDocument() {
     Navigator.push(context, MaterialPageRoute(
-      builder: (BuildContext context) {
-        return CompanyEditForm(
-          company: widget.company,
-          // TODO: should basically redraw this on update.
-          onUpdate: (){},
-        );
-      }
+      builder: (BuildContext context) => CompanyForm(
+        company: widget.company,
+        // HACK: currently alway rebuilds the whole Widget.
+        // TODO: maybe use map for the args to assign for setUpdate?
+        onUpdate: () {
+          setState(() {});
+          if (widget.onUpdate != null) {
+              widget.onUpdate!();
+            }
+        },
+      ),
     ));
   }
 
@@ -177,7 +144,6 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     );
   }
 
-
   @override
   Future<void> deleteDocument() async {
     final bool shouldDelete = await confirmDelete() ?? false;
@@ -195,34 +161,4 @@ class _ViewState extends State<CompanyView> implements DocumentView {
       if (widget.onDelete != null) widget.onDelete!();
     }
   }
-
-  //void onNameChange() => onFieldChange(<bool>() {
-  //  return controllers['name']!.text != widget.company.name;
-  //});
-  //
-  //void updateDocument() async {
-  //  final bool isValid = key.currentState?.validate() ?? false;
-  //  if (!isValid) {
-  //    return;
-  //  }
-  //  FocusScope.of(context).requestFocus(FocusNode());
-  //
-  //  Company company = widget.company;
-  //  company.name = controllers['name']!.value.text;
-  //
-  //  String msg = "Error writing the document to the database!";
-  //
-  //  bool success = await company.update();
-  //
-  //  if (success) {
-  //    if (widget.onUpdate != null) widget.onUpdate!();
-  //    msg = "Successfully changed company details";
-  //  }
-  //
-  //  if (mounted) notifyUpdate(context, msg);
-  //
-  //  setState(() {
-  //    isDirty = false;
-  //  });
-  //}
 }

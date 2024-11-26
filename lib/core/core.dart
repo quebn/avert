@@ -42,13 +42,9 @@ abstract class DocumentView {
   Future<void> deleteDocument();
 }
 
-abstract class DocumentEdit {
+abstract class DocumentForm {
   void initDocumentFields();
   void updateDocument();
-}
-
-abstract class DocumentNew {
-  void initDocumentFields();
   void insertDocument();
 }
 

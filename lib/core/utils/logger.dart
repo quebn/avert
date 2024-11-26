@@ -17,11 +17,13 @@ enum LogLevel {
 // White:   \x1B[37m
 // Reset:   \x1B[0m
 
-void printTrack(String text) {
+int trackingID = 0;
+void printTrack(String text, {String id = "" }) {
   // Cyan:    \x1B[36m
   debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
-  debugPrint("\x1B[36m [Track]: $text\x1B[0m");
+  debugPrint("\x1B[36m [Track ID:${id == "" ? trackingID : id}]: $text\x1B[0m");
   debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
+  if (id == "") trackingID++;
 }
 
 void printInfo(String text) {

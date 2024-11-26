@@ -25,6 +25,8 @@ class Company implements Document {
     )
   """;
 
+  bool get isNew => id == 0;
+
   Future<bool> valuesNotValid() async {
     bool hasDuplicates = await checkIfExist();
     return name.isEmpty || hasDuplicates;
@@ -46,7 +48,7 @@ class Company implements Document {
 
   @override
   Future<bool> update() async {
-    if (await valuesNotValid() ) return false;
+    if (await valuesNotValid() || isNew) return false;
     Map<String, Object?> values = {
       "name": name,
     };
@@ -60,7 +62,7 @@ class Company implements Document {
 
   @override
   Future<bool> insert() async {
-    if (id > 0) {
+    if (!isNew) {
       printInfo("Document is should already be in database with id of '$id'");
       return false;
     }

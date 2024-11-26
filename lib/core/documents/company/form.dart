@@ -4,31 +4,32 @@ import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
 import "view.dart";
 
-class CompanyNewForm extends StatefulWidget {
-  const CompanyNewForm({super.key,
+class CompanyForm extends StatefulWidget {
+  const CompanyForm({super.key,
     required this.company,
     this.onInsert,
-    this.onPop,
+    this.onUpdate,
     this.onSetDefault,
+    //this.onPop,
   });
 
   final Company company;
-  final void Function()? onInsert, onPop;
+  final void Function()? onInsert, onUpdate;
   final bool Function()? onSetDefault;
+  //final void Function()? onPop;
 
   @override
   State<StatefulWidget> createState() => _NewState();
 }
 
-class _NewState extends State<CompanyNewForm> implements DocumentNew {
-
+class _NewState extends State<CompanyForm> implements DocumentForm {
   final GlobalKey<FormState> key = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
   };
 
   bool isDirty = false;
-  bool get formStatus => widget.company.id == 0;
+  String? errMsg;
 
   @override
   void initState() {
@@ -48,20 +49,23 @@ class _NewState extends State<CompanyNewForm> implements DocumentNew {
 
   @override
   Widget build(BuildContext context) {
-    printTrack("Building Company Document");
+    printTrack("Building Company Document Form");
     printInfo("company.id = ${widget.company.id}");
     return AvertDocumentForm(
       xPadding: 16,
-      name: "Company",
+      yPadding: 16,
+      title: "${widget.company.isNew ? "New" : "Edit"} Company",
       widgetsBody: [
         AvertInput(
           name: "Name",
           controller: controllers['name']!,
+          required: true,
+          forceErrMsg: errMsg,
         )
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: insertDocument,
+        onPressed: widget.company.isNew ? insertDocument : updateDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
@@ -143,12 +147,39 @@ class _NewState extends State<CompanyNewForm> implements DocumentNew {
           builder: (BuildContext context) {
             return CompanyView(
               company: widget.company,
-              onPop: widget.onPop,
+              onUpdate: widget.onUpdate,
             );
           }
         ));
         notifyUpdate(context, msg);
       }
     }
+  }
+
+  @override
+  void updateDocument() async {
+    final bool isValid = key.currentState?.validate() ?? false;
+    if (!isValid) {
+      return;
+    }
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    widget.company.name = controllers['name']!.value.text;
+
+    String msg = "Error writing the document to the database!";
+
+    // TODO: Maybe this function should return false when no changes are made.
+    bool success = await widget.company.update();
+
+    if (success) {
+      if (widget.onUpdate != null) widget.onUpdate!();
+      msg = "Successfully changed company details";
+    }
+
+    if (mounted) notifyUpdate(context, msg);
+
+    setState(() {
+      isDirty = false;
+    });
   }
 }
