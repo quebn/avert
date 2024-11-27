@@ -11,9 +11,9 @@ export "package:avert/core/utils/common.dart";
 
 // TODO: Figure out how to test stuffs.
 abstract class Module {
-  const Module({required this.name});
+  const Module();
 
-  final String name;
+  final IconData iconData = Icons.question_mark_rounded;
 
   Widget viewDashboard();
   Widget viewDocuments();

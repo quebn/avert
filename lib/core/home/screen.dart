@@ -3,6 +3,7 @@ import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/documents/company/form.dart";
 import "package:avert/core/documents/company/view.dart";
+import "package:avert/core/home/module_drawer.dart";
 import "dashboard.dart";
 import "profile_drawer.dart";
 
@@ -25,7 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   int currntModule = 0;
   bool lastStatus = true;
-  double height = 390;
+  final double height = 390;
+  final List<Module> modules = [];
+  final List<String> foo = [];
 
   late Company? company = widget.company;
   late ScrollController _scrollController;
@@ -154,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     ),
-    drawer: leftDrawer(),
+    drawer: HomeModuleDrawer(moduleNames: []),
     body: pages[currentIndex],
     bottomNavigationBar: BottomNavigationBar(
       selectedItemColor: Colors.black,
