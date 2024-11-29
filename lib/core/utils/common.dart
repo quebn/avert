@@ -1,3 +1,4 @@
+import "package:avert/core/core.dart";
 import "package:flutter/material.dart";
 import "./logger.dart";
 
@@ -77,4 +78,10 @@ Future<bool?> promptConfirmPop(BuildContext context, String title) {
       );
     },
   );
+}
+
+/// Checks whether the document is new.
+/// Document is new if its ID is zero.
+bool isNew(Document document) {
+  return document.id == 0;
 }

@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     ),
-    endDrawer: HomeProfileDrawer(
+    endDrawer: HomeProfileDrawe(
       user: widget.user,
       onLogout: () => logout(),
       onUserDelete: () {

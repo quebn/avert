@@ -25,8 +25,6 @@ class Company implements Document {
     )
   """;
 
-  bool get isNew => id == 0;
-
   Future<bool> valuesNotValid() async {
     bool hasDuplicates = await checkIfExist();
     return name.isEmpty || hasDuplicates;
@@ -48,7 +46,7 @@ class Company implements Document {
 
   @override
   Future<bool> update() async {
-    if (await valuesNotValid() || isNew) return false;
+    if (await valuesNotValid() || isNew(this)) return false;
     Map<String, Object?> values = {
       "name": name,
     };
@@ -62,8 +60,8 @@ class Company implements Document {
 
   @override
   Future<bool> insert() async {
-    if (!isNew) {
-      printInfo("Document is should already be in database with id of '$id'");
+    if (!isNew(this)) {
+      printInfo("Document is already be in database with id of '$id'");
       return false;
     }
     if (await valuesNotValid()) return false;
@@ -74,7 +72,7 @@ class Company implements Document {
     };
     printWarn("creating company with values of: ${values.toString()}");
     id = await Core.database!.insert("companies", values);
-    printWarn("company created with id of $id");
+    printSuccess("company created with id of $id");
     return id != 0;
   }
 
