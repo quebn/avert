@@ -142,7 +142,7 @@ class _ViewState extends State<UserView> implements DocumentView {
           bgColor: Colors.red,
           name: "Delete User",
           onPressed: deleteDocument,
-          ),
+        ),
       ]
     ),
   );

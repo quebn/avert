@@ -23,12 +23,18 @@ class CompanyForm extends StatefulWidget {
 }
 
 class _NewState extends State<CompanyForm> implements DocumentForm {
+  @override
   final GlobalKey<FormState> key = GlobalKey<FormState>();
+
+  @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
   };
 
+  @override
   bool isDirty = false;
+
+  @override
   String? errMsg;
 
   @override
@@ -139,7 +145,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
 
     if (success) {
       if (widget.onInsert != null) widget.onInsert!();
-      msg = "Company '${company.name}' is successfully created!";
+      msg = "Company '${company.name}' successfully created!";
 
       if (mounted) {
         Navigator.pop(context);

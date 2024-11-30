@@ -1,6 +1,4 @@
 import "package:avert/core/core.dart";
-import "package:flutter/material.dart";
-import "./logger.dart";
 
 void notifyUpdate(BuildContext context, String msg) {
   final SnackBar snackBar = SnackBar(

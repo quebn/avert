@@ -43,6 +43,13 @@ abstract class DocumentView {
 }
 
 abstract class DocumentForm {
+
+  final GlobalKey<FormState> key = GlobalKey<FormState>();
+  final Map<String, TextEditingController> controllers = {};
+
+  bool isDirty = false;
+  String? errMsg;
+
   void initDocumentFields();
   void updateDocument();
   void insertDocument();

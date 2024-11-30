@@ -1,8 +1,8 @@
 import "package:avert/core/core.dart";
 
 // TODO: figure out how to implement additional settings in Core company within this module.
-class AccountingPeriod implements Document {
-  AccountingPeriod({
+class FinancialYear implements Document {
+  FinancialYear({
     this.id = 0,
     this.name = "",
     required int durationInDays,

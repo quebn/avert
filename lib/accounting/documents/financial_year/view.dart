@@ -4,20 +4,20 @@ import "package:avert/core/core.dart";
 import "document.dart";
 import "form.dart";
 
-class AccountingPeriodView extends StatefulWidget {
-  const AccountingPeriodView({super.key,
+class FinancialYearView extends StatefulWidget {
+  const FinancialYearView({super.key,
     required this.document,
     required this.onUpdate,
   });
 
-  final AccountingPeriod document;
+  final FinancialYear document;
   final void Function()? onUpdate;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
 }
 
-class _ViewState extends State<AccountingPeriodView> implements DocumentView {
+class _ViewState extends State<FinancialYearView> implements DocumentView {
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +77,9 @@ class _ViewState extends State<AccountingPeriodView> implements DocumentView {
 
   void editDocument() {
     Navigator.push(context, MaterialPageRoute(
-      builder: (BuildContext context) => AccountingPeriodForm(
+      builder: (BuildContext context) => FinancialYearForm(
         document: widget.document,
-        // HACK: currently alway rebuilds the whole Widget.
-        // TODO: maybe use map for the args to assign for setUpdate?
-
+        // TODO: Implement
         //onUpdate: () {
         //  setState(() {});
         //  if (widget.onUpdate != null) {
