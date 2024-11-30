@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(context,
             MaterialPageRoute(
               builder: (context) => CompanyView(
-                company: company!,
+                document: company!,
                 onDelete: onCompanyDelete,
                 onUpdate: () {
                   printError("From Main Display of HomeScreen");
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     ),
-    endDrawer: HomeProfileDrawe(
+    endDrawer: HomeProfileDrawer(
       user: widget.user,
       onLogout: () => logout(),
       onUserDelete: () {
@@ -275,7 +275,7 @@ class EmptyScreen extends StatelessWidget {
                 Navigator.push(context,
                   MaterialPageRoute(
                     builder: (context) => CompanyForm(
-                      company: company,
+                      document: company,
                       onInsert: onCreate,
                       onUpdate: onUpdate,
                     ),

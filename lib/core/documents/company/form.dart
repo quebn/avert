@@ -6,14 +6,14 @@ import "view.dart";
 
 class CompanyForm extends StatefulWidget {
   const CompanyForm({super.key,
-    required this.company,
+    required this.document,
     this.onInsert,
     this.onUpdate,
     this.onSetDefault,
     //this.onPop,
   });
 
-  final Company company;
+  final Company document;
   final void Function()? onInsert, onUpdate;
   final bool Function()? onSetDefault;
   //final void Function()? onPop;
@@ -50,11 +50,11 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
   @override
   Widget build(BuildContext context) {
     printTrack("Building Company Document Form");
-    printInfo("company.id = ${widget.company.id}");
+    printInfo("company.id = ${widget.document.id}");
     return AvertDocumentForm(
       xPadding: 16,
       yPadding: 16,
-      title: "${widget.company.isNew ? "New" : "Edit"} Company",
+      title: "${isNew(widget.document) ? "New" : "Edit"} Company",
       widgetsBody: [
         AvertInput(
           name: "Name",
@@ -65,7 +65,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: widget.company.isNew ? insertDocument : updateDocument,
+        onPressed: isNew(widget.document) ? insertDocument : updateDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
@@ -75,7 +75,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
 
   @override
   void initDocumentFields() {
-    controllers['name']!.text = widget.company.name;
+    controllers['name']!.text = widget.document.name;
   }
 
 
@@ -95,7 +95,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Delete '${widget.company.name}'?"),
+          title: Text("Delete '${widget.document.name}'?"),
           content: const Text("Are you sure you want to delete this Company?"),
           actions: <Widget>[
             AvertButton(
@@ -117,7 +117,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
   }
 
   void onNameChange() => onFieldChange(<bool>() {
-    return controllers['name']!.text != widget.company.name;
+    return controllers['name']!.text != widget.document.name;
   });
 
   @override
@@ -129,7 +129,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
 
     FocusScope.of(context).requestFocus(FocusNode());
 
-    Company company = widget.company;
+    Company company = widget.document;
     company.name = controllers['name']!.value.text;
 
 
@@ -146,7 +146,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
         Navigator.push(context, MaterialPageRoute(
           builder: (BuildContext context) {
             return CompanyView(
-              company: widget.company,
+              document: widget.document,
               onUpdate: widget.onUpdate,
             );
           }
@@ -164,12 +164,12 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
     }
     FocusScope.of(context).requestFocus(FocusNode());
 
-    widget.company.name = controllers['name']!.value.text;
+    widget.document.name = controllers['name']!.value.text;
 
     String msg = "Error writing the document to the database!";
 
     // TODO: Maybe this function should return false when no changes are made.
-    bool success = await widget.company.update();
+    bool success = await widget.document.update();
 
     if (success) {
       if (widget.onUpdate != null) widget.onUpdate!();

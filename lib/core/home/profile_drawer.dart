@@ -53,7 +53,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
               Navigator.push(context,
                 MaterialPageRoute(
                   builder: (context) => UserView(
-                    user: widget.user,
+                    document: widget.user,
                     onDelete: widget.onUserDelete,
                     onSave: () => setState(() => username = widget.user.name),
                     viewOnly: false,

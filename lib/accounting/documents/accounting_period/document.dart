@@ -1,5 +1,6 @@
 import "package:avert/core/core.dart";
 
+// TODO: figure out how to implement additional settings in Core company within this module.
 class AccountingPeriod implements Document {
   AccountingPeriod({
     this.id = 0,
@@ -9,6 +10,7 @@ class AccountingPeriod implements Document {
   }):createdAt = DateTime.now(), end = start.add(Duration(days: durationInDays));
 
   final DateTime start, end;
+  final List<Company> companies = [];
 
   @override
   DateTime createdAt;
@@ -19,18 +21,28 @@ class AccountingPeriod implements Document {
   @override
   String name;
 
-  static String getTableQuery() => """
-    CREATE TABLE accounting_periods(
-      id INTEGER PRIMARY KEY,
-      name TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
-      start INTEGER NOT NULL,
-      end INTEGER NOT NULL,
-    )
-  """;
+  static List<String> getTableQueries() => [
+  """ CREATE TABLE accounting_periods(
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    createdAt INTEGER NOT NULL,
+    start INTEGER NOT NULL,
+    end INTEGER NOT NULL,
+  )""",
+  """ CREATE TABLE accounting_period_companies(
+    id INTEGER PRIMARY KEY,
+    accounting_period INTEGER NOT NULL,
+    company INTEGER NOT NULL,
+  )""",
+  ];
 
   @override
   Future<bool> delete() async {
+    int rowsAffected = await Core.database!.delete("accounting_period_companies",
+      where: "accounting_period = ?",
+      whereArgs: [id],
+    );
+    printSuccess("Deleted Table rows: $rowsAffected");
     int result =  await Core.database!.delete("accounting_periods",
       where: "id = ?",
       whereArgs: [id],
@@ -62,55 +74,15 @@ class AccountingPeriod implements Document {
     Map<String, Object?> values = {
       "name": name,
     };
-    printWarn("update with values of: ${values.toString()} on company with id of: $id!");
-    int r = await Core.database!.update("companies", values,
+    printSuccess("update with values of: ${values.toString()} on company with id of: $id!");
+    bool success = await Core.database!.update("companies", values,
       where: "id = ?",
       whereArgs: [id],
-    );
-    return r == 1;
+    ) == 1;
+    return success;
   }
 
   bool valuesNotValid() {
     return name.isEmpty;
   }
-
-}
-
-class CompanyPeriod {
-  CompanyPeriod({
-    this.id = 0,
-    required this.accountingPeriod,
-    required this.company,
-  });
-
-  int id;
-  Company company;
-  AccountingPeriod accountingPeriod;
-
-  static String getTableQuery() => """
-    CREATE TABLE company_period(
-      id INTEGER PRIMARY KEY,
-      company INTEGER NOT NULL,
-      accounting_period NOT NULL,
-    )
-  """;
-
-  Future<bool> delete() async {
-    int result =  await Core.database!.delete("accounting_period",
-      where: "id = ?",
-      whereArgs: [id],
-    );
-    return result == id;
-  }
-
-  Future<bool> insert() {
-    // TODO: implement insert
-    throw UnimplementedError();
-  }
-
-  Future<bool> update() {
-    // TODO: implement update
-    throw UnimplementedError();
-  }
-
 }

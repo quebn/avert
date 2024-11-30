@@ -4,7 +4,7 @@ import "package:avert/core/components/avert_button.dart";
 
 class UserView extends StatefulWidget  {
   const UserView({super.key,
-    required this.user,
+    required this.document,
     this.onSave,
     this.onDelete,
     this.onPop,
@@ -12,7 +12,7 @@ class UserView extends StatefulWidget  {
     this.viewOnly = true,
   });
 
-  final User user;
+  final User document;
   final void Function()? onSave, onDelete, onPop;
   final bool Function()? onSetDefault;
   final bool viewOnly;
@@ -22,13 +22,6 @@ class UserView extends StatefulWidget  {
 }
 
 class _ViewState extends State<UserView> implements DocumentView {
-  //final GlobalKey<FormState> key = GlobalKey<FormState>();
-  //final Map<String, TextEditingController> controllers = {
-  //  'name': TextEditingController(),
-  //};
-
-  //bool isDirty = false;
-
   Future<bool?> confirmDelete() {
     return showDialog<bool>(
       context: context,
@@ -36,7 +29,7 @@ class _ViewState extends State<UserView> implements DocumentView {
         return AlertDialog(
           title: const Text("Delete User?"),
           content: Text(
-            "Are you sure you want to delete '${widget.user.name}'? deleting this user will direct you to Login Screen."
+            "Are you sure you want to delete '${widget.document.name}'? deleting this user will direct you to Login Screen."
           ),
           actions: <Widget>[
             AvertButton(
@@ -58,26 +51,6 @@ class _ViewState extends State<UserView> implements DocumentView {
     );
   }
 
-  //void onNameChange() => onFieldChange(<bool>() {
-  //  return controllers['name']!.text != widget.user.name;
-  //});
-  //
-  //@override
-  //void initState() {
-  //  super.initState();
-  //  controllers['name']!.addListener(onNameChange);
-  //
-  //}
-
-  //@override
-  //void dispose() {
-  //  controllers['name']!.removeListener(onNameChange);
-  //  for (TextEditingController controller in controllers.values) {
-  //    controller.dispose();
-  //  }
-  //  super.dispose();
-  //}
-
   @override
   Future<void> deleteDocument() async {
     final bool shouldDelete = await confirmDelete() ?? false;
@@ -86,8 +59,8 @@ class _ViewState extends State<UserView> implements DocumentView {
       return;
     }
 
-    final bool success = await widget.user.delete();
-    printWarn("Deleting user:${widget.user.name} with id of: ${widget.user.id}");
+    final bool success = await widget.document.delete();
+    printWarn("Deleting user:${widget.document.name} with id of: ${widget.document.id}");
 
     if (success && mounted) {
       printSuccess("User Deleted!");
@@ -98,49 +71,15 @@ class _ViewState extends State<UserView> implements DocumentView {
     }
   }
 
-  //void insertDocument() async {
-  //  printInfo("Pressed save user.");
-  //  final bool isValid = key.currentState?.validate() ?? false;
-  //  if (!isValid) {
-  //    printInfo("not Valid apparently");
-  //    return;
-  //  }
-  //
-  //  widget.user.name = controllers['name']!.value.text;
-  //  String msg = "Error writing the document to the database!";
-  //
-  //  bool success = await widget.user.update();
-  //  if (success){
-  //    if (widget.onSave != null) widget.onSave!();
-  //    msg = "Successfully changed user details";
-  //  }
-  //
-  //  if (mounted) notifyUpdate(context, msg);
-  //  setState(() {
-  //    isDirty = false;
-  //  });
-  //}
-
-  //void onFieldChange(Function<bool>() isDirtyCallback) {
-  //  final bool isReallyDirty = isDirtyCallback();
-  //  if (isReallyDirty == isDirty) {
-  //    return;
-  //  }
-  //  printTrack("Setting state of is dirty = $isReallyDirty");
-  //  setState(() {
-  //    isDirty = isReallyDirty;
-  //  });
-  //}
-
   @override
   Widget build(BuildContext context) {
     printTrack("Building User Document View");
     return AvertDocumentView(
-      name: widget.user.name,
+      name: widget.document.name,
       image: IconButton(
         icon: CircleAvatar(
           radius: 50,
-          child: Text(widget.user.name[0].toUpperCase(),
+          child: Text(widget.document.name[0].toUpperCase(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 50,
@@ -150,13 +89,13 @@ class _ViewState extends State<UserView> implements DocumentView {
         onPressed: () => printInfo("Pressed Profile Pic"),
       ),
       titleChildren: [
-        Text(widget.user.name,
+        Text(widget.document.name,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(widget.user.isAdmin ? "Admin" : "User",
+        Text(widget.document.isAdmin ? "Admin" : "User",
           style: TextStyle(
             fontSize: 20,
           ),
@@ -291,7 +230,7 @@ class UserListTile extends StatelessWidget {
           Navigator.push(context, MaterialPageRoute(
             builder: (BuildContext context) {
               return UserView(
-                user: user,
+                document: user,
                 viewOnly: viewOnly,
               );
             }

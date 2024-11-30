@@ -10,13 +10,13 @@ import "form.dart";
 //  - onSave should have parameters of the values of controllers in a dict.
 class CompanyView extends StatefulWidget {
   const CompanyView({super.key,
-    required this.company,
+    required this.document,
     this.onUpdate,
     this.onDelete,
     this.onSetDefault
   });
 
-  final Company company;
+  final Company document;
   final void Function()? onUpdate, onDelete;// onPop;
   final bool Function()? onSetDefault;
 
@@ -29,13 +29,13 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   @override
   Widget build(BuildContext context) {
     printTrack("Building Company Document View");
-    printInfo("company.id = ${widget.company.id}");
+    printInfo("company.id = ${widget.document.id}");
     return AvertDocumentView(
-      name: widget.company.name,
+      name: widget.document.name,
       image: IconButton(
         icon: CircleAvatar(
           radius: 50,
-          child: Text(widget.company.name[0].toUpperCase(),
+          child: Text(widget.document.name[0].toUpperCase(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 50,
@@ -45,7 +45,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
         onPressed: () => printInfo("Pressed Profile Pic"),
       ),
       titleChildren: [
-        Text(widget.company.name,
+        Text(widget.document.name,
           style: const TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   void editDocument() {
     Navigator.push(context, MaterialPageRoute(
       builder: (BuildContext context) => CompanyForm(
-        company: widget.company,
+        document: widget.document,
         // HACK: currently alway rebuilds the whole Widget.
         // TODO: maybe use map for the args to assign for setUpdate?
         onUpdate: () {
@@ -108,14 +108,14 @@ class _ViewState extends State<CompanyView> implements DocumentView {
   }
 
   void setAsDefault() {
-    widget.company.remember();
+    widget.document.remember();
     if (widget.onSetDefault != null) {
       bool success = widget.onSetDefault!();
       if (success) {
-        notifyUpdate(context, "'${widget.company.name}' is now the Default Company!");
+        notifyUpdate(context, "'${widget.document.name}' is now the Default Company!");
       }
     }
-    notifyUpdate(context, "'${widget.company.name}' is already the default company!");
+    notifyUpdate(context, "'${widget.document.name}' is already the default company!");
   }
 
   Future<bool?> confirmDelete() {
@@ -123,7 +123,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Delete '${widget.company.name}'?"),
+          title: Text("Delete '${widget.document.name}'?"),
           content: const Text("Are you sure you want to delete this Company?"),
           actions: <Widget>[
             AvertButton(
@@ -152,12 +152,12 @@ class _ViewState extends State<CompanyView> implements DocumentView {
       return;
     }
 
-    final bool success = await widget.company.delete();
-    printWarn("Deleting Company:${widget.company.name} with id of: ${widget.company.id}");
+    final bool success = await widget.document.delete();
+    printWarn("Deleting Company:${widget.document.name} with id of: ${widget.document.id}");
 
     if (success && mounted) {
       Navigator.maybePop(context);
-      notifyUpdate(context, "Company '${widget.company.name}' successfully deleted!");
+      notifyUpdate(context, "Company '${widget.document.name}' successfully deleted!");
       if (widget.onDelete != null) widget.onDelete!();
     }
   }
