@@ -22,17 +22,17 @@ class FinancialYear implements Document {
   String name;
 
   static List<String> getTableQueries() => [
-  """ CREATE TABLE accounting_periods(
+  """ CREATE TABLE financial_years(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     createdAt INTEGER NOT NULL,
     start INTEGER NOT NULL,
-    end INTEGER NOT NULL,
+    end INTEGER NOT NULL
   )""",
-  """ CREATE TABLE accounting_period_companies(
+  """ CREATE TABLE financial_year_companies(
     id INTEGER PRIMARY KEY,
     accounting_period INTEGER NOT NULL,
-    company INTEGER NOT NULL,
+    company INTEGER NOT NULL
   )""",
   ];
 

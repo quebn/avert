@@ -5,6 +5,9 @@ import "package:avert/core/home/screen.dart";
 import "package:avert/core/core.dart";
 import "dart:io";
 
+import "accounting/utils/database.dart";
+import "core/utils/database.dart";
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _createAppDir();
@@ -143,9 +146,9 @@ Future<bool> _createAppDir() async {
 _onCreate(Database db, int version) async {
   printInfo("Creating Database tables");
   Batch batch = db.batch();
-  batch.execute(User.getTableQuery());
-  batch.execute(Company.getTableQuery());
-  //batch.execute(Task.getTableQuery()); // NOTE: Not planned.
-  //batch.execute(Accounting.getTableQuery()):
+
+  tablesInitCore(batch);
+  tablesInitAccounting(batch);
+
   await batch.commit();
 }

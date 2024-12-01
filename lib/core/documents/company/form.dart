@@ -10,13 +10,11 @@ class CompanyForm extends StatefulWidget {
     this.onInsert,
     this.onUpdate,
     this.onSetDefault,
-    //this.onPop,
   });
 
   final Company document;
   final void Function()? onInsert, onUpdate;
   final bool Function()? onSetDefault;
-  //final void Function()? onPop;
 
   @override
   State<StatefulWidget> createState() => _NewState();

@@ -85,7 +85,7 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
                       const LoginForm(),
                       SignUpForm(
                         hasUsers: hasUsers,
-                        //setLoginForm: () => setState(() =>  _tabController.index = 0)
+                        onRegister: () => setState( () => _tabController.index = 0),
                       ),
                     ],
                   ),

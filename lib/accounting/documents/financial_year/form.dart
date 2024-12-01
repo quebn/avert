@@ -1,4 +1,5 @@
 import "package:avert/accounting/documents/financial_year/view.dart";
+import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
@@ -27,6 +28,8 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
+    'start': TextEditingController(),
+    'end': TextEditingController(),
   };
 
   @override
@@ -49,7 +52,11 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
-        )
+        ),
+        AvertButton(
+          onPressed: () {},
+          name: "InputDate",
+        ),
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(
@@ -107,8 +114,32 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   }
 
   @override
-  void updateDocument() {
-    // TODO: implement updateDocument
-  }
+  void updateDocument() async {
+    final bool isValid = key.currentState?.validate() ?? false;
+    if (!isValid) {
+      return;
+    }
+    FocusScope.of(context).requestFocus(FocusNode());
 
+    widget.document.name = controllers['name']!.value.text;
+    // TODO: do for add controllers.
+    // EX.
+    // widget.document.name = controllers['name']!.value.text;
+
+    String msg = "Error writing the document to the database!";
+
+    // TODO: Maybe this function should return false when no changes are made.
+    bool success = await widget.document.update();
+
+    if (success) {
+      if (widget.onUpdate != null) widget.onUpdate!();
+      msg = "Successfully changed company details";
+    }
+
+    if (mounted) notifyUpdate(context, msg);
+
+    setState(() {
+      isDirty = false;
+    });
+  }
 }

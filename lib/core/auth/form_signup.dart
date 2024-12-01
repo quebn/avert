@@ -5,9 +5,13 @@ import "package:crypto/crypto.dart";
 import "dart:convert";
 
 class SignUpForm extends StatefulWidget {
-  const SignUpForm({super.key, this.hasUsers = true});
+  const SignUpForm({super.key,
+    this.hasUsers = true,
+    required this.onRegister,
+  });
 
   final bool hasUsers;
+  final void Function() onRegister;
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -106,10 +110,11 @@ class _FormState extends State<SignUpForm> {
       printError(userErrMsg!);
       return;
     }
-    printAssert(userExist, "Username ${user.name} already exist in database where it should'nt");
+    printAssert(!userExist, "Username ${user.name} already exist in database where it should'nt");
     printInfo("Preparing Creating user.....");
     bool success = await user.insert();
     if (mounted && success) {
+      widget.onRegister();
       notifyUpdate(
         context,
         "User '${user.name}' has been successfully created!"

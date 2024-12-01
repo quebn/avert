@@ -69,7 +69,6 @@ class _ViewState extends State<FinancialYearView> implements DocumentView {
         icon: Icon(Icons.edit_rounded,
         )
       ),
-      //formKey: key,
       body: Container(),
     );
 
@@ -79,13 +78,6 @@ class _ViewState extends State<FinancialYearView> implements DocumentView {
     Navigator.push(context, MaterialPageRoute(
       builder: (BuildContext context) => FinancialYearForm(
         document: widget.document,
-        // TODO: Implement
-        //onUpdate: () {
-        //  setState(() {});
-        //  if (widget.onUpdate != null) {
-        //      widget.onUpdate!();
-        //    }
-        //},
       ),
     ));
   }
