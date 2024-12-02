@@ -1,15 +1,16 @@
 import "package:avert/core/core.dart";
 
-// TODO: figure out how to implement additional settings in Core company within this module.
 class FinancialYear implements Document {
   FinancialYear({
     this.id = 0,
     this.name = "",
-    required int durationInDays,
-    required this.start,
-  }):createdAt = DateTime.now(), end = start.add(Duration(days: durationInDays));
+    int durationInDays = 0,
+    this.start,
+    this.end,
+  }):createdAt = DateTime.now();
 
-  final DateTime start, end;
+  final DateTime? start;
+  final DateTime? end;
   final List<Company> companies = [];
 
   @override
@@ -56,12 +57,17 @@ class FinancialYear implements Document {
       printInfo("Document is should already be in database with id of '$id'");
       return false;
     }
+    if (start == null || end == null) {
+      printInfo("start date and end date is null!");
+      return false;
+    }
+    printAssert(start != null && end != null, "start and end date are null");
     DateTime now = DateTime.now();
     Map<String, Object?> values = {
       "name": name,
       "createdAt": now.millisecondsSinceEpoch,
-      "start": start.millisecondsSinceEpoch,
-      "end": end.millisecondsSinceEpoch,
+      "start": start!.millisecondsSinceEpoch,
+      "end": end!.millisecondsSinceEpoch,
     };
     id = await Core.database!.insert("accounting_periods", values);
     printSuccess("company created with id of $id");

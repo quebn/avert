@@ -65,7 +65,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
-        )
+        ),
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(

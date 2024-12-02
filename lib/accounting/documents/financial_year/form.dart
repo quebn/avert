@@ -13,6 +13,12 @@ class FinancialYearForm extends StatefulWidget {
     this.onUpdate,
   });
 
+  const FinancialYearForm.conm({super.key,
+    required this.document,
+    this.onInsert,
+    this.onUpdate,
+  });
+
   final FinancialYear document;
   final void Function()? onInsert, onUpdate;
 

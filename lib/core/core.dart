@@ -14,8 +14,10 @@ abstract class Module {
   const Module();
 
   final IconData iconData = Icons.question_mark_rounded;
+  final String name = "Module";
 
-  Widget viewDashboard();
+  Widget viewDashboardHeader();
+  Widget viewDashboardBody();
   Widget viewDocuments();
   Widget viewReport();
   Widget viewSettings();

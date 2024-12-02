@@ -1,3 +1,4 @@
+import "package:avert/accounting/accounting.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/components/avert_button.dart";
@@ -24,21 +25,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
-  int currntModule = 0;
+  int moduleIndex = 0;
   bool lastStatus = true;
   final double height = 390;
-  final List<Module> modules = [];
+  final List<Module> modules = [
+    Accounting(),
+  ];
   final List<String> foo = [];
 
   late Company? company = widget.company;
   late ScrollController _scrollController;
   late List<Widget> pages = [
-    HomeDashboard(company!),
+    HomeDashboard( company: company!, module: currentModule),
     const Center(child: Text("Documents")),
     const Center(child: Text("Reports")),
     const Center(child: Text("Settings")),
   ];
 
+  Module get currentModule => modules[moduleIndex];
   @override
   void initState() {
     super.initState();

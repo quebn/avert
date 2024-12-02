@@ -1,17 +1,19 @@
 import "package:avert/core/core.dart";
 
 class HomeDashboard extends StatefulWidget {
-  const HomeDashboard(this.company, {super.key});
+  const HomeDashboard({super.key,
+    required this.company,
+    required this.module,
+  });
 
   final Company company;
+  final Module module;
 
   @override
   State<StatefulWidget> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<HomeDashboard> {
-
-  // int currentModule = 0
 
   @override
   Widget build(BuildContext context) {
