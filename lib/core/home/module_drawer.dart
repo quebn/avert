@@ -1,23 +1,15 @@
 import "package:avert/core/core.dart";
 
-class HomeModuleDrawer extends StatefulWidget {
+class HomeModuleDrawer extends StatelessWidget {
   const HomeModuleDrawer({super.key,
     required this.modules,
+    required this.currentIndex,
+    required this.onModuleSelect,
   });
 
   final List<Module> modules;
-
-  @override
-  State<StatefulWidget> createState() => _ModuleDrawerState();
-}
-
-class _ModuleDrawerState extends State<HomeModuleDrawer> {
-  // TODO: have a variable that will update the users picture if changed.
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  final int currentIndex;
+  final void Function(int index) onModuleSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -47,21 +39,26 @@ class _ModuleDrawerState extends State<HomeModuleDrawer> {
         ),
       ),
     ];
-    if (widget.modules.isEmpty) return widgets;
-    for (Module module in widget.modules) {
-      printInfo(module.name);
+    if (modules.isEmpty) return widgets;
+    for (final (int index, Module module) in modules.indexed) {
       List<Widget> tiles = [
-        ListTile(
-          leading: Icon(module.iconData),
-          title: Text(module.name,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: ListTile(
+            selected: modules[currentIndex] == module,
+            selectedColor: Colors.white,
+            selectedTileColor: Colors.black,
+            leading: Icon(module.iconData),
+            title: Text(module.name,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+              ),
             ),
+            onTap: () {
+              printInfo("Pressed Module:${module.name} with index of: $index");
+            }
           ),
-          onTap: () {
-            printInfo("Pressed Module:${module.name}");
-          }
         ),
       ];
       widgets.addAll(tiles);

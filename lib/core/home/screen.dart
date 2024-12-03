@@ -161,7 +161,11 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     ),
-    drawer: HomeModuleDrawer(modules: modules),
+    drawer: HomeModuleDrawer(
+      modules: modules,
+      currentIndex: moduleIndex,
+      onModuleSelect: (int index){},
+    ),
     body: pages[currentIndex],
     bottomNavigationBar: BottomNavigationBar(
       selectedItemColor: Colors.black,

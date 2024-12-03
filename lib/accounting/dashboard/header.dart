@@ -1,7 +1,11 @@
 import "package:avert/core/core.dart";
 
 class AccountingDashboardHeader extends StatefulWidget {
-  const AccountingDashboardHeader({super.key});
+  const AccountingDashboardHeader({super.key,
+    required this.company,
+  });
+
+  final Company company;
 
   @override
   State<StatefulWidget> createState() => _DashboardHeaderState();
