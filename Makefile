@@ -1,5 +1,2 @@
-run:
-	@flutter run
-
-stop: 
+stop:
 	./android/gradlew --stop

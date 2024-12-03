@@ -14,6 +14,7 @@ class Accounting implements Module {
     // TODO: implement viewDashboard
     throw UnimplementedError();
   }
+
   @override
   Widget viewDashboardBody() {
     // TODO: implement viewDashboard
