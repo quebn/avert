@@ -1,3 +1,4 @@
+import "package:avert/core/documents/company/document.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
 
@@ -11,16 +12,17 @@ export "package:avert/core/utils/common.dart";
 
 // TODO: Figure out how to test stuffs.
 abstract class Module {
-  const Module();
+  const Module(this.company);
 
   final IconData iconData = Icons.question_mark_rounded;
   final String name = "Module";
+  final Company company;
 
-  Widget viewDashboardHeader();
-  Widget viewDashboardBody();
-  Widget viewDocuments();
-  Widget viewReport();
-  Widget viewSettings();
+  Widget dashboardHeader();
+  Widget dashboardBody();
+  Widget documents();
+  Widget reports();
+  Widget settings();
 }
 
 abstract class Document {

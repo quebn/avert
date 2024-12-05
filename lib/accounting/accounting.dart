@@ -1,7 +1,10 @@
 import "package:avert/core/core.dart";
 
-// IMPORTANT: Do this.
 class Accounting implements Module {
+  const Accounting(this.company);
+
+  @override
+  final Company company;
 
   @override
   IconData get iconData => Icons.account_balance;
@@ -10,33 +13,38 @@ class Accounting implements Module {
   String get name => "Accounting";
 
   @override
-  Widget viewDashboardHeader() {
-    // TODO: implement viewDashboard
-    throw UnimplementedError();
+  Widget dashboardHeader() {
+    return SizedBox(
+      child: Text(name,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+        ),
+      ),
+    );
   }
 
   @override
-  Widget viewDashboardBody() {
-    // TODO: implement viewDashboard
-    throw UnimplementedError();
+  Widget dashboardBody() {
+    return SizedBox();
   }
 
   @override
-  Widget viewDocuments() {
+  Widget documents() {
     // TODO: implement viewDocuments
     throw UnimplementedError();
   }
 
   @override
-  Widget viewReport() {
+  Widget reports() {
     // TODO: implement viewReport
     throw UnimplementedError();
   }
 
   @override
-  Widget viewSettings() {
+  Widget settings() {
     // TODO: implement viewSettings
     throw UnimplementedError();
   }
-
 }

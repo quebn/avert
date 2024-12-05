@@ -1,53 +1,41 @@
 import "package:avert/core/core.dart";
 
-class HomeDashboard extends StatefulWidget {
-  const HomeDashboard({super.key,
-    required this.company,
+class Dashboard extends StatelessWidget {
+  const Dashboard({super.key,
     required this.module,
   });
 
-  final Company company;
   final Module module;
-
-  @override
-  State<StatefulWidget> createState() => _DashboardState();
-}
-
-class _DashboardState extends State<HomeDashboard> {
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          headerContent(),
-          SizedBox(
+          headerContent(context),
+          Container(
+            padding: EdgeInsets.all(8),
+            child: module.dashboardBody(),
           ),
         ]
       ),
     );
   }
 
-  Widget headerContent() {
+  Widget headerContent(BuildContext context) {
     return  Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
         Container(
-          padding: EdgeInsets.only(top: kToolbarHeight),
           width: MediaQuery.sizeOf(context).width,
           height: 300,
           color: Colors.black,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: const Text("Dashboard",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                child: module.dashboardHeader(),
               ),
             ],
           ),

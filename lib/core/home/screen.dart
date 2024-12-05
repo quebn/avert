@@ -27,16 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   int moduleIndex = 0;
   bool lastStatus = true;
-  final double height = 390;
-  final List<Module> modules = [
-    Accounting(),
-  ];
-  final List<String> foo = [];
 
+  final double height = 390;
+
+  late final List<Module> modules = [
+    Accounting(widget.company!),
+  ];
   late Company? company = widget.company;
   late ScrollController _scrollController;
   late List<Widget> pages = [
-    HomeDashboard( company: company!, module: currentModule),
+    Dashboard(module: currentModule),
     const Center(child: Text("Documents")),
     const Center(child: Text("Reports")),
     const Center(child: Text("Settings")),
