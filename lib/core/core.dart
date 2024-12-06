@@ -18,7 +18,7 @@ abstract class Module {
   final String name = "Module";
   final Company company;
 
-  Widget dashboardHeader();
+  Widget dashboardHeader(BuildContext context);
   Widget dashboardBody();
   Widget documents();
   Widget reports();

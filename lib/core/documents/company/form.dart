@@ -61,7 +61,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       title: "${isNew(widget.document) ? "New" : "Edit"} Company",
       widgetsBody: [
         AvertInput(
-          name: "Name",
+          label: "Name",
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,

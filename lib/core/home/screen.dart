@@ -30,9 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final double height = 390;
 
-  late final List<Module> modules = [
-    Accounting(widget.company!),
-  ];
   late Company? company = widget.company;
   late ScrollController _scrollController;
   late List<Widget> pages = [
@@ -40,6 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text("Documents")),
     const Center(child: Text("Reports")),
     const Center(child: Text("Settings")),
+  ];
+
+  late final List<Module> modules = [
+    Accounting(company!),
   ];
 
   Module get currentModule => modules[moduleIndex];

@@ -126,7 +126,7 @@ class AvertDocumentForm extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.w800,
             color: Colors.white,
-            fontSize: 28,
+            fontSize: 24,
           ),
         ),
       ),

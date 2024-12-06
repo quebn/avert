@@ -12,8 +12,9 @@ enum AvertInputType {
 class AvertInput extends StatefulWidget {
   const AvertInput({
     super.key,
-    required this.name,
+    required this.label,
     required this.controller,
+    this.placeHolder = "Text",
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
@@ -25,15 +26,17 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.decoration,
+    this.labelStyle,
   });
 
   const AvertInput.alphanumeric({
-    super.key, 
-    required this.name, 
+    super.key,
+    required this.label,
     required this.controller,
+    this.placeHolder = "Text",
     this.xPadding = 8,
     this.yPadding = 8,
-    this.gapPadding = 8, 
+    this.gapPadding = 8,
     this.required = false,
     this.validator,
     this.forceErrMsg,
@@ -41,24 +44,27 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.decoration,
+    this.labelStyle,
   }) : inputType = AvertInputType.alphanumeric;
 
   const AvertInput.password({
-    super.key, 
+    super.key,
     required this.controller,
+    this.placeHolder = "********",
     this.validator,
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
-    this.name = "Password",
+    this.label = "Password",
     this.forceErrMsg,
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
     this.decoration,
+    this.labelStyle,
   }) : inputType = AvertInputType.password, required = true ;
 
-  final String name;
+  final String label, placeHolder;
   final double xPadding, yPadding;
   final double gapPadding;
   final AvertInputType inputType;
@@ -68,6 +74,7 @@ class AvertInput extends StatefulWidget {
   final String? forceErrMsg;
   final void Function(String? value)? onChanged;
   final InputDecoration? decoration;
+  final TextStyle? labelStyle;
 
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -79,80 +86,74 @@ class _InputState extends State<AvertInput> {
 
   @override
   Widget build(BuildContext context) {
+    Widget textFormField;
     switch(widget.inputType) {
       case AvertInputType.alphanumeric:
-        return alphanumeric(context);
+        textFormField =  alphanumeric(context);
       case AvertInputType.password:
-        return password(context);
+        textFormField =  password(context);
       default:
-        return text(context);
+        textFormField =  text(context);
     }
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.label,
+            style: widget.labelStyle ?? TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          textFormField,
+        ],
+      )
+    );
   }
 
-  Widget alphanumeric(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
-    child: TextFormField(
-      readOnly: widget.readOnly,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
-      ],
-      autofocus: widget.autofocus,
-      validator: validate,
-      controller: widget.controller,
-      forceErrorText: widget.forceErrMsg,
-      onChanged: widget.onChanged,
-      decoration: widget.decoration ?? InputDecoration(
-        iconColor: Colors.white,
-        border: OutlineInputBorder(
-          gapPadding: widget.gapPadding,
-        ),
-        labelText: widget.name,
-        //errorText: errMsg,
-      )
-    )
-  
+  InputDecoration get defaultDecoration => InputDecoration(
+    floatingLabelBehavior: FloatingLabelBehavior.never,
+    iconColor: Colors.white,
+    border: OutlineInputBorder(
+      gapPadding: widget.gapPadding,
+    ),
+    labelText: widget.placeHolder,
+    //errorText: errMsg,
   );
 
-  Widget text(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
-    child: TextFormField(
-      readOnly: widget.readOnly,
-      validator: validate,
-      controller: widget.controller,
-      forceErrorText: widget.forceErrMsg,
-      onChanged: widget.onChanged,
-      decoration: widget.decoration ?? InputDecoration(
-        iconColor: Colors.white,
-        border: OutlineInputBorder(
-          gapPadding: widget.gapPadding,
-        ),
-        labelText: widget.name,
-        //errorText: errMsg,
-      )
-    )
+  Widget alphanumeric(BuildContext context) => TextFormField(
+    readOnly: widget.readOnly,
+    inputFormatters: [
+      FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
+    ],
+    autofocus: widget.autofocus,
+    validator: validate,
+    controller: widget.controller,
+    forceErrorText: widget.forceErrMsg,
+    onChanged: widget.onChanged,
+    decoration: widget.decoration ?? defaultDecoration,
   );
 
-  Widget password(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
-    child: TextFormField(
-      readOnly: widget.readOnly,
-      validator: validate,
-      obscureText: shouldObscure,
-      forceErrorText: widget.forceErrMsg,
-      onChanged: widget.onChanged,
-      enableSuggestions: false,
-      autocorrect: false,
-      controller: widget.controller,
-      decoration: widget.decoration ?? InputDecoration(
-        suffixIcon: showButton(context),
-        iconColor: Colors.white,
-        border: OutlineInputBorder(
-          gapPadding: widget.gapPadding,
-        ),
-        labelText: widget.name,
-        //errorText: errMsg,
-      )
-    )
+  Widget text(BuildContext context) => TextFormField(
+    readOnly: widget.readOnly,
+    validator: validate,
+    controller: widget.controller,
+    forceErrorText: widget.forceErrMsg,
+    onChanged: widget.onChanged,
+    decoration: widget.decoration ?? defaultDecoration,
+  );
+
+  Widget password(BuildContext context) => TextFormField(
+    readOnly: widget.readOnly,
+    validator: validate,
+    obscureText: shouldObscure,
+    forceErrorText: widget.forceErrMsg,
+    onChanged: widget.onChanged,
+    enableSuggestions: false,
+    autocorrect: false,
+    controller: widget.controller,
+    decoration: widget.decoration ?? defaultDecoration,
   );
 
   Widget showButton(BuildContext context) => IconButton(
@@ -171,8 +172,8 @@ class _InputState extends State<AvertInput> {
   String? validate(String? value) {
     printInfo("validating value: $value");
     if (widget.required && (value == null || value.isEmpty)) {
-      printInfo("Required non empty field of ${widget.name}");
-      return "${widget.name} is required!";
+      printInfo("Required non empty field of ${widget.label}");
+      return "${widget.label} is required!";
     }
     return widget.validator == null ? null : widget.validator!(value);
   }

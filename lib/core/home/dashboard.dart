@@ -35,7 +35,7 @@ class Dashboard extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: module.dashboardHeader(),
+                child: module.dashboardHeader(context),
               ),
             ],
           ),

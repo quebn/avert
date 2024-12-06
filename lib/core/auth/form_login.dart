@@ -39,7 +39,7 @@ class _FormState extends State<LoginForm> {
     printTrack("Building LoginForm");
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
-        name: "Username",
+        label: "Username",
         controller: controllers['username']!,
         forceErrMsg: userErrMsg,
         required: true,

@@ -45,24 +45,44 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   String? errMsg;
 
   @override
+  void initState() {
+    initDocumentFields();
+    controllers['name']!.addListener(onNameChange);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controllers['name']!.removeListener(onNameChange);
+    for (TextEditingController controller in controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    printTrack("Building Accounting Period Document Form");
-    printInfo("Accounting Period ID = ${widget.document.id}");
+    printTrack("Building Financial Year Document Form");
+    printInfo("Financial Year ID = ${widget.document.id}");
     return AvertDocumentForm(
       xPadding: 16,
       yPadding: 16,
-      title: "${isNew(widget.document) ? "New" : "Edit"} AccountingPeriod",
+      title: "${isNew(widget.document) ? "New" : "Edit"} Financial Year",
       widgetsBody: [
         AvertInput(
-          name: "Name",
+          label: "Name",
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
         ),
         AvertButton(
+          yPadding: 16,
+          xMargin: 8,
+          yMargin: 8,
           onPressed: () {},
-          name: "InputDate",
+          name: "Start Date",
         ),
+
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(
@@ -146,6 +166,21 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
     setState(() {
       isDirty = false;
+    });
+  }
+
+  void onNameChange() => onFieldChange(<bool>() {
+    return controllers['name']!.text != widget.document.name;
+  });
+
+  void onFieldChange(Function<bool>() isDirtyCallback) {
+    final bool isReallyDirty = isDirtyCallback();
+    if (isReallyDirty == isDirty) {
+      return;
+    }
+    printTrack("Setting state of is dirty = $isReallyDirty");
+    setState(() {
+      isDirty = isReallyDirty;
     });
   }
 }
