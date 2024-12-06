@@ -4,17 +4,17 @@ import "package:flutter/services.dart";
 
 enum AvertInputType {
   text,
+  numeric,
   alphanumeric,
   password,
-  datetime,
+  date,
 }
 
 class AvertInput extends StatefulWidget {
-  const AvertInput({
-    super.key,
+  const AvertInput({super.key,
     required this.label,
     required this.controller,
-    this.placeHolder = "Text",
+    this.placeholder = "Text",
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
@@ -29,11 +29,10 @@ class AvertInput extends StatefulWidget {
     this.labelStyle,
   });
 
-  const AvertInput.alphanumeric({
-    super.key,
+  const AvertInput.alphanumeric({super.key,
     required this.label,
     required this.controller,
-    this.placeHolder = "Text",
+    this.placeholder = "Text",
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
@@ -47,10 +46,9 @@ class AvertInput extends StatefulWidget {
     this.labelStyle,
   }) : inputType = AvertInputType.alphanumeric;
 
-  const AvertInput.password({
-    super.key,
+  const AvertInput.password({super.key,
     required this.controller,
-    this.placeHolder = "********",
+    this.placeholder = "",
     this.validator,
     this.xPadding = 8,
     this.yPadding = 8,
@@ -64,7 +62,41 @@ class AvertInput extends StatefulWidget {
     this.labelStyle,
   }) : inputType = AvertInputType.password, required = true ;
 
-  final String label, placeHolder;
+  const AvertInput.date({super.key,
+    required this.label,
+    required this.controller,
+    this.placeholder = "YYYY/MM/DD",
+    this.xPadding = 8,
+    this.yPadding = 8,
+    this.gapPadding = 8,
+    this.required = false,
+    this.validator,
+    this.forceErrMsg,
+    this.onChanged,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.decoration,
+    this.labelStyle,
+  }) : inputType = AvertInputType.date;
+
+  const AvertInput.numeric({super.key,
+    required this.controller,
+    this.placeholder = "0",
+    this.validator,
+    this.xPadding = 8,
+    this.yPadding = 8,
+    this.gapPadding = 8,
+    this.label = "Enter Number",
+    this.forceErrMsg,
+    this.onChanged,
+    this.required = false,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.decoration,
+    this.labelStyle,
+  }) : inputType = AvertInputType.numeric;
+
+  final String label, placeholder;
   final double xPadding, yPadding;
   final double gapPadding;
   final AvertInputType inputType;
@@ -89,17 +121,23 @@ class _InputState extends State<AvertInput> {
     Widget textFormField;
     switch(widget.inputType) {
       case AvertInputType.alphanumeric:
-        textFormField =  alphanumeric(context);
+        textFormField = alphanumeric(context);
+      case AvertInputType.date:
+        textFormField = date(context);
+      case AvertInputType.numeric:
+        textFormField = numeric(context);
       case AvertInputType.password:
-        textFormField =  password(context);
+        textFormField = password(context);
       default:
-        textFormField =  text(context);
+        textFormField = text(context);
     }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // TODO: make this into a richtext that show
+          // on the label whether this field is required.
           Text(widget.label,
             style: widget.labelStyle ?? TextStyle(
               fontWeight: FontWeight.bold,
@@ -114,12 +152,48 @@ class _InputState extends State<AvertInput> {
 
   InputDecoration get defaultDecoration => InputDecoration(
     floatingLabelBehavior: FloatingLabelBehavior.never,
-    iconColor: Colors.white,
     border: OutlineInputBorder(
       gapPadding: widget.gapPadding,
     ),
-    labelText: widget.placeHolder,
+    labelText: widget.placeholder,
     //errorText: errMsg,
+  );
+
+  Widget date(BuildContext context) => TextFormField(
+    readOnly: widget.readOnly,
+    keyboardType: TextInputType.datetime,
+    enableSuggestions: false,
+    autocorrect: false,
+    autofocus: widget.autofocus,
+    validator: validateDate,
+    controller: widget.controller,
+    forceErrorText: widget.forceErrMsg,
+    onChanged: widget.onChanged,
+    decoration: widget.decoration ?? InputDecoration(
+      floatingLabelBehavior: FloatingLabelBehavior.never,
+      iconColor: Colors.white,
+      border: OutlineInputBorder(
+        gapPadding: widget.gapPadding,
+      ),
+      labelText: widget.placeholder,
+      suffixIcon: datepicker(),
+    )
+  );
+
+  Widget numeric(BuildContext context) => TextFormField(
+    readOnly: widget.readOnly,
+    inputFormatters: [
+      FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+    ],
+    enableSuggestions: false,
+    autocorrect: false,
+    keyboardType: TextInputType.number,
+    autofocus: widget.autofocus,
+    validator: validate,
+    controller: widget.controller,
+    forceErrorText: widget.forceErrMsg,
+    onChanged: widget.onChanged,
+    decoration: widget.decoration ?? defaultDecoration,
   );
 
   Widget alphanumeric(BuildContext context) => TextFormField(
@@ -153,10 +227,27 @@ class _InputState extends State<AvertInput> {
     enableSuggestions: false,
     autocorrect: false,
     controller: widget.controller,
-    decoration: widget.decoration ?? defaultDecoration,
+    decoration: widget.decoration ?? InputDecoration(
+      floatingLabelBehavior: FloatingLabelBehavior.never,
+      suffixIcon: showButton(),
+      iconColor: Colors.white,
+      border: OutlineInputBorder(
+        gapPadding: widget.gapPadding,
+      ),
+      labelText: widget.placeholder,
+      //errorText: errMsg,
+    )
   );
 
-  Widget showButton(BuildContext context) => IconButton(
+  Widget datepicker() => IconButton(
+    iconSize: 28,
+    icon: const Icon(Icons.calendar_month),
+    onPressed: () {
+      throw UnimplementedError();
+    },
+  );
+
+  Widget showButton() => IconButton(
     //padding: EdgeInsets.all(0),
     iconSize: 28,
     isSelected: shouldObscure,
@@ -169,6 +260,15 @@ class _InputState extends State<AvertInput> {
     },
   );
 
+  String? validateDate(String? value) {
+    if (widget.required && (value == null || value.isEmpty)) {
+      printInfo("Required non empty field of ${widget.label}");
+      return "${widget.label} is required!";
+    }
+    // IMPORTANT: add date validation of value is valid date.
+    return widget.validator == null ? null : widget.validator!(value);
+  }
+
   String? validate(String? value) {
     printInfo("validating value: $value");
     if (widget.required && (value == null || value.isEmpty)) {
@@ -177,4 +277,11 @@ class _InputState extends State<AvertInput> {
     }
     return widget.validator == null ? null : widget.validator!(value);
   }
+}
+
+Widget foo() {
+  return InputDatePickerFormField(
+    firstDate: DateTime(2024),
+    lastDate: DateTime(2025),
+  );
 }

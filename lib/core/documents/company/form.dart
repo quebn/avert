@@ -62,6 +62,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       widgetsBody: [
         AvertInput(
           label: "Name",
+          placeholder: "Acme Inc.",
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,

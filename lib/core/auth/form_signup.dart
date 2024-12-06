@@ -44,8 +44,9 @@ class _FormState extends State<SignUpForm> {
     }
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
-        autofocus: true,
+        autofocus: !widget.hasUsers,
         label:"Username",
+        placeholder: "Ex. john_doe",
         controller: controllers['username']!,
         required: true,
         validator: (value) {return null;},
@@ -54,9 +55,11 @@ class _FormState extends State<SignUpForm> {
       ),
       AvertInput.password(
         controller: controllers['password']!,
+        placeholder: "Enter Password",
       ),
       AvertInput.password(
         label:  "Confirm Password",
+        placeholder: "Enter Password Again",
         controller: controllers['password_confirm']!,
         // TODO: add an onValueChange for this widget where is checks field must contain.
         validator: (value) {

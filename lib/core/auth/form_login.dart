@@ -40,6 +40,7 @@ class _FormState extends State<LoginForm> {
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
         label: "Username",
+        placeholder: "Enter username",
         controller: controllers['username']!,
         forceErrMsg: userErrMsg,
         required: true,
@@ -47,6 +48,7 @@ class _FormState extends State<LoginForm> {
       ),
       AvertInput.password(
         controller: controllers['password']!,
+        placeholder: "Enter password",
         forceErrMsg: passErrMsg,
         onChanged: onChangePassword,
       ),

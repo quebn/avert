@@ -34,8 +34,8 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
-    'start': TextEditingController(),
-    'end': TextEditingController(),
+    'start_date': TextEditingController(),
+    'end_date': TextEditingController(),
   };
 
   @override
@@ -48,12 +48,14 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   void initState() {
     initDocumentFields();
     controllers['name']!.addListener(onNameChange);
+    // IMPORTANT: Add listeners for DateFields.
     super.initState();
   }
 
   @override
   void dispose() {
     controllers['name']!.removeListener(onNameChange);
+    // IMPORTANT: Remove Listeners for DateFields.
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -71,18 +73,17 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       widgetsBody: [
         AvertInput(
           label: "Name",
+          placeholder: "Ex. 2024",
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
         ),
-        AvertButton(
-          yPadding: 16,
-          xMargin: 8,
-          yMargin: 8,
-          onPressed: () {},
-          name: "Start Date",
+        AvertInput.date(
+          label: "Year Start",
+          controller: controllers['start_date']!,
+          required: true,
+          forceErrMsg: errMsg,
         ),
-
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(
