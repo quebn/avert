@@ -28,6 +28,8 @@ class FinancialYearForm extends StatefulWidget {
 
 class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
+  late String startDate, endDate;
+
   @override
   final GlobalKey<FormState> key = GlobalKey<FormState>();
 
@@ -48,7 +50,9 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   void initState() {
     initDocumentFields();
     controllers['name']!.addListener(onNameChange);
+    // TEST: check if add and removing listeners with function that varies works.
     // IMPORTANT: Add listeners for DateFields.
+    // controllers['start_date']!.addListener(onStartDateChange);
     super.initState();
   }
 
@@ -56,6 +60,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   void dispose() {
     controllers['name']!.removeListener(onNameChange);
     // IMPORTANT: Remove Listeners for DateFields.
+    // controllers['start_date']!.removeListener(onStartDateChange);
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -172,6 +177,10 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   void onNameChange() => onFieldChange(<bool>() {
     return controllers['name']!.text != widget.document.name;
+  });
+
+  void onDateChange() => onFieldChange(<bool>() {
+    return controllers['start_date']!.text != widget.document.start;
   });
 
   void onFieldChange(Function<bool>() isDirtyCallback) {

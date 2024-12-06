@@ -73,11 +73,9 @@ class AvertInput extends StatefulWidget {
     this.validator,
     this.forceErrMsg,
     this.onChanged,
-    this.readOnly = false,
-    this.autofocus = false,
     this.decoration,
     this.labelStyle,
-  }) : inputType = AvertInputType.date;
+  }) : inputType = AvertInputType.date, readOnly = true, autofocus = false;
 
   const AvertInput.numeric({super.key,
     required this.controller,
@@ -121,15 +119,15 @@ class _InputState extends State<AvertInput> {
     Widget textFormField;
     switch(widget.inputType) {
       case AvertInputType.alphanumeric:
-        textFormField = alphanumeric(context);
+        textFormField = alphanumericField(context);
       case AvertInputType.date:
-        textFormField = date(context);
+        textFormField = dateField(context);
       case AvertInputType.numeric:
-        textFormField = numeric(context);
+        textFormField = numericField(context);
       case AvertInputType.password:
-        textFormField = password(context);
+        textFormField = passwordField(context);
       default:
-        textFormField = text(context);
+        textFormField = textField(context);
     }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
@@ -155,12 +153,12 @@ class _InputState extends State<AvertInput> {
     border: OutlineInputBorder(
       gapPadding: widget.gapPadding,
     ),
-    labelText: widget.placeholder,
+    hintText: widget.placeholder,
     //errorText: errMsg,
   );
 
-  Widget date(BuildContext context) => TextFormField(
-    readOnly: widget.readOnly,
+  Widget dateField(BuildContext context) => TextFormField(
+    readOnly: true,
     keyboardType: TextInputType.datetime,
     enableSuggestions: false,
     autocorrect: false,
@@ -175,12 +173,12 @@ class _InputState extends State<AvertInput> {
       border: OutlineInputBorder(
         gapPadding: widget.gapPadding,
       ),
-      labelText: widget.placeholder,
+      hintText: widget.placeholder,
       suffixIcon: datepicker(),
     )
   );
 
-  Widget numeric(BuildContext context) => TextFormField(
+  Widget numericField(BuildContext context) => TextFormField(
     readOnly: widget.readOnly,
     inputFormatters: [
       FilteringTextInputFormatter.allow(RegExp("[0-9]")),
@@ -196,7 +194,7 @@ class _InputState extends State<AvertInput> {
     decoration: widget.decoration ?? defaultDecoration,
   );
 
-  Widget alphanumeric(BuildContext context) => TextFormField(
+  Widget alphanumericField(BuildContext context) => TextFormField(
     readOnly: widget.readOnly,
     inputFormatters: [
       FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
@@ -209,7 +207,7 @@ class _InputState extends State<AvertInput> {
     decoration: widget.decoration ?? defaultDecoration,
   );
 
-  Widget text(BuildContext context) => TextFormField(
+  Widget textField(BuildContext context) => TextFormField(
     readOnly: widget.readOnly,
     validator: validate,
     controller: widget.controller,
@@ -218,7 +216,7 @@ class _InputState extends State<AvertInput> {
     decoration: widget.decoration ?? defaultDecoration,
   );
 
-  Widget password(BuildContext context) => TextFormField(
+  Widget passwordField(BuildContext context) => TextFormField(
     readOnly: widget.readOnly,
     validator: validate,
     obscureText: shouldObscure,
@@ -234,7 +232,7 @@ class _InputState extends State<AvertInput> {
       border: OutlineInputBorder(
         gapPadding: widget.gapPadding,
       ),
-      labelText: widget.placeholder,
+      hintText: widget.placeholder,
       //errorText: errMsg,
     )
   );
@@ -243,7 +241,19 @@ class _InputState extends State<AvertInput> {
     iconSize: 28,
     icon: const Icon(Icons.calendar_month),
     onPressed: () {
-      throw UnimplementedError();
+      Navigator.push(context,
+        DialogRoute(
+          context: context,
+          builder: (BuildContext context) {
+            return DatePickerDialog(
+              initialDate: DateTime.now(),
+              // TODO: make these years variable on the current year.
+              firstDate: DateTime(2024),
+              lastDate: DateTime(2025),
+            );
+          }
+        )
+      );
     },
   );
 
