@@ -77,7 +77,7 @@ class User implements Document {
       "password"  : _password,
       "createdAt" : DateTime.now().millisecondsSinceEpoch,
     };
-    printWarn("Inserting to users table values: ${values.toString()}");
+    printInfo("Inserting to users table values: ${values.toString()}");
     bool success = await Core.database!.insert("users", values) > 0 ;
     if (success) _password = "";
     return success;

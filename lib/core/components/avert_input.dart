@@ -163,7 +163,7 @@ class _InputState extends State<AvertInput> {
     enableSuggestions: false,
     autocorrect: false,
     autofocus: widget.autofocus,
-    validator: validateDate,
+    validator: validate,
     controller: widget.controller,
     forceErrorText: widget.forceErrMsg,
     onChanged: widget.onChanged,
@@ -262,15 +262,6 @@ class _InputState extends State<AvertInput> {
       });
     },
   );
-
-  String? validateDate(String? value) {
-    if (widget.required && (value == null || value.isEmpty)) {
-      printInfo("Required non empty field of ${widget.label}");
-      return "${widget.label} is required!";
-    }
-    // IMPORTANT: add date validation of value is valid date.
-    return widget.validator == null ? null : widget.validator!(value);
-  }
 
   String? validate(String? value) {
     printInfo("validating value: $value");

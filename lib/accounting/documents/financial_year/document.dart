@@ -1,5 +1,9 @@
 import "package:avert/core/core.dart";
 
+enum FinancialYearType {
+  calendar,
+  fiscal,
+}
 class FinancialYear implements Document {
   FinancialYear({
     this.id = 0,
@@ -28,7 +32,8 @@ class FinancialYear implements Document {
     name TEXT NOT NULL,
     createdAt INTEGER NOT NULL,
     start INTEGER NOT NULL,
-    end INTEGER NOT NULL
+    end INTEGER NOT NULL,
+    type INTEGER NOT NULL
   )""",
   """ CREATE TABLE financial_year_companies(
     id INTEGER PRIMARY KEY,

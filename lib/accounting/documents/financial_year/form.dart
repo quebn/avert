@@ -1,5 +1,4 @@
 import "package:avert/accounting/documents/financial_year/view.dart";
-import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
@@ -51,16 +50,14 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     initDocumentFields();
     controllers['name']!.addListener(onNameChange);
     // TEST: check if add and removing listeners with function that varies works.
-    // IMPORTANT: Add listeners for DateFields.
-    // controllers['start_date']!.addListener(onStartDateChange);
+    controllers['start_date']!.addListener(onStartDateChange);
     super.initState();
   }
 
   @override
   void dispose() {
     controllers['name']!.removeListener(onNameChange);
-    // IMPORTANT: Remove Listeners for DateFields.
-    // controllers['start_date']!.removeListener(onStartDateChange);
+    controllers['start_date']!.removeListener(onStartDateChange);
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -88,6 +85,19 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
           controller: controllers['start_date']!,
           required: true,
           forceErrMsg: errMsg,
+          onChanged: (String? value) {
+            String endDate = calculateEndDate(value);
+            controllers['end_date']!.text = endDate;
+            printInfo(endDate);
+          },
+        ),
+        AvertInput(
+          label: "Year End",
+          placeholder: "YYYY-MM-DD",
+          controller: controllers['end_date']!,
+          required: true,
+          readOnly: true,
+          forceErrMsg: errMsg,
         ),
       ],
       isDirty: isDirty,
@@ -102,7 +112,17 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   @override
   void initDocumentFields() {
-    controllers['name']!.text = widget.document.name;
+    FinancialYear d = widget.document;
+    controllers['name']!.text = d.name;
+    if (isNew(d)) {
+      d.start = DateTime.now();
+      String startDate = getDate(d.start!);
+      controllers['start_date']!.text = startDate;
+      controllers['end_date']!.text = addYearToDate(1, startDate);
+    } else {
+      controllers['start_date']!.text = getDate(d.start!);
+      controllers['end_date']!.text = getDate(d.end!);
+    }
     // TODO: controllers for:
     // - Start
     // - End
@@ -175,15 +195,21 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     });
   }
 
-  void onNameChange() => onFieldChange(<bool>() {
+  void onNameChange() => onFieldChange(() {
     return controllers['name']!.text != widget.document.name;
   });
 
-  void onDateChange() => onFieldChange(<bool>() {
-    return controllers['start_date']!.text != widget.document.start;
+  void onStartDateChange() => onFieldChange(() {
+    bool hasChange = controllers["start_date"]!.text != getDate(widget.document.start!);
+    if (hasChange) {
+      String newStartDate = controllers["start_date"]!.text;
+      calculateEndDate(newStartDate);
+      printInfo("Start Date has Change!");
+    }
+    return hasChange;
   });
 
-  void onFieldChange(Function<bool>() isDirtyCallback) {
+  void onFieldChange(bool Function() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
     if (isReallyDirty == isDirty) {
       return;
@@ -192,5 +218,10 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     setState(() {
       isDirty = isReallyDirty;
     });
+  }
+
+  String calculateEndDate(String? startDate) {
+    if (startDate == null) return "";
+    return addYearToDate(1, startDate);
   }
 }
