@@ -1,4 +1,6 @@
+import "dart:convert";
 import "package:avert/core/core.dart";
+import "package:crypto/crypto.dart";
 
 void notifyUpdate(BuildContext context, String msg) {
   final SnackBar snackBar = SnackBar(
@@ -79,7 +81,7 @@ Future<bool?> promptConfirmPop(BuildContext context, String title) {
 }
 
 /// Checks whether the document is new.
-/// Document is new if its ID is zero.
+/// Document is new if its ID is `0`
 bool isNew(Document document) {
   return document.id == 0;
 }
@@ -98,9 +100,18 @@ String getDateTime(String date) {
 }
 
 String addYearToDate(int year, String date) {
+  // NOTE: function currently doesnt check for leap years.
+  // TODO: might have to check if date is a leap year and is on 02/29,
+  // where in this case the we have to subtract the day by one.
+  //  - only needs to check if month is 02 and day is 29 is this case.
   List<String> dateStrings = date.split("-");
-  // NOTE: year is index zero.
   int newYear = int.parse(dateStrings[0]) + year;
   dateStrings[0] = newYear.toString();
   return dateStrings.join("-");
 }
+
+Digest hashString(String string) {
+  var bytes = utf8.encode(string);
+  return sha256.convert(bytes);
+}
+

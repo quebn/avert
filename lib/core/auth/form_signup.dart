@@ -1,8 +1,6 @@
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/core.dart";
-import "package:crypto/crypto.dart";
-import "dart:convert";
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key,
@@ -102,8 +100,8 @@ class _FormState extends State<SignUpForm> {
     User user = User(
       name: controllers['username']!.value.text,
     );
-    var bytes = utf8.encode(controllers['password']!.value.text);
-    user.password = sha256.convert(bytes);
+
+    user.password = hashString(controllers['password']!.value.text);
     // todo: should be this in later
     bool userExist = await user.nameExist();
     if (userExist) {
