@@ -4,6 +4,7 @@ enum FinancialYearType {
   calendar,
   fiscal,
 }
+
 class FinancialYear implements Document {
   FinancialYear({
     this.id = 0,
@@ -11,10 +12,12 @@ class FinancialYear implements Document {
     int durationInDays = 0,
     this.start,
     this.end,
+    this.type = FinancialYearType.calendar,
   }):createdAt = DateTime.now();
 
   DateTime? start;
   DateTime? end;
+  FinancialYearType type;
   List<Company> companies = [];
 
   @override
@@ -72,6 +75,7 @@ class FinancialYear implements Document {
       "name": name,
       "createdAt": now.millisecondsSinceEpoch,
       "start": start!.millisecondsSinceEpoch,
+      "type": type.index,
       "end": end!.millisecondsSinceEpoch,
     };
     id = await Core.database!.insert("accounting_periods", values);
