@@ -35,6 +35,7 @@ void main() async {
         );
         printInfo("${results.length} user(s) found with values of: ${results.toString()}");
         hasUsers = results.isNotEmpty;
+        if (!hasUsers) await _createUser();
       }
       company = await Company.fetchDefault(db, cachedPrefs);
       //company = await _getCompany(db, cachedPrefs);
@@ -71,6 +72,13 @@ class App extends StatelessWidget {
       title: title,
       //debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        inputDecorationTheme: InputDecorationTheme(
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          hintStyle: TextStyle(
+            fontWeight: FontWeight.normal,
+            color: Colors.grey,
+          ),
+        ),
         dividerTheme: DividerThemeData(
           space: 8,
           indent: 8,
@@ -151,4 +159,11 @@ _onCreate(Database db, int version) async {
   tablesInitAccounting(batch);
 
   await batch.commit();
+}
+
+Future<void> _createUser() async {
+  User user = User(name: "Administrator");
+  user.password = hashString("pass1234");
+  bool success = await user.insert();
+  if (success) printSuccess("Created User Successfully");
 }
