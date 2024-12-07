@@ -97,3 +97,10 @@ String getDateTime(String date) {
   return "$date 00:00:00:000";
 }
 
+String addYearToDate(int year, String date) {
+  List<String> dateStrings = date.split("-");
+  // NOTE: year is index zero.
+  int newYear = int.parse(dateStrings[0]) + year;
+  dateStrings[0] = newYear.toString();
+  return dateStrings.join("-");
+}
