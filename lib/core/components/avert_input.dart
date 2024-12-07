@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:avert/core/utils/logger.dart";
+import "package:avert/core/utils/common.dart";
 import "package:flutter/services.dart";
 
 enum AvertInputType {
@@ -65,7 +66,7 @@ class AvertInput extends StatefulWidget {
   const AvertInput.date({super.key,
     required this.label,
     required this.controller,
-    this.placeholder = "YYYY/MM/DD",
+    this.placeholder = "YYYY-MM-DD",
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
@@ -149,7 +150,6 @@ class _InputState extends State<AvertInput> {
   }
 
   InputDecoration get defaultDecoration => InputDecoration(
-    floatingLabelBehavior: FloatingLabelBehavior.never,
     border: OutlineInputBorder(
       gapPadding: widget.gapPadding,
     ),
@@ -168,7 +168,6 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
     onChanged: widget.onChanged,
     decoration: widget.decoration ?? InputDecoration(
-      floatingLabelBehavior: FloatingLabelBehavior.never,
       iconColor: Colors.white,
       border: OutlineInputBorder(
         gapPadding: widget.gapPadding,
@@ -226,7 +225,6 @@ class _InputState extends State<AvertInput> {
     autocorrect: false,
     controller: widget.controller,
     decoration: widget.decoration ?? InputDecoration(
-      floatingLabelBehavior: FloatingLabelBehavior.never,
       suffixIcon: showButton(),
       iconColor: Colors.white,
       border: OutlineInputBorder(
@@ -240,20 +238,15 @@ class _InputState extends State<AvertInput> {
   Widget datepicker() => IconButton(
     iconSize: 28,
     icon: const Icon(Icons.calendar_month),
-    onPressed: () {
-      Navigator.push(context,
-        DialogRoute(
-          context: context,
-          builder: (BuildContext context) {
-            return DatePickerDialog(
-              initialDate: DateTime.now(),
-              // TODO: make these years variable on the current year.
-              firstDate: DateTime(2024),
-              lastDate: DateTime(2025),
-            );
-          }
-        )
+    onPressed: () async {
+      DateTime? dt = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2024),
+        lastDate: DateTime(2025),
       );
+      if (dt == null) return;
+      setState(() => widget.controller.text = getDate(dt));
     },
   );
 
