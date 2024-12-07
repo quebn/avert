@@ -83,3 +83,17 @@ Future<bool?> promptConfirmPop(BuildContext context, String title) {
 bool isNew(Document document) {
   return document.id == 0;
 }
+
+/// Gets only the Date value of a DateTime by remove the Time String.
+/// Ex. 2000-01-01 00:00:00:000 -> 2000-01-01
+String getDate(DateTime datetime) {
+  return datetime.toString().split(" ")[0];
+}
+
+/// Gets only the DateTime string represent of a date String.
+/// NOTE: date string should be in this format 'YYYY-MM-DD'
+/// Ex. 2000-01-01 -> 2000-01-01 00:00:00:000
+String getDateTime(String date) {
+  return "$date 00:00:00:000";
+}
+

@@ -9,9 +9,9 @@ class FinancialYear implements Document {
     this.end,
   }):createdAt = DateTime.now();
 
-  final DateTime? start;
-  final DateTime? end;
-  final List<Company> companies = [];
+  DateTime? start;
+  DateTime? end;
+  List<Company> companies = [];
 
   @override
   DateTime createdAt;
