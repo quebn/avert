@@ -1,8 +1,11 @@
 import "package:avert/core/core.dart";
 
 enum FinancialYearType {
-  calendar,
-  fiscal,
+  calendar("Calendar"),
+  fiscal("Fiscal");
+
+  const FinancialYearType(this.label);
+  final String label;
 }
 
 class FinancialYear implements Document {

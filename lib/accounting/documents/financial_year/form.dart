@@ -1,5 +1,6 @@
 import "package:avert/accounting/documents/financial_year/view.dart";
 import "package:avert/core/components/avert_document.dart";
+import "package:avert/core/components/avert_dropdown.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
 
@@ -35,6 +36,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
+    'type': TextEditingController(),
     'start_date': TextEditingController(),
     'end_date': TextEditingController(),
   };
@@ -50,6 +52,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     initDocumentFields();
     controllers['name']!.addListener(onNameChange);
     controllers['start_date']!.addListener(onStartDateChange);
+    controllers['type']!.addListener(onTypeChange);
     super.initState();
   }
 
@@ -57,6 +60,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   void dispose() {
     controllers['name']!.removeListener(onNameChange);
     controllers['start_date']!.removeListener(onStartDateChange);
+    controllers['type']!.removeListener(onTypeChange);
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -72,12 +76,23 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       yPadding: 16,
       title: "${isNew(widget.document) ? "New" : "Edit"} Financial Year",
       widgetsBody: [
-        AvertInput.text(
-          label: "Name",
-          placeholder: "Ex. 2024",
-          controller: controllers['name']!,
-          required: true,
-          forceErrMsg: errMsg,
+        Row(
+          children: [
+            AvertInput.text(
+              label: "Name",
+              placeholder: "Ex. 2024",
+              controller: controllers['name']!,
+              required: true,
+              forceErrMsg: errMsg,
+              expand: true,
+            ),
+            AvertDropdown(
+              label: "Type",
+              initialSelection: widget.document.type,
+              options: getTypeOptions(),
+              controller: controllers['type']!,
+            ),
+          ],
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,7 +102,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               controller: controllers['start_date']!,
               required: true,
               forceErrMsg: errMsg,
-              flexible: true,
+              expand: true,
             ),
             AvertInput.text(
               label: "Year End",
@@ -96,7 +111,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               required: true,
               readOnly: true,
               forceErrMsg: errMsg,
-              flexible: true,
+              expand: true,
             ),
           ],
         ),
@@ -211,6 +226,11 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     return hasChange;
   });
 
+  void onTypeChange() => onFieldChange(() {
+    printInfo("DropDown Value ${controllers["type"]!.text}");
+    return controllers["type"]!.text != widget.document.type.label;
+  });
+
   void onFieldChange(bool Function() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
     if (isReallyDirty == isDirty) {
@@ -228,5 +248,16 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     String endDate = getLastDayDate(startDate);
     printInfo("End Date: $endDate");
     controllers['end_date']!.text = endDate;
+  }
+
+  List<DropdownMenuEntry<FinancialYearType>> getTypeOptions() {
+    return FinancialYearType.values.map<DropdownMenuEntry<FinancialYearType>>(
+      (FinancialYearType type) {
+        return DropdownMenuEntry<FinancialYearType>(
+          value: type,
+          label: type.label,
+        );
+      }
+    ).toList();
   }
 }
