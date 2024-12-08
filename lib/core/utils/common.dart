@@ -88,14 +88,14 @@ String getDate(DateTime datetime) {
   return datetime.toString().split(" ")[0];
 }
 
-String getDateTime(String date) {
-  return "$date 00:00:00:000";
-}
-
 String getLastDayDate(String date) {
-  DateTime startDT = DateTime.parse(getDateTime(date));
-  Duration days = Duration(days: isLeapYear(startDT.year) ? 364 : 365);
-  DateTime lastDayDT = startDT.add(days);
+  DateTime startDT = DateTime.parse(date);
+  int days = 364;
+  if ((isLeapYear(startDT.year) && startDT.month < 3) ||
+    isLeapYear(startDT.year + 1) && startDT.month > 2) {
+    days = 365;
+  }
+  DateTime lastDayDT = startDT.add(Duration(days: days));
   return getDate(lastDayDT);
 }
 
