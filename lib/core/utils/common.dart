@@ -107,4 +107,3 @@ Digest hashString(String string) {
   var bytes = utf8.encode(string);
   return sha256.convert(bytes);
 }
-

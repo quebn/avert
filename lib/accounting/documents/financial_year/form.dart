@@ -73,7 +73,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       yPadding: 16,
       title: "${isNew(widget.document) ? "New" : "Edit"} Financial Year",
       widgetsBody: [
-        AvertInput(
+        AvertInput.text(
           label: "Name",
           placeholder: "Ex. 2024",
           controller: controllers['name']!,
@@ -85,16 +85,8 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
           controller: controllers['start_date']!,
           required: true,
           forceErrMsg: errMsg,
-          onChanged: (String? value) {
-            String endDate = calculateEndDate(value);
-            controllers['end_date']!.text = endDate;
-            printInfo(endDate);
-          },
         ),
-        // IMPORTANT: Change calculation for the end date.
-        // currently is -> start: 2000-01-01 end: 2001-01-01.
-        // should be is -> start: 2000-01-01 end: 2000-12-31.
-        AvertInput(
+        AvertInput.text(
           label: "Year End",
           placeholder: "YYYY-MM-DD",
           controller: controllers['end_date']!,
@@ -207,7 +199,6 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     if (hasChange) {
       String newStartDate = controllers["start_date"]!.text;
       calculateEndDate(newStartDate);
-      printInfo("Start Date has Change!");
     }
     return hasChange;
   });
@@ -223,8 +214,11 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     });
   }
 
-  String calculateEndDate(String? startDate) {
-    if (startDate == null) return "";
-    return getLastDayDate(startDate);
+  void calculateEndDate(String? startDate) {
+    if (startDate == null) return;
+    printInfo("Start Date: $startDate");
+    String endDate = getLastDayDate(startDate);
+    printInfo("End Date: $endDate");
+    controllers['end_date']!.text = endDate;
   }
 }

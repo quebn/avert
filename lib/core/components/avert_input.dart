@@ -15,11 +15,11 @@ class AvertInput extends StatefulWidget {
   const AvertInput({super.key,
     required this.label,
     required this.controller,
-    this.placeholder = "Text",
+    required this.inputType,
+    this.placeholder = "Enter Text",
     this.xPadding = 8,
     this.yPadding = 8,
     this.gapPadding = 8,
-    this.inputType = AvertInputType.text,
     this.required = false,
     this.validator,
     this.forceErrMsg,
@@ -29,6 +29,23 @@ class AvertInput extends StatefulWidget {
     this.decoration,
     this.labelStyle,
   });
+
+  const AvertInput.text({super.key,
+    required this.label,
+    required this.controller,
+    required this.placeholder,
+    this.xPadding = 8,
+    this.yPadding = 8,
+    this.gapPadding = 8,
+    this.required = false,
+    this.validator,
+    this.forceErrMsg,
+    this.onChanged,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.decoration,
+    this.labelStyle,
+  }): inputType = AvertInputType.text;
 
   const AvertInput.alphanumeric({super.key,
     required this.label,
@@ -241,7 +258,7 @@ class _InputState extends State<AvertInput> {
     onPressed: () async {
       DateTime? dt = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: DateTime.parse(widget.controller.text),
         firstDate: DateTime(2024),
         lastDate: DateTime(2025),
       );

@@ -60,7 +60,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       yPadding: 16,
       title: "${isNew(widget.document) ? "New" : "Edit"} Company",
       widgetsBody: [
-        AvertInput(
+        AvertInput.text(
           label: "Name",
           placeholder: "Acme Inc.",
           controller: controllers['name']!,
