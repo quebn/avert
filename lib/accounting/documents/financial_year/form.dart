@@ -91,6 +91,9 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
             printInfo(endDate);
           },
         ),
+        // IMPORTANT: Change calculation for the end date.
+        // currently is -> start: 2000-01-01 end: 2001-01-01.
+        // should be is -> start: 2000-01-01 end: 2000-12-31.
         AvertInput(
           label: "Year End",
           placeholder: "YYYY-MM-DD",
@@ -118,7 +121,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       d.start = DateTime.now();
       String startDate = getDate(d.start!);
       controllers['start_date']!.text = startDate;
-      controllers['end_date']!.text = addYearToDate(1, startDate);
+      controllers['end_date']!.text = getLastDayDate(startDate);
     } else {
       controllers['start_date']!.text = getDate(d.start!);
       controllers['end_date']!.text = getDate(d.end!);
@@ -222,6 +225,6 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   String calculateEndDate(String? startDate) {
     if (startDate == null) return "";
-    return addYearToDate(1, startDate);
+    return getLastDayDate(startDate);
   }
 }

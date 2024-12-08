@@ -80,34 +80,27 @@ Future<bool?> promptConfirmPop(BuildContext context, String title) {
   );
 }
 
-/// Checks whether the document is new.
-/// Document is new if its ID is `0`
 bool isNew(Document document) {
   return document.id == 0;
 }
 
-/// Gets only the Date value of a DateTime by remove the Time String.
-/// Ex. 2000-01-01 00:00:00:000 -> 2000-01-01
 String getDate(DateTime datetime) {
   return datetime.toString().split(" ")[0];
 }
 
-/// Gets only the DateTime string represent of a date String.
-/// NOTE: date string should be in this format 'YYYY-MM-DD'
-/// Ex. 2000-01-01 -> 2000-01-01 00:00:00:000
 String getDateTime(String date) {
   return "$date 00:00:00:000";
 }
 
-String addYearToDate(int year, String date) {
-  // NOTE: function currently doesnt check for leap years.
-  // TODO: might have to check if date is a leap year and is on 02/29,
-  // where in this case the we have to subtract the day by one.
-  //  - only needs to check if month is 02 and day is 29 is this case.
-  List<String> dateStrings = date.split("-");
-  int newYear = int.parse(dateStrings[0]) + year;
-  dateStrings[0] = newYear.toString();
-  return dateStrings.join("-");
+String getLastDayDate(String date) {
+  DateTime startDT = DateTime.parse(getDateTime(date));
+  Duration days = Duration(days: isLeapYear(startDT.year) ? 364 : 365);
+  DateTime lastDayDT = startDT.add(days);
+  return getDate(lastDayDT);
+}
+
+bool isLeapYear(int year) {
+  return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
 }
 
 Digest hashString(String string) {
