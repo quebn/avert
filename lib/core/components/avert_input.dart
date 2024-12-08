@@ -26,7 +26,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
-    this.flexible = false,
+    this.expand = false,
     this.decoration,
     this.labelStyle,
   });
@@ -44,7 +44,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
-    this.flexible = false,
+    this.expand = false,
     this.decoration,
     this.labelStyle,
   }): inputType = AvertInputType.text;
@@ -62,7 +62,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
-    this.flexible = false,
+    this.expand = false,
     this.decoration,
     this.labelStyle,
   }) : inputType = AvertInputType.alphanumeric;
@@ -79,7 +79,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
-    this.flexible = false,
+    this.expand = false,
     this.decoration,
     this.labelStyle,
   }) : inputType = AvertInputType.password, required = true ;
@@ -92,7 +92,7 @@ class AvertInput extends StatefulWidget {
     this.yPadding = 8,
     this.gapPadding = 8,
     this.required = false,
-    this.flexible = false,
+    this.expand = false,
     this.validator,
     this.forceErrMsg,
     this.onChanged,
@@ -113,7 +113,7 @@ class AvertInput extends StatefulWidget {
     this.required = false,
     this.readOnly = false,
     this.autofocus = false,
-    this.flexible = false,
+    this.expand = false,
     this.decoration,
     this.labelStyle,
   }) : inputType = AvertInputType.numeric;
@@ -123,7 +123,7 @@ class AvertInput extends StatefulWidget {
   final double gapPadding;
   final AvertInputType inputType;
   final TextEditingController controller;
-  final bool required, readOnly, autofocus, flexible;
+  final bool required, readOnly, autofocus, expand;
   final String? Function(String? value)? validator;
   final String? forceErrMsg;
   final void Function(String? value)? onChanged;
@@ -170,7 +170,7 @@ class _InputState extends State<AvertInput> {
         ],
       )
     );
-    if (widget.flexible) return Flexible(child: content);
+    if (widget.expand) return Expanded(child: content);
     return content;
   }
 
