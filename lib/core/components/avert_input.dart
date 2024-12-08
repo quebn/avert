@@ -26,6 +26,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
+    this.flexible = false,
     this.decoration,
     this.labelStyle,
   });
@@ -43,6 +44,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
+    this.flexible = false,
     this.decoration,
     this.labelStyle,
   }): inputType = AvertInputType.text;
@@ -60,6 +62,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
+    this.flexible = false,
     this.decoration,
     this.labelStyle,
   }) : inputType = AvertInputType.alphanumeric;
@@ -76,6 +79,7 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.readOnly = false,
     this.autofocus = false,
+    this.flexible = false,
     this.decoration,
     this.labelStyle,
   }) : inputType = AvertInputType.password, required = true ;
@@ -88,6 +92,7 @@ class AvertInput extends StatefulWidget {
     this.yPadding = 8,
     this.gapPadding = 8,
     this.required = false,
+    this.flexible = false,
     this.validator,
     this.forceErrMsg,
     this.onChanged,
@@ -108,6 +113,7 @@ class AvertInput extends StatefulWidget {
     this.required = false,
     this.readOnly = false,
     this.autofocus = false,
+    this.flexible = false,
     this.decoration,
     this.labelStyle,
   }) : inputType = AvertInputType.numeric;
@@ -117,7 +123,7 @@ class AvertInput extends StatefulWidget {
   final double gapPadding;
   final AvertInputType inputType;
   final TextEditingController controller;
-  final bool required, readOnly, autofocus;
+  final bool required, readOnly, autofocus, flexible;
   final String? Function(String? value)? validator;
   final String? forceErrMsg;
   final void Function(String? value)? onChanged;
@@ -147,7 +153,7 @@ class _InputState extends State<AvertInput> {
       default:
         textFormField = textField(context);
     }
-    return Padding(
+    Widget content =  Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.xPadding, vertical: widget.yPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -164,6 +170,8 @@ class _InputState extends State<AvertInput> {
         ],
       )
     );
+    if (widget.flexible) return Flexible(child: content);
+    return content;
   }
 
   InputDecoration get defaultDecoration => InputDecoration(

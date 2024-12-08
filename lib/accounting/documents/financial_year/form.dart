@@ -49,7 +49,6 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   void initState() {
     initDocumentFields();
     controllers['name']!.addListener(onNameChange);
-    // TEST: check if add and removing listeners with function that varies works.
     controllers['start_date']!.addListener(onStartDateChange);
     super.initState();
   }
@@ -80,19 +79,26 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
           required: true,
           forceErrMsg: errMsg,
         ),
-        AvertInput.date(
-          label: "Year Start",
-          controller: controllers['start_date']!,
-          required: true,
-          forceErrMsg: errMsg,
-        ),
-        AvertInput.text(
-          label: "Year End",
-          placeholder: "YYYY-MM-DD",
-          controller: controllers['end_date']!,
-          required: true,
-          readOnly: true,
-          forceErrMsg: errMsg,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            AvertInput.date(
+              label: "Year Start",
+              controller: controllers['start_date']!,
+              required: true,
+              forceErrMsg: errMsg,
+              flexible: true,
+            ),
+            AvertInput.text(
+              label: "Year End",
+              placeholder: "YYYY-MM-DD",
+              controller: controllers['end_date']!,
+              required: true,
+              readOnly: true,
+              forceErrMsg: errMsg,
+              flexible: true,
+            ),
+          ],
         ),
       ],
       isDirty: isDirty,
@@ -126,6 +132,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   @override
   Future<void> insertDocument() async {
+    throw UnimplementedError();
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
       return;
@@ -162,6 +169,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   @override
   void updateDocument() async {
+    throw UnimplementedError();
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
       return;
