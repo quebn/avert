@@ -49,18 +49,12 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   @override
   void initState() {
-    initDocumentFields();
-    controllers['name']!.addListener(onNameChange);
-    controllers['start_date']!.addListener(onStartDateChange);
-    controllers['type']!.addListener(onTypeChange);
+    initDocumentFields(); // TODO: find way to eliminate this function.
     super.initState();
   }
 
   @override
   void dispose() {
-    controllers['name']!.removeListener(onNameChange);
-    controllers['start_date']!.removeListener(onStartDateChange);
-    controllers['type']!.removeListener(onTypeChange);
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -85,12 +79,15 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               required: true,
               forceErrMsg: errMsg,
               expand: true,
+              listener: onNameChange,
+              initialValue: widget.document.name,
             ),
             AvertDropdown(
               label: "Type",
-              initialSelection: widget.document.type,
               options: getTypeOptions(),
               controller: controllers['type']!,
+              listener: onTypeChange,
+              initialSelection: widget.document.type,
             ),
           ],
         ),
@@ -103,6 +100,8 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               required: true,
               forceErrMsg: errMsg,
               expand: true,
+              listener: onStartDateChange,
+              initialValue: getDate(widget.document.start),
             ),
             AvertInput.text(
               label: "Year End",
@@ -112,6 +111,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               readOnly: true,
               forceErrMsg: errMsg,
               expand: true,
+              initialValue: getDate(widget.document.end),
             ),
           ],
         ),
@@ -128,17 +128,15 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   @override
   void initDocumentFields() {
-    FinancialYear d = widget.document;
-    controllers['name']!.text = d.name;
-    if (isNew(d)) {
-      d.start = DateTime.now();
-      String startDate = getDate(d.start!);
-      controllers['start_date']!.text = startDate;
-      controllers['end_date']!.text = getLastDayDate(startDate);
-    } else {
-      controllers['start_date']!.text = getDate(d.start!);
-      controllers['end_date']!.text = getDate(d.end!);
-    }
+    //FinancialYear d = widget.document;
+    //if (isNew(d)) {
+    //  d.start = DateTime.now();
+    //  controllers['start_date']!.text = startDate;
+    //  controllers['end_date']!.text = getLastDayDate(startDate);
+    //} else {
+    //  controllers['start_date']!.text = getDate(d.start!);
+    //  controllers['end_date']!.text = getDate(d.end!);
+    //}
     // TODO: controllers for:
     // - Start
     // - End
@@ -218,7 +216,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   });
 
   void onStartDateChange() => onFieldChange(() {
-    bool hasChange = controllers["start_date"]!.text != getDate(widget.document.start!);
+    bool hasChange = controllers["start_date"]!.text != getDate(widget.document.start);
     if (hasChange) {
       String newStartDate = controllers["start_date"]!.text;
       calculateEndDate(newStartDate);
@@ -245,7 +243,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   void calculateEndDate(String? startDate) {
     if (startDate == null) return;
     printInfo("Start Date: $startDate");
-    String endDate = getLastDayDate(startDate);
+    String endDate = getLastDayString(startDate);
     printInfo("End Date: $endDate");
     controllers['end_date']!.text = endDate;
   }
