@@ -36,15 +36,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
   String? errMsg;
 
   @override
-  void initState() {
-    super.initState();
-    initDocumentFields();
-    controllers['name']!.addListener(onNameChange);
-  }
-
-  @override
   void dispose() {
-    controllers['name']!.removeListener(onNameChange);
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -66,6 +58,8 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
+          listener: onNameChange,
+          initialValue: widget.document.name,
         ),
       ],
       isDirty: isDirty,
@@ -77,12 +71,6 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       formKey: key,
     );
   }
-
-  @override
-  void initDocumentFields() {
-    controllers['name']!.text = widget.document.name;
-  }
-
 
   void onFieldChange(Function<bool>() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();

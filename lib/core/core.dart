@@ -54,7 +54,6 @@ abstract class DocumentForm {
   bool isDirty = false;
   String? errMsg;
 
-  void initDocumentFields();
   void updateDocument();
   void insertDocument();
 }

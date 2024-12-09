@@ -48,12 +48,6 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   String? errMsg;
 
   @override
-  void initState() {
-    initDocumentFields(); // TODO: find way to eliminate this function.
-    super.initState();
-  }
-
-  @override
   void dispose() {
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
@@ -124,23 +118,6 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       ),
       formKey: key,
     );
-  }
-
-  @override
-  void initDocumentFields() {
-    //FinancialYear d = widget.document;
-    //if (isNew(d)) {
-    //  d.start = DateTime.now();
-    //  controllers['start_date']!.text = startDate;
-    //  controllers['end_date']!.text = getLastDayDate(startDate);
-    //} else {
-    //  controllers['start_date']!.text = getDate(d.start!);
-    //  controllers['end_date']!.text = getDate(d.end!);
-    //}
-    // TODO: controllers for:
-    // - Start
-    // - End
-    // - Companies
   }
 
   @override

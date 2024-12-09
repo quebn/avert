@@ -37,9 +37,6 @@ class _FormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building SignUpForm");
-    if (!widget.hasUsers){
-      controllers['username']!.text = "Administrator";
-    }
     List<Widget> widgets = <Widget>[
       AvertInput.alphanumeric(
         autofocus: !widget.hasUsers,
@@ -50,6 +47,7 @@ class _FormState extends State<SignUpForm> {
         validator: (value) {return null;},
         forceErrMsg: userErrMsg,
         onChanged: onChangeUsername,
+        initialValue: widget.hasUsers ? null : "Administrator"
       ),
       AvertInput.password(
         controller: controllers['password']!,
