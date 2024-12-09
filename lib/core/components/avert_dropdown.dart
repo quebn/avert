@@ -12,6 +12,7 @@ class AvertDropdown extends StatefulWidget {
     this.enabled = true,
     this.onSelected,
     this.initialSelection,
+    this.listener,
   });
 
   final String label;
@@ -22,12 +23,31 @@ class AvertDropdown extends StatefulWidget {
   final bool expand, enabled;
   final void Function(dynamic)? onSelected;
   final dynamic initialSelection;
+  final void Function()? listener;
 
   @override
   State<StatefulWidget> createState() => _DropdownState();
 }
 
 class _DropdownState extends State<AvertDropdown> {
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.listener != null) {
+      printInfo("Initializing Dropdown ${widget.label}'s Listener");
+      widget.controller.addListener(widget.listener!);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (widget.listener != null) {
+      printInfo("Disposing Dropdown ${widget.label}'s Listener");
+      widget.controller.removeListener(widget.listener!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

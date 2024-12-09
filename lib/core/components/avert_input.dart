@@ -29,6 +29,8 @@ class AvertInput extends StatefulWidget {
     this.expand = false,
     this.decoration,
     this.labelStyle,
+    this.listener,
+    this.initialValue,
   });
 
   const AvertInput.text({super.key,
@@ -47,6 +49,8 @@ class AvertInput extends StatefulWidget {
     this.expand = false,
     this.decoration,
     this.labelStyle,
+    this.listener,
+    this.initialValue,
   }): inputType = AvertInputType.text;
 
   const AvertInput.alphanumeric({super.key,
@@ -65,6 +69,8 @@ class AvertInput extends StatefulWidget {
     this.expand = false,
     this.decoration,
     this.labelStyle,
+    this.listener,
+    this.initialValue,
   }) : inputType = AvertInputType.alphanumeric;
 
   const AvertInput.password({super.key,
@@ -82,6 +88,8 @@ class AvertInput extends StatefulWidget {
     this.expand = false,
     this.decoration,
     this.labelStyle,
+    this.listener,
+    this.initialValue,
   }) : inputType = AvertInputType.password, required = true ;
 
   const AvertInput.date({super.key,
@@ -98,6 +106,8 @@ class AvertInput extends StatefulWidget {
     this.onChanged,
     this.decoration,
     this.labelStyle,
+    this.listener,
+    this.initialValue,
   }) : inputType = AvertInputType.date, readOnly = true, autofocus = false;
 
   const AvertInput.numeric({super.key,
@@ -116,6 +126,8 @@ class AvertInput extends StatefulWidget {
     this.expand = false,
     this.decoration,
     this.labelStyle,
+    this.listener,
+    this.initialValue,
   }) : inputType = AvertInputType.numeric;
 
   final String label, placeholder;
@@ -125,10 +137,11 @@ class AvertInput extends StatefulWidget {
   final TextEditingController controller;
   final bool required, readOnly, autofocus, expand;
   final String? Function(String? value)? validator;
-  final String? forceErrMsg;
+  final String? forceErrMsg, initialValue;
   final void Function(String? value)? onChanged;
   final InputDecoration? decoration;
   final TextStyle? labelStyle;
+  final void Function()? listener;
 
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -137,6 +150,28 @@ class AvertInput extends StatefulWidget {
 class _InputState extends State<AvertInput> {
 
   bool shouldObscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.listener != null) {
+      printInfo("Initializing Input ${widget.label}'s Listener");
+      widget.controller.addListener(widget.listener!);
+    }
+    if (widget.initialValue != null) {
+      printInfo("Initializing Input ${widget.label}'s InitialValue of ${widget.initialValue!}");
+      widget.controller.text = widget.initialValue!;
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (widget.listener != null) {
+      printInfo("Disposing Input ${widget.label}'s Listener");
+      widget.controller.removeListener(widget.listener!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
