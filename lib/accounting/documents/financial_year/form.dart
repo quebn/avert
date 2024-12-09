@@ -60,21 +60,19 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       yPadding: 16,
       title: "${isNew(widget.document) ? "New" : "Edit"} Financial Year",
       widgetsBody: [
+        AvertInput.text(
+          label: "Name",
+          placeholder: "Ex. Financial Year 2024",
+          controller: controllers['name']!,
+          required: true,
+          forceErrMsg: errMsg,
+          initialValue: widget.document.name,
+          onChanged: (value) => onValueChange(() {
+            return value != widget.document.name;
+          }),
+        ),
         Row(
           children: [
-            // NOTE: probably make this a Dropdown if calendar
-            AvertInput.text(
-              label: "Name",
-              placeholder: "Ex. Financial Year 2024",
-              controller: controllers['name']!,
-              required: true,
-              forceErrMsg: errMsg,
-              expand: true,
-              initialValue: widget.document.name,
-              onChanged: (value) => onValueChange(() {
-                return value != widget.document.name;
-              }),
-            ),
             AvertDropdown(
               label: "Type",
               options: getTypeOptions(),
@@ -85,18 +83,18 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
                 return type != widget.document.type;
               }),
             ),
+            SizedBox(
+              child: !isCalendar ? null : AvertDropdown(
+                initialSelection: FinancialYear.currentYear,
+                label: "Year",
+                options: getYearOptions(),
+                controller: controllers['year']!,
+                onSelected: (year) {
+                  controllers['start_date']!.text = getDate(DateTime(year));
+                },
+              ),
+            ),
           ],
-        ),
-        SizedBox(
-          child: !isCalendar ? null : AvertDropdown(
-            initialSelection: FinancialYear.currentYear,
-            label: "Year",
-            options: getYearOptions(),
-            controller: controllers['year']!,
-            onSelected: (year) {
-              controllers['start_date']!.text = getDate(DateTime(year));
-            },
-          ),
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
