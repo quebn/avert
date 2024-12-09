@@ -161,11 +161,9 @@ class _InputState extends State<AvertInput> {
   void initState() {
     super.initState();
     if (widget.listener != null) {
-      printInfo("Initializing Input ${widget.label}'s Listener");
       widget.controller.addListener(widget.listener!);
     }
     if (widget.initialValue != null) {
-      printInfo("Initializing Input ${widget.label}'s InitialValue of ${widget.initialValue!}");
       widget.controller.text = widget.initialValue!;
     }
   }
@@ -174,7 +172,6 @@ class _InputState extends State<AvertInput> {
   void dispose() {
     super.dispose();
     if (widget.listener != null) {
-      printInfo("Disposing Input ${widget.label}'s Listener");
       widget.controller.removeListener(widget.listener!);
     }
   }

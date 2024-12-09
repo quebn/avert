@@ -58,8 +58,10 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
-          listener: onNameChange,
           initialValue: widget.document.name,
+          onChanged: (value) => onValueChange((){
+            return value != widget.document.name;
+          }),
         ),
       ],
       isDirty: isDirty,
@@ -72,7 +74,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
     );
   }
 
-  void onFieldChange(Function<bool>() isDirtyCallback) {
+  void onValueChange(bool Function() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
     if (isReallyDirty == isDirty) {
       return;
@@ -108,10 +110,6 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       },
     );
   }
-
-  void onNameChange() => onFieldChange(<bool>() {
-    return controllers['name']!.text != widget.document.name;
-  });
 
   @override
   Future<void> insertDocument() async {

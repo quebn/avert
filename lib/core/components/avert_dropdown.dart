@@ -35,7 +35,6 @@ class _DropdownState extends State<AvertDropdown> {
   void initState() {
     super.initState();
     if (widget.listener != null) {
-      printInfo("Initializing Dropdown ${widget.label}'s Listener");
       widget.controller.addListener(widget.listener!);
     }
   }
@@ -44,7 +43,6 @@ class _DropdownState extends State<AvertDropdown> {
   void dispose() {
     super.dispose();
     if (widget.listener != null) {
-      printInfo("Disposing Dropdown ${widget.label}'s Listener");
       widget.controller.removeListener(widget.listener!);
     }
   }
