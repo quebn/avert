@@ -31,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final double height = 390;
 
   late Company? company = widget.company;
-  late ScrollController _scrollController;
   late List<Widget> pages = [
     Dashboard(module: currentModule),
     const Center(child: Text("Documents")),
@@ -44,30 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   Module get currentModule => modules[moduleIndex];
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController()..addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    if (_isShrink != lastStatus) {
-      setState(() {
-        lastStatus = _isShrink;
-      });
-    }
-  }
-
-  bool get _isShrink {
-    return _scrollController.hasClients &&
-        _scrollController.offset > (height - kToolbarHeight);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   // Company selector
   @override
