@@ -27,6 +27,7 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.expand = false,
+    this.enabled = true,
     this.decoration,
     this.labelStyle,
     this.listener,
@@ -47,6 +48,7 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.expand = false,
+    this.enabled = true,
     this.decoration,
     this.labelStyle,
     this.listener,
@@ -67,6 +69,7 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.expand = false,
+    this.enabled = true,
     this.decoration,
     this.labelStyle,
     this.listener,
@@ -86,6 +89,7 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.expand = false,
+    this.enabled = true,
     this.decoration,
     this.labelStyle,
     this.listener,
@@ -101,6 +105,7 @@ class AvertInput extends StatefulWidget {
     this.gapPadding = 8,
     this.required = false,
     this.expand = false,
+    this.enabled = true,
     this.validator,
     this.forceErrMsg,
     this.onChanged,
@@ -124,6 +129,7 @@ class AvertInput extends StatefulWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.expand = false,
+    this.enabled = true,
     this.decoration,
     this.labelStyle,
     this.listener,
@@ -135,7 +141,7 @@ class AvertInput extends StatefulWidget {
   final double gapPadding;
   final AvertInputType inputType;
   final TextEditingController controller;
-  final bool required, readOnly, autofocus, expand;
+  final bool required, readOnly, autofocus, expand, enabled;
   final String? Function(String? value)? validator;
   final String? forceErrMsg, initialValue;
   final void Function(String? value)? onChanged;
@@ -234,7 +240,8 @@ class _InputState extends State<AvertInput> {
       ),
       hintText: widget.placeholder,
       suffixIcon: datepicker(),
-    )
+    ),
+    enabled: widget.enabled,
   );
 
   Widget numericField(BuildContext context) => TextFormField(
@@ -251,6 +258,7 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
     onChanged: widget.onChanged,
     decoration: widget.decoration ?? defaultDecoration,
+    enabled: widget.enabled,
   );
 
   Widget alphanumericField(BuildContext context) => TextFormField(
@@ -264,6 +272,7 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
     onChanged: widget.onChanged,
     decoration: widget.decoration ?? defaultDecoration,
+    enabled: widget.enabled,
   );
 
   Widget textField(BuildContext context) => TextFormField(
@@ -273,6 +282,7 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
     onChanged: widget.onChanged,
     decoration: widget.decoration ?? defaultDecoration,
+    enabled: widget.enabled,
   );
 
   Widget passwordField(BuildContext context) => TextFormField(
@@ -292,7 +302,8 @@ class _InputState extends State<AvertInput> {
       ),
       hintText: widget.placeholder,
       //errorText: errMsg,
-    )
+    ),
+    enabled: widget.enabled,
   );
 
   Widget datepicker() => IconButton(
