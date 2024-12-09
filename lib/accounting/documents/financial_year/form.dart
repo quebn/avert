@@ -13,12 +13,6 @@ class FinancialYearForm extends StatefulWidget {
     this.onUpdate,
   });
 
-  const FinancialYearForm.conm({super.key,
-    required this.document,
-    this.onInsert,
-    this.onUpdate,
-  });
-
   final FinancialYear document;
   final void Function()? onInsert, onUpdate;
 
@@ -29,6 +23,7 @@ class FinancialYearForm extends StatefulWidget {
 class _FormState extends State<FinancialYearForm> implements DocumentForm {
 
   late String startDate, endDate;
+  late bool isCalendar = widget.document.type == FinancialYearType.calendar;
 
   @override
   final GlobalKey<FormState> key = GlobalKey<FormState>();
@@ -37,6 +32,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
     'type': TextEditingController(),
+    'year': TextEditingController(),
     'start_date': TextEditingController(),
     'end_date': TextEditingController(),
   };
@@ -66,24 +62,41 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       widgetsBody: [
         Row(
           children: [
+            // NOTE: probably make this a Dropdown if calendar
             AvertInput.text(
               label: "Name",
-              placeholder: "Ex. 2024",
+              placeholder: "Ex. Financial Year 2024",
               controller: controllers['name']!,
               required: true,
               forceErrMsg: errMsg,
               expand: true,
-              listener: onNameChange,
               initialValue: widget.document.name,
+              onChanged: (value) => onValueChange(() {
+                return value != widget.document.name;
+              }),
             ),
             AvertDropdown(
               label: "Type",
               options: getTypeOptions(),
               controller: controllers['type']!,
-              listener: onTypeChange,
               initialSelection: widget.document.type,
+              onSelected: (type) => onValueChange(() {
+                setState(() => isCalendar = type == FinancialYearType.calendar);
+                return type != widget.document.type;
+              }),
             ),
           ],
+        ),
+        SizedBox(
+          child: !isCalendar ? null : AvertDropdown(
+            initialSelection: FinancialYear.currentYear,
+            label: "Year",
+            options: getYearOptions(),
+            controller: controllers['year']!,
+            onSelected: (year) {
+              controllers['start_date']!.text = getDate(DateTime(year));
+            },
+          ),
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -94,8 +107,14 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               required: true,
               forceErrMsg: errMsg,
               expand: true,
-              listener: onStartDateChange,
               initialValue: getDate(widget.document.start),
+              enabled: !isCalendar,
+              listener: () => onValueChange((){
+                String newStartDate = controllers['start_date']!.text;
+                calculateEndDate(newStartDate);
+                bool hasChange =  newStartDate != getDate(widget.document.start);
+                return hasChange;
+              }),
             ),
             AvertInput.text(
               label: "Year End",
@@ -106,6 +125,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
               forceErrMsg: errMsg,
               expand: true,
               initialValue: getDate(widget.document.end),
+              enabled: false,
             ),
           ],
         ),
@@ -188,25 +208,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
     });
   }
 
-  void onNameChange() => onFieldChange(() {
-    return controllers['name']!.text != widget.document.name;
-  });
-
-  void onStartDateChange() => onFieldChange(() {
-    bool hasChange = controllers["start_date"]!.text != getDate(widget.document.start);
-    if (hasChange) {
-      String newStartDate = controllers["start_date"]!.text;
-      calculateEndDate(newStartDate);
-    }
-    return hasChange;
-  });
-
-  void onTypeChange() => onFieldChange(() {
-    printInfo("DropDown Value ${controllers["type"]!.text}");
-    return controllers["type"]!.text != widget.document.type.label;
-  });
-
-  void onFieldChange(bool Function() isDirtyCallback) {
+  void onValueChange(bool Function() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
     if (isReallyDirty == isDirty) {
       return;
@@ -234,5 +236,23 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
         );
       }
     ).toList();
+  }
+
+  List<DropdownMenuEntry<int>> getYearOptions() {
+    final List<DropdownMenuEntry<int>> options = [];
+    final List<int> years = [];
+    final int range = 5, startingYear = FinancialYear.currentYear - 1;
+
+    for (int i = 0; i < range; i++) {
+      years.add(startingYear + i);
+    }
+
+    for (int year in years) {
+      options.add(DropdownMenuEntry<int>(
+        label: "$year",
+        value: year,
+      ));
+    }
+    return options;
   }
 }
