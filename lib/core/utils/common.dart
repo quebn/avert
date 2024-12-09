@@ -88,7 +88,7 @@ String getDate(DateTime datetime) {
   return datetime.toString().split(" ")[0];
 }
 
-String getLastDayDate(String date) {
+String getLastDayString(String date) {
   DateTime startDT = DateTime.parse(date);
   int days = 364;
   if ((isLeapYear(startDT.year) && startDT.month < 3) ||
@@ -97,6 +97,16 @@ String getLastDayDate(String date) {
   }
   DateTime lastDayDT = startDT.add(Duration(days: days));
   return getDate(lastDayDT);
+}
+
+DateTime getLastDayDate(DateTime start) {
+  int days = 364;
+  if ((isLeapYear(start.year) && start.month < 3) ||
+    isLeapYear(start.year + 1) && start.month > 2) {
+    days = 365;
+  }
+  DateTime end = start.add(Duration(days: days));
+  return end;
 }
 
 bool isLeapYear(int year) {

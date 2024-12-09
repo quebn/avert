@@ -12,14 +12,23 @@ class FinancialYear implements Document {
   FinancialYear({
     this.id = 0,
     this.name = "",
-    int durationInDays = 0,
-    this.start,
-    this.end,
     this.type = FinancialYearType.calendar,
-  }):createdAt = DateTime.now();
+  }):createdAt = DateTime.now(), start = DateTime(currentYear), end = getLastDayDate(DateTime(currentYear));
 
-  DateTime? start;
-  DateTime? end;
+  FinancialYear.fromQuery({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+    required this.start,
+    required this.end,
+    required this.type,
+  });
+
+  // TODO: maybe transfer to accounting settings or something.
+  static int currentYear = DateTime.now().year;
+
+  DateTime start;
+  DateTime end;
   FinancialYearType type;
   List<Company> companies = [];
 
@@ -68,18 +77,13 @@ class FinancialYear implements Document {
       printInfo("Document is should already be in database with id of '$id'");
       return false;
     }
-    if (start == null || end == null) {
-      printInfo("start date and end date is null!");
-      return false;
-    }
-    printAssert(start != null && end != null, "start and end date are null");
     DateTime now = DateTime.now();
     Map<String, Object?> values = {
       "name": name,
       "createdAt": now.millisecondsSinceEpoch,
-      "start": start!.millisecondsSinceEpoch,
+      "start": start.millisecondsSinceEpoch,
       "type": type.index,
-      "end": end!.millisecondsSinceEpoch,
+      "end": end.millisecondsSinceEpoch,
     };
     id = await Core.database!.insert("accounting_periods", values);
     printSuccess("company created with id of $id");
