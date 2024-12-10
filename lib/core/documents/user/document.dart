@@ -2,6 +2,7 @@ import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
+// NOTE: Not using using access/refresh tokens because Avert store users locally.
 class User implements Document {
   User({
     this.id = 0,
@@ -18,7 +19,6 @@ class User implements Document {
     name = name as String,
     createdAt =  DateTime.fromMillisecondsSinceEpoch(createdAt as int)
   ;
-
 
   @override
   int id;

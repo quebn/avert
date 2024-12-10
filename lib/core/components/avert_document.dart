@@ -76,12 +76,16 @@ class AvertDocumentView extends StatelessWidget {
   }
 
   Widget _bodyContent() {
-    return SingleChildScrollView(
-      child: Container(
-        padding: bodyPadding ?? EdgeInsets.all(8),
-        color: Colors.white,
-        child: body,
-      ),
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Container(
+            color: Colors.white,
+            padding: bodyPadding ?? EdgeInsets.all(8),
+            child: body,
+          ),
+        ),
+      ],
     );
   }
 }
