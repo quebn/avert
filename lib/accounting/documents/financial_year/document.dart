@@ -16,13 +16,20 @@ class FinancialYear implements Document {
   }):createdAt = DateTime.now(), start = DateTime(currentYear), end = getLastDayDate(DateTime(currentYear));
 
   FinancialYear.fromQuery({
-    required this.id,
-    required this.name,
-    required this.createdAt,
-    required this.start,
-    required this.end,
-    required this.type,
-  });
+    required Object id,
+    required Object name,
+    required Object createdAt,
+    required Object start,
+    required Object end,
+    required Object type,
+  }):
+    id = id as int,
+    name = name as String,
+    createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt as int),
+    start = DateTime.fromMillisecondsSinceEpoch(start as int),
+    end = DateTime.fromMillisecondsSinceEpoch(end as int),
+    type = type as FinancialYearType
+  ;
 
   // TODO: maybe transfer to accounting settings or something.
   static int currentYear = DateTime.now().year;
