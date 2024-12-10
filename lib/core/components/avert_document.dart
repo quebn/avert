@@ -76,16 +76,10 @@ class AvertDocumentView extends StatelessWidget {
   }
 
   Widget _bodyContent() {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
-            color: Colors.white,
-            padding: bodyPadding ?? EdgeInsets.all(8),
-            child: body,
-          ),
-        ),
-      ],
+    return Container(
+      color: Colors.white,
+      padding: bodyPadding ?? EdgeInsets.all(8),
+      child: body,
     );
   }
 }
@@ -134,26 +128,28 @@ class AvertDocumentForm extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          canPop: !isDirty,
-          onPopInvokedWithResult: (bool didPop, Object? value) async {
-            if (didPop) {
+      body:  Form(
+        canPop: !isDirty,
+        onPopInvokedWithResult: (bool didPop, Object? value) async {
+          if (didPop) {
               //if (onPop != null && !isDirty) onPop!();
               return;
             }
-            final bool shouldPop = await confirmPop(context) ?? false;
-            if (shouldPop && context.mounted) {
+          final bool shouldPop = await confirmPop(context) ?? false;
+          if (shouldPop && context.mounted) {
               Navigator.pop(context);
             }
-          },
-          key: formKey,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: yPadding, horizontal: xPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: widgetsBody
-            ),
+        },
+        key: formKey,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: yPadding, horizontal: xPadding),
+          child: CustomScrollView(
+            slivers:[
+              SliverToBoxAdapter( child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: widgetsBody
+              )),
+            ]
           ),
         ),
       ),
