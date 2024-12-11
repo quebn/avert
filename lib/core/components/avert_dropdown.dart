@@ -13,6 +13,7 @@ class AvertDropdown extends StatefulWidget {
     this.onSelected,
     this.initialSelection,
     this.listener,
+    this.required = false,
   });
 
   final String label;
@@ -20,7 +21,7 @@ class AvertDropdown extends StatefulWidget {
   final TextStyle? labelStyle;
   final List<DropdownMenuEntry<dynamic>> options;
   final TextEditingController controller;
-  final bool expand, enabled;
+  final bool expand, enabled, required;
   final void Function(dynamic)? onSelected;
   final dynamic initialSelection;
   final void Function()? listener;
@@ -54,12 +55,23 @@ class _DropdownState extends State<AvertDropdown> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TODO: make this into a richtext that show
-          // on the label whether this field is required.
-          Text(widget.label,
-            style: widget.labelStyle ?? TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+          RichText(
+            text: TextSpan(
+              text: widget.label,
+              style:widget.labelStyle ?? TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black
+              ),
+              children:  widget.required ? const [
+                TextSpan(
+                  text: " *",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  )
+                ),
+              ] : null,
             ),
           ),
           DropdownMenu(

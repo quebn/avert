@@ -198,10 +198,23 @@ class _InputState extends State<AvertInput> {
         children: [
           // TODO: make this into a richtext that show
           // on the label whether this field is required.
-          Text(widget.label,
-            style: widget.labelStyle ?? TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+          RichText(
+            text: TextSpan(
+              text: widget.label,
+              style:widget.labelStyle ?? TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black
+              ),
+              children:  widget.required ? const [
+                TextSpan(
+                  text: " *",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  )
+                ),
+              ] : null,
             ),
           ),
           textFormField,
