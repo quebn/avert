@@ -217,7 +217,10 @@ class _InputState extends State<AvertInput> {
               ] : null,
             ),
           ),
-          textFormField,
+          Container(
+            margin: EdgeInsets.only(top:4),
+            child: textFormField,
+          ),
         ],
       )
     );

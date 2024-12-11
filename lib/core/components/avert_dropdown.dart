@@ -74,13 +74,16 @@ class _DropdownState extends State<AvertDropdown> {
               ] : null,
             ),
           ),
-          DropdownMenu(
-            enabled: widget.enabled,
-            dropdownMenuEntries: widget.options,
-            controller: widget.controller,
-            onSelected: widget.onSelected,
-            initialSelection: widget.initialSelection,
-          )
+          Container(
+            margin: EdgeInsets.only(top:4),
+            child: DropdownMenu(
+              enabled: widget.enabled,
+              dropdownMenuEntries: widget.options,
+              controller: widget.controller,
+              onSelected: widget.onSelected,
+              initialSelection: widget.initialSelection,
+            ),
+          ),
         ],
       )
     );
