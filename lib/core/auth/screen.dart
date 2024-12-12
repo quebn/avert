@@ -16,13 +16,13 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
   User? user;
   Database? database;
   late bool hasUsers = widget.hasUsers ?? true;
+  late final FTabController _tabController;
 
-  late final TabController _tabController;
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.index = hasUsers ? 0 : 1;
+    printInfo("Has Users: $hasUsers");
+    _tabController = FTabController(length: 2, vsync: this, initialIndex: hasUsers ? 0 : 1);
   }
 
   @override
@@ -34,102 +34,53 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     printTrack("Building AuthScreen");
-    if(widget.hasUsers == null) checkUsers();
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            height: MediaQuery.sizeOf(context).height / 4,
-            child: Center(
-              child: Text(widget.title,
-                style: TextStyle(
-                  //fontFamily: "Roboto",
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10.0,
-                )
-              ],
-            ),
-            margin: EdgeInsets.only(
-              left:   12.0,
-              right:  12.0,
-              top:    MediaQuery.sizeOf(context).height / 5,
-              bottom: 20.0,
-            ),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              shadowColor: Colors.black,
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Scaffold(
-                  appBar: formTab(),
-                  body: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      const LoginForm(),
-                      SignUpForm(
-                        hasUsers: hasUsers,
-                        onRegister: () => setState( () => _tabController.index = 0),
-                      ),
-                    ],
+    return FTheme(
+      data: FThemes.zinc.dark,
+      child: FScaffold(
+        header: SizedBox(height: kToolbarHeight,),
+        content: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              FHeader(
+                title: const Text("Avert",
+                  style: TextStyle(
+                    fontSize: 32,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
-            )
+              FDivider(),
+              FTabs(
+                initialIndex: hasUsers ? 0 : 1,
+                controller: _tabController,
+                tabs: [
+                  FTabEntry(
+                    label: const Text("Login",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    content: LoginForm(),
+                  ),
+                  FTabEntry(
+                    label: const Text("Register",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: SignUpForm(
+                      hasUsers: hasUsers,
+                      onRegister: () => setState( () => _tabController.index = 0),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        )
       ),
     );
-  }
-
-  PreferredSizeWidget formTab() {
-    return TabBar(
-      dividerColor: Colors.white,
-      controller: _tabController,
-      tabs: [
-        Tab(
-          child: Text( "Log In",
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Tab(
-          child: Text( "Register",
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ]
-    );
-  }
-
-  void checkUsers() async {
-    List<Map<String, Object?>> results = await Core.database!.query("users",
-      columns: ["id"],
-    );
-    hasUsers = results.isNotEmpty;
-    if (_tabController.index == 0 && results.isEmpty) {
-      setState(() => _tabController.index = 1);
-    }
   }
 }

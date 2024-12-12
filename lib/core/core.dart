@@ -2,6 +2,7 @@ import "package:avert/core/documents/company/document.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
 
+export "package:forui/forui.dart";
 export "package:flutter/material.dart";
 export "package:sqflite/sqflite.dart";
 export "package:avert/core/documents/task/document.dart";

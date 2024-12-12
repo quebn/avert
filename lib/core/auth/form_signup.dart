@@ -1,6 +1,7 @@
-import "package:avert/core/components/avert_input.dart";
-import "package:avert/core/components/avert_button.dart";
+//import "package:avert/core/components/avert_input.dart";
+//import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/core.dart";
+import "package:flutter/services.dart";
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key,
@@ -16,7 +17,6 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _FormState extends State<SignUpForm> {
-
 
   final GlobalKey<FormState> key = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {
@@ -37,47 +37,51 @@ class _FormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building SignUpForm");
+    printInfo("HasUsers: ${widget.hasUsers}");
+    //if (!widget.hasUsers) setUsernameValue();
     List<Widget> widgets = <Widget>[
-      AvertInput.alphanumeric(
+      const SizedBox(height: 20),
+      FTextField(
+        textInputAction: TextInputAction.next,
         autofocus: !widget.hasUsers,
-        label:"Username",
-        placeholder: "Ex. john_doe",
+        label: const Text("Username"),
+        hint: "Ex. john_doe",
         controller: controllers['username']!,
-        required: true,
-        validator: (value) {return null;},
-        forceErrMsg: userErrMsg,
-        onChanged: onChangeUsername,
-        initialValue: widget.hasUsers ? null : "Administrator"
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) => (value?.contains(" ") ?? false) ? "Special characters or Whitespace are not allowed" : null,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
+        ],
+        initialValue: widget.hasUsers ? null : "Administrator",
+        maxLines: 1,
       ),
-      AvertInput.password(
+      const SizedBox(height: 10),
+      FTextField.password(
         controller: controllers['password']!,
-        placeholder: "Enter Password",
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) => 8 <= (value?.length ?? 0) ? null : "Password must be at least 8 characters long.",
       ),
-      AvertInput.password(
-        label:  "Confirm Password",
-        placeholder: "Enter Password Again",
+      const SizedBox(height: 10),
+      FTextField.password(
+        label: const Text("Confirm Password"),
         controller: controllers['password_confirm']!,
-        // TODO: add an onValueChange for this widget where is checks field must contain.
         validator: (value) {
           return controllers['password']!.text != value ? "Password does not match!" : null;
         },
       ),
-      AvertButton(
-        name:"Sign Up",
-        fontSize: 18,
-        yPadding: 20,
-        xMargin: 80,
-        yMargin: 8,
-        onPressed: registerUser,
+      const SizedBox(height: 20),
+      FButton(
+        label: const Text("Sign Up"),
+        onPress: registerUser,
       ),
     ];
 
-    return Padding(
-      padding: EdgeInsetsDirectional.only(top: 8),
+    return FCard(
+      title: const Text("Register an Account"),
+      subtitle: const Text("Fill up the form to register an account, login if you already have one"),
       child: Form(
         key:key,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
           children: widgets,
         ),
       ),
@@ -119,5 +123,9 @@ class _FormState extends State<SignUpForm> {
         "User '${user.name}' has been successfully created!"
       );
     }
+  }
+
+  void setUsernameValue() {
+    controllers["username"]!.text = "Administrator";
   }
 }

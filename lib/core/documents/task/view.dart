@@ -1,4 +1,3 @@
-import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
 
 class TaskView extends StatefulWidget {
@@ -19,13 +18,14 @@ class _ViewState extends State<TaskView> implements DocumentView {
   @override
   Widget build(BuildContext context) {
     printTrack("Building TaskDocument");
-    List<Widget> widgets = [
-      // TODO: create Todo document view look.
-    ];
-    return AvertDocumentForm(
-      title: "Task",
-      widgetsBody: widgets,
-    );
+    throw UnimplementedError();
+    //List<Widget> widgets = [
+    //  // TODO: create Todo document view look.
+    //];
+    //return AvertDocumentForm(
+    //  title: "Task",
+    //  widgetsBody: widgets,
+    //);
   }
 
   @override

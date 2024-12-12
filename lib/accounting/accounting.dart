@@ -73,6 +73,7 @@ class Accounting implements Module {
             onPressed: () {
               printInfo("Creating new Financial Year");
               FinancialYear document = FinancialYear();
+              document.companies.add(company);
               Navigator.push(context, MaterialPageRoute(
                 builder: (BuildContext context) {
                   return FinancialYearForm(

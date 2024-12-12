@@ -1,4 +1,4 @@
-import "package:avert/core/components/avert_document.dart";
+//import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
 
 import "document.dart";
@@ -23,54 +23,55 @@ class _ViewState extends State<FinancialYearView> implements DocumentView {
   Widget build(BuildContext context) {
     printTrack("Building Company Document View");
     printInfo("company.id = ${widget.document.id}");
-    return AvertDocumentView(
-      name: widget.document.name,
-      image: IconButton(
-        icon: CircleAvatar(
-          radius: 50,
-          child: Text(widget.document.name[0].toUpperCase(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 50,
-            ),
-          ),
-        ),
-        onPressed: () => printInfo("Pressed Profile Pic"),
-      ),
-      titleChildren: [
-        Text(widget.document.name,
-          style: const TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Text("Current Company",
-          style: TextStyle(
-            fontSize: 18,
-          ),
-        ),
-
-      ],
-      //isDirty: isDirty,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: IconButton(
-            iconSize: 32,
-            onPressed: deleteDocument,
-            icon: const Icon(Icons.delete_rounded,
-            ),
-          ),
-        ),
-      ],
-      floatingActionButton: IconButton.filled(
-        onPressed: editDocument,
-        iconSize: 48,
-        icon: Icon(Icons.edit_rounded,
-        )
-      ),
-      body: Container(),
-    );
+    throw UnimplementedError();
+    //return AvertDocumentView(
+    //  name: widget.document.name,
+    //  image: IconButton(
+    //    icon: CircleAvatar(
+    //      radius: 50,
+    //      child: Text(widget.document.name[0].toUpperCase(),
+    //        textAlign: TextAlign.center,
+    //        style: TextStyle(
+    //          fontSize: 50,
+    //        ),
+    //      ),
+    //    ),
+    //    onPressed: () => printInfo("Pressed Profile Pic"),
+    //  ),
+    //  titleChildren: [
+    //    Text(widget.document.name,
+    //      style: const TextStyle(
+    //        fontSize: 30,
+    //        fontWeight: FontWeight.bold,
+    //      ),
+    //    ),
+    //    const Text("Current Company",
+    //      style: TextStyle(
+    //        fontSize: 18,
+    //      ),
+    //    ),
+    //
+    //  ],
+    //  //isDirty: isDirty,
+    //  actions: [
+    //    Padding(
+    //      padding: const EdgeInsets.symmetric(horizontal: 16),
+    //      child: IconButton(
+    //        iconSize: 32,
+    //        onPressed: deleteDocument,
+    //        icon: const Icon(Icons.delete_rounded,
+    //        ),
+    //      ),
+    //    ),
+    //  ],
+    //  floatingActionButton: IconButton.filled(
+    //    onPressed: editDocument,
+    //    iconSize: 48,
+    //    icon: Icon(Icons.edit_rounded,
+    //    )
+    //  ),
+    //  body: Container(),
+    //);
 
   }
 

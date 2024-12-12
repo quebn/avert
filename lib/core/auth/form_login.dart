@@ -1,15 +1,13 @@
-import "package:avert/core/components/avert_input.dart";
-import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/home/screen.dart";
 import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
+import "package:flutter/services.dart";
 import "dart:convert";
 
 import "package:shared_preferences/shared_preferences.dart";
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
-
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -37,37 +35,44 @@ class _FormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building LoginForm");
-    List<Widget> widgets = <Widget>[
-      AvertInput.alphanumeric(
-        label: "Username",
-        placeholder: "Enter username",
+    List<Widget> widgets = [
+      const SizedBox(height: 20),
+      FTextField(
+        textInputAction: TextInputAction.next,
+        label: const Text("Username"),
+        hint: "Enter username",
         controller: controllers['username']!,
-        forceErrMsg: userErrMsg,
-        required: true,
-        onChanged: onChangeUsername,
+        //required: true,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) => (value?.contains(" ") ?? false) ? "Special characters or Whitespace are not allowed" : null,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
+        ],
+        keyboardType: TextInputType.text,
+        maxLines: 1,
+
       ),
-      AvertInput.password(
+      const SizedBox(height: 10),
+      FTextField.password(
         controller: controllers['password']!,
-        placeholder: "Enter password",
-        forceErrMsg: passErrMsg,
-        onChanged: onChangePassword,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        hint: "Enter password",
+        validator: (value) => 8 <= (value?.length ?? 0) ? null : "Password must be at least 8 characters long.",
       ),
-      AvertButton(
-        name:"Login",
-        fontSize: 18,
-        xMargin: 80,
-        yMargin: 8,
-        yPadding: 20,
-        onPressed: authenticateUser,
+      const SizedBox(height: 20),
+      FButton(
+        label: const Text("Login"),
+        onPress: authenticateUser,
       ),
     ];
 
-    return Padding(
-      padding: EdgeInsetsDirectional.only(top: 8),
+    return FCard(
+      title: const Text("Welcome to Avert"),
+      subtitle: const Text("Enter your account credentials, register if you dont have an account"),
       child: Form(
-        key:key,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        key: key,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: widgets,
         ),
       ),

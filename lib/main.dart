@@ -35,7 +35,7 @@ void main() async {
         );
         printInfo("${results.length} user(s) found with values of: ${results.toString()}");
         hasUsers = results.isNotEmpty;
-        if (!hasUsers) await _createUser();
+        //if (!hasUsers) await _createUser();
       }
       company = await Company.fetchDefault(db, cachedPrefs);
       //company = await _getCompany(db, cachedPrefs);
@@ -71,37 +71,6 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: title,
       //debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        inputDecorationTheme: InputDecorationTheme(
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          hintStyle: TextStyle(
-            fontWeight: FontWeight.normal,
-            color: Colors.grey,
-          ),
-        ),
-        dividerTheme: DividerThemeData(
-          space: 8,
-          indent: 8,
-          endIndent: 8,
-          color: Colors.grey,
-        ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-        ),
-        colorScheme: ColorScheme(
-          brightness: Brightness.light,
-          surface: Colors.white,
-          onSurface: Colors.black,
-          primary: Colors.black,
-          onPrimary: Colors.white,
-          secondary: Colors.white,
-          onSecondary: Colors.black,
-          error: Colors.red,
-          onError: Colors.white,
-        ),
-        useMaterial3: true,
-      ),
       home: hasUser
         ? HomeScreen(title: title, user: user!, company: company)
         : AuthScreen(title: title, hasUsers: hasUsers),

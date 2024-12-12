@@ -1,6 +1,6 @@
-import "package:avert/core/components/avert_button.dart";
-import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_input.dart";
+//import "package:avert/core/components/avert_button.dart";
+//import "package:avert/core/components/avert_document.dart";
+//import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
 import "view.dart";
 
@@ -47,31 +47,32 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
   Widget build(BuildContext context) {
     printTrack("Building Company Document Form");
     printInfo("company.id = ${widget.document.id}");
-    return AvertDocumentForm(
-      xPadding: 16,
-      yPadding: 16,
-      title: "${isNew(widget.document) ? "New" : "Edit"} Company",
-      widgetsBody: [
-        AvertInput.text(
-          label: "Name",
-          placeholder: "Acme Inc.",
-          controller: controllers['name']!,
-          required: true,
-          forceErrMsg: errMsg,
-          initialValue: widget.document.name,
-          onChanged: (value) => onValueChange((){
-            return value != widget.document.name;
-          }),
-        ),
-      ],
-      isDirty: isDirty,
-      floatingActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: isNew(widget.document) ? insertDocument : updateDocument,
-        iconSize: 48,
-        icon: Icon(Icons.save_rounded)
-      ),
-      formKey: key,
-    );
+    throw UnimplementedError();
+    //return AvertDocumentForm(
+    //  xPadding: 16,
+    //  yPadding: 16,
+    //  title: "${isNew(widget.document) ? "New" : "Edit"} Company",
+    //  widgetsBody: [
+    //    AvertInput.text(
+    //      label: "Name",
+    //      placeholder: "Acme Inc.",
+    //      controller: controllers['name']!,
+    //      required: true,
+    //      forceErrMsg: errMsg,
+    //      initialValue: widget.document.name,
+    //      onChanged: (value) => onValueChange((){
+    //        return value != widget.document.name;
+    //      }),
+    //    ),
+    //  ],
+    //  isDirty: isDirty,
+    //  floatingActionButton: !isDirty ? null :IconButton.filled(
+    //    onPressed: isNew(widget.document) ? insertDocument : updateDocument,
+    //    iconSize: 48,
+    //    icon: Icon(Icons.save_rounded)
+    //  ),
+    //  formKey: key,
+    //);
   }
 
   void onValueChange(bool Function() isDirtyCallback) {
@@ -86,29 +87,30 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
   }
 
   Future<bool?> confirmDelete() {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Delete '${widget.document.name}'?"),
-          content: const Text("Are you sure you want to delete this Company?"),
-          actions: <Widget>[
-            AvertButton(
-              name: "Yes",
-              onPressed: () {
-                Navigator.pop(context, true);
-              }
-            ),
-            AvertButton(
-              name: "No",
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
-            ),
-          ],
-        );
-      },
-    );
+    throw UnimplementedError();
+    //return showDialog<bool>(
+    //  context: context,
+    //  builder: (BuildContext context) {
+    //    return AlertDialog(
+    //      title: Text("Delete '${widget.document.name}'?"),
+    //      content: const Text("Are you sure you want to delete this Company?"),
+    //      actions: <Widget>[
+    //        AvertButton(
+    //          name: "Yes",
+    //          onPressed: () {
+    //            Navigator.pop(context, true);
+    //          }
+    //        ),
+    //        AvertButton(
+    //          name: "No",
+    //          onPressed: () {
+    //            Navigator.pop(context, false);
+    //          },
+    //        ),
+    //      ],
+    //    );
+    //  },
+    //);
   }
 
   @override

@@ -1,7 +1,6 @@
 import "package:avert/accounting/accounting.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
-import "package:avert/core/components/avert_button.dart";
 import "package:avert/core/documents/company/form.dart";
 import "package:avert/core/documents/company/view.dart";
 import "package:avert/core/home/module_drawer.dart";
@@ -198,26 +197,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<bool?> confirmLogout() async {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text("Log out user?"),
-        content: Center(
-          heightFactor: 1,
-          child: Text("Are you sure you want to logout user '${widget.user.name}'?"),
-        ),
-        actions: [
-          AvertButton(
-            name: "No",
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          AvertButton(
-            name: "Yes",
-            onPressed: () => Navigator.pop(context, true)
-          ),
-        ]
-      ),
-    );
+    throw UnimplementedError();
+    //return showDialog<bool>(
+    //  context: context,
+    //  builder: (BuildContext context) => AlertDialog(
+    //    title: Text("Log out user?"),
+    //    content: Center(
+    //      heightFactor: 1,
+    //      child: Text("Are you sure you want to logout user '${widget.user.name}'?"),
+    //    ),
+    //    actions: [
+    //      AvertButton(
+    //        name: "No",
+    //        onPressed: () => Navigator.pop(context, false),
+    //      ),
+    //      AvertButton(
+    //        name: "Yes",
+    //        onPressed: () => Navigator.pop(context, true)
+    //      ),
+    //    ]
+    //  ),
+    //);
 
   }
 }

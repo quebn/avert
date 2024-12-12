@@ -1,7 +1,4 @@
 import "package:avert/accounting/documents/financial_year/view.dart";
-import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_dropdown.dart";
-import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
 
 import "document.dart";
@@ -55,87 +52,109 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
   Widget build(BuildContext context) {
     printTrack("Building Financial Year Document Form");
     printInfo("Financial Year ID = ${widget.document.id}");
-    return AvertDocumentForm(
-      xPadding: 16,
-      yPadding: 16,
-      title: "${isNew(widget.document) ? "New" : "Edit"} Financial Year",
-      widgetsBody: [
-        AvertInput.text(
-          label: "Name",
-          placeholder: "Ex. Financial Year 2024",
-          controller: controllers['name']!,
-          required: true,
-          forceErrMsg: errMsg,
-          initialValue: widget.document.name,
-          onChanged: (value) => onValueChange(() {
-            return value != widget.document.name;
-          }),
-        ),
-        Row(
-          children: [
-            AvertDropdown(
-              label: "Type",
-              options: getTypeOptions(),
-              controller: controllers['type']!,
-              initialSelection: widget.document.type,
-              onSelected: (type) => onValueChange(() {
-                setState(() => isCalendar = type == FinancialYearType.calendar);
-                return type != widget.document.type;
-              }),
-            ),
-            SizedBox(
-              child: !isCalendar ? null : AvertDropdown(
-                initialSelection: FinancialYear.currentYear,
-                label: "Year",
-                options: getYearOptions(),
-                controller: controllers['year']!,
-                onSelected: (year) {
-                  controllers['start_date']!.text = getDate(DateTime(year));
-                },
-              ),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            AvertInput.date(
-              label: "Year Start",
-              controller: controllers['start_date']!,
-              required: true,
-              forceErrMsg: errMsg,
-              expand: true,
-              initialValue: getDate(widget.document.start),
-              enabled: !isCalendar,
-              listener: () => onValueChange((){
-                String newStartDate = controllers['start_date']!.text;
-                calculateEndDate(newStartDate);
-                bool hasChange =  newStartDate != getDate(widget.document.start);
-                return hasChange;
-              }),
-            ),
-            AvertInput.text(
-              label: "Year End",
-              placeholder: "YYYY-MM-DD",
-              controller: controllers['end_date']!,
-              required: true,
-              readOnly: true,
-              forceErrMsg: errMsg,
-              expand: true,
-              initialValue: getDate(widget.document.end),
-              enabled: false,
-            ),
-          ],
-        ),
-      ],
-      isDirty: isDirty,
-      floatingActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: isNew(widget.document) ? insertDocument : updateDocument,
-        iconSize: 48,
-        icon: Icon(Icons.save_rounded)
-      ),
-      formKey: key,
-    );
+    throw UnimplementedError();
+    //return AvertDocumentForm(
+    //  xPadding: 16,
+    //  yPadding: 16,
+    //  title: "${isNew(widget.document) ? "New" : "Edit"} Financial Year",
+    //  widgetsBody: [
+    //    AvertInput.text(
+    //      label: "Name",
+    //      placeholder: "Ex. Financial Year 2024",
+    //      controller: controllers['name']!,
+    //      required: true,
+    //      forceErrMsg: errMsg,
+    //      initialValue: widget.document.name,
+    //      onChanged: (value) => onValueChange(() {
+    //        return value != widget.document.name;
+    //      }),
+    //    ),
+    //    Row(
+    //      children: [
+    //        AvertDropdown(
+    //          label: "Type",
+    //          options: getTypeOptions(),
+    //          controller: controllers['type']!,
+    //          initialSelection: widget.document.type,
+    //          onSelected: (type) => onValueChange(() {
+    //            setState(() => isCalendar = type == FinancialYearType.calendar);
+    //            return type != widget.document.type;
+    //          }),
+    //        ),
+    //        SizedBox(
+    //          child: !isCalendar ? null : AvertDropdown(
+    //            initialSelection: FinancialYear.currentYear,
+    //            label: "Year",
+    //            options: getYearOptions(),
+    //            controller: controllers['year']!,
+    //            onSelected: (year) {
+    //              controllers['start_date']!.text = getDate(DateTime(year));
+    //            },
+    //          ),
+    //        ),
+    //      ],
+    //    ),
+    //    Row(
+    //      crossAxisAlignment: CrossAxisAlignment.center,
+    //      children: [
+    //        AvertInput.date(
+    //          label: "Year Start",
+    //          controller: controllers['start_date']!,
+    //          required: true,
+    //          forceErrMsg: errMsg,
+    //          expand: true,
+    //          initialValue: getDate(widget.document.start),
+    //          enabled: !isCalendar,
+    //          listener: () => onValueChange((){
+    //            String newStartDate = controllers['start_date']!.text;
+    //            calculateEndDate(newStartDate);
+    //            bool hasChange =  newStartDate != getDate(widget.document.start);
+    //            return hasChange;
+    //          }),
+    //        ),
+    //        AvertInput.text(
+    //          label: "Year End",
+    //          placeholder: "YYYY-MM-DD",
+    //          controller: controllers['end_date']!,
+    //          required: true,
+    //          readOnly: true,
+    //          forceErrMsg: errMsg,
+    //          expand: true,
+    //          initialValue: getDate(widget.document.end),
+    //          enabled: false,
+    //        ),
+    //      ],
+    //    ),
+    //    AvertList(
+    //      label: "Companies",
+    //      initialData: widget.document.companies,
+    //      dataBuilder: (index, data) {
+    //        return AvertListTile(
+    //          index: index,
+    //          title: Text(data.name,
+    //            style: TextStyle(
+    //              fontSize: 20,
+    //              fontWeight: FontWeight.bold,
+    //            ),
+    //          ),
+    //          subtitle: Text("Subtitle",
+    //            style: TextStyle(
+    //              fontSize: 18,
+    //            ),
+    //          ),
+    //          suffix: const Text("Suffix"),
+    //        );
+    //      }
+    //    ),
+    //  ],
+    //  isDirty: isDirty,
+    //  floatingActionButton: !isDirty ? null :IconButton.filled(
+    //    onPressed: isNew(widget.document) ? insertDocument : updateDocument,
+    //    iconSize: 48,
+    //    icon: Icon(Icons.save_rounded)
+    //  ),
+    //  formKey: key,
+    //);
   }
 
   @override
