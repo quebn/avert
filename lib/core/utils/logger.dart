@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 
 enum LogLevel {
@@ -20,6 +21,7 @@ enum LogLevel {
 int trackingID = 0;
 void printTrack(String text, {String id = "" }) {
   // Cyan:    \x1B[36m
+  if (kDebugMode) return;
   debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
   debugPrint("\x1B[36m [Track ID:${id == "" ? trackingID : id}]: $text\x1B[0m");
   debugPrint("\x1B[36m------------------------------------------------\x1B[0m");
@@ -28,24 +30,29 @@ void printTrack(String text, {String id = "" }) {
 
 void printInfo(String text) {
   // Green:   \x1B[32m
+  if (kDebugMode) return;
   debugPrint("\x1B[32m [INFO]: $text\x1B[0m");
 }
 
 void printWarn(String text) {
   // Yellow:  \x1B[33m
+  if (kDebugMode) return;
   debugPrint("\x1B[33m [WARN]: $text\x1B[0m");
 }
 
 void printError(String text) {
   // Red:     \x1B[31m
+  if (kDebugMode) return;
   debugPrint("\x1B[31m [ERROR]: $text\x1B[0m");
 }
 
 void printSuccess(String text) {
   // Blue:    \x1B[34m
+  if (kDebugMode) return;
   debugPrint("\x1B[34m [SUCCESS]: $text\x1B[0m");
 }
 
 void printAssert(bool assertCondition, String errMsg) {
+  if (kDebugMode) return;
   assert(assertCondition, "\x1B[33m[ASSERTION FAILED]: $errMsg\x1B[0m");
 }
