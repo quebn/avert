@@ -58,7 +58,7 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
                       fontSize: 18,
                     ),
                   ),
-                  content: LoginForm(),
+                  content: const LoginForm(),
                 ),
                 FTabEntry(
                   label: const Text("Register",

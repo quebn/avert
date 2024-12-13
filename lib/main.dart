@@ -25,7 +25,7 @@ void main() async {
         )
       );
 
-      int userID = cachedPrefs.getInt("user_id") ?? 0;
+      int userID = 0;
       if ( userID != 0 ) {
         user = await _fetchUser(db, userID);
       }
@@ -70,12 +70,13 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _createAppDir();
-    return MaterialApp(
-      title: title,
-      //debugShowCheckedModeBanner: false,
-      home: FTheme(
-        data: FThemes.zinc.dark,
-        child:hasUser
+    return FTheme(
+      data: FThemes.zinc.dark,
+      child: MaterialApp(
+        themeMode: ThemeMode.system,
+        title: title,
+        //debugShowCheckedModeBanner: false,
+        home:  hasUser
         ? HomeScreen(title: title, user: user!, company: company)
         : AuthScreen(title: title, hasUsers: hasUsers),
       ),

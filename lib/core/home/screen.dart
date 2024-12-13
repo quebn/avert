@@ -4,6 +4,7 @@ import "package:avert/core/auth/screen.dart";
 import "package:avert/core/documents/company/form.dart";
 import "package:avert/core/documents/company/view.dart";
 import "package:avert/core/home/module_drawer.dart";
+import "package:forui/forui.dart";
 import "dashboard.dart";
 import "profile_drawer.dart";
 
@@ -55,14 +56,14 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     printTrack("Building HomeSceen");
-    return mainDisplay();
+    return mainDisplay(context);
   }
 
   void onCompanyDelete() {
     setState(() => company = null);
   }
 
-  Widget mainDisplay() => Scaffold(
+  Widget mainDisplay(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: TextButton(
         onPressed: () {
@@ -123,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
     endDrawer: HomeProfileDrawer(
       user: widget.user,
-      onLogout: () => logout(),
+      onLogout: () => logout(context),
       onUserDelete: () {
         widget.user.forget();
         Navigator.pop(context);
@@ -180,9 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     bool shouldLogout = await confirmLogout() ?? false;
-    if (shouldLogout && mounted) {
+    if (shouldLogout && context.mounted) {
       widget.user.forget();
       Navigator.pop(context);
       Navigator.push(context,
@@ -235,55 +236,47 @@ class EmptyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     printTrack("Building EmptyScreen");
-    return Scaffold(
-      body: Container(
-        width: MediaQuery.sizeOf(context).width,
-        height: MediaQuery.sizeOf(context).height,
-        color: Colors.black,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top:24),
-              child: Text("No Company Found",
-                style: TextStyle(
-                  fontSize: 28,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
+    return FTheme(
+      data: FTheme.of(context),
+      child: FScaffold(
+      content: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("No Company Found",
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              printInfo("Redirecting to Company Creation Page.");
+              Navigator.push(context,
+                MaterialPageRoute(
+                  builder: (context) => CompanyForm(
+                    document: company,
+                    onInsert: onCreate,
+                    onUpdate: onUpdate,
+                  ),
+                )
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon( Icons.add_rounded,
+                  size: 36,
                 ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                printInfo("Redirecting to Company Creation Page.");
-                Navigator.push(context,
-                  MaterialPageRoute(
-                    builder: (context) => CompanyForm(
-                      document: company,
-                      onInsert: onCreate,
-                      onUpdate: onUpdate,
-                    ),
-                  )
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon( Icons.add_rounded,
-                    color: Colors.white,
-                    size: 36,
+                Text("Create Company",
+                  style: TextStyle(
+                    fontSize: 20,
                   ),
-                  Text("Create Company",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                ]
-              ),
+                ),
+              ]
             ),
-          ]
-        ),
+          ),
+        ]
+      ),
       ),
     );
   }
