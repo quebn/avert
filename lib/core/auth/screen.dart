@@ -1,6 +1,7 @@
 import "package:avert/core/core.dart";
 import "form_login.dart";
 import "form_signup.dart";
+import "package:forui/forui.dart";
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, required this.title , this.hasUsers});
@@ -21,66 +22,65 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
   @override
   void initState() {
     super.initState();
-    printInfo("Has Users: $hasUsers");
-    _tabController = FTabController(length: 2, vsync: this, initialIndex: hasUsers ? 0 : 1);
+    _tabController = FTabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
+    _tabController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    printTrack("Building AuthScreen");
-    return FTheme(
-      data: FThemes.zinc.dark,
-      child: FScaffold(
-        header: SizedBox(height: kToolbarHeight,),
-        content: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              FHeader(
-                title: const Text("Avert",
-                  style: TextStyle(
-                    fontSize: 32,
-                  ),
-                  textAlign: TextAlign.center,
+    Widget content = FScaffold(
+      header: SizedBox(height: kToolbarHeight,),
+      content:  Container(
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            FHeader(
+              title: Text(widget.title,
+                style: const TextStyle(
+                  fontSize: 32,
                 ),
+                textAlign: TextAlign.center,
               ),
-              FDivider(),
-              FTabs(
-                initialIndex: hasUsers ? 0 : 1,
-                controller: _tabController,
-                tabs: [
-                  FTabEntry(
-                    label: const Text("Login",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    content: LoginForm(),
-                  ),
-                  FTabEntry(
-                    label: const Text("Register",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    content: SignUpForm(
-                      hasUsers: hasUsers,
-                      onRegister: () => setState( () => _tabController.index = 0),
+            ),
+            FDivider(),
+            FTabs(
+              controller: _tabController,
+              tabs: [
+                FTabEntry(
+                  label: const Text("Login",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        )
-      ),
+                  content: LoginForm(),
+                ),
+                FTabEntry(
+                  label: const Text("Register",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  content: SignUpForm(
+                    hasUsers: widget.hasUsers ?? true,
+                    gotoLoginForm: () => setState( () => _tabController.index = 0 ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      )
+    );
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: content,
     );
   }
 }

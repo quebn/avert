@@ -1,3 +1,4 @@
+import "package:forui/theme.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:avert/core/auth/screen.dart";
@@ -10,7 +11,7 @@ import "core/utils/database.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _createAppDir();
+  //await _createAppDir();
   User? user;
   Company? company;
   bool hasUsers = false;
@@ -68,12 +69,16 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _createAppDir();
     return MaterialApp(
       title: title,
       //debugShowCheckedModeBanner: false,
-      home: hasUser
+      home: FTheme(
+        data: FThemes.zinc.dark,
+        child:hasUser
         ? HomeScreen(title: title, user: user!, company: company)
         : AuthScreen(title: title, hasUsers: hasUsers),
+      ),
     );
   }
 }

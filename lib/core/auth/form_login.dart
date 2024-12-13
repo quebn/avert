@@ -1,10 +1,11 @@
+import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/home/screen.dart";
 import "package:avert/core/core.dart";
 import "package:crypto/crypto.dart";
-import "package:flutter/services.dart";
 import "dart:convert";
 
 import "package:shared_preferences/shared_preferences.dart";
+import "package:forui/forui.dart";
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -37,31 +38,32 @@ class _FormState extends State<LoginForm> {
     printTrack("Building LoginForm");
     List<Widget> widgets = [
       const SizedBox(height: 20),
-      FTextField(
+      AvertInput.alphanumeric(
         textInputAction: TextInputAction.next,
-        label: const Text("Username"),
+        label: "Username",
         hint: "Enter username",
-        controller: controllers['username']!,
-        //required: true,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (value) => (value?.contains(" ") ?? false) ? "Special characters or Whitespace are not allowed" : null,
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
-        ],
-        keyboardType: TextInputType.text,
-        maxLines: 1,
-
+        controller: controllers['username']!,
+        required: true,
+        forceErrMsg: userErrMsg,
+        onChange: (_) => _clearUserNameErr(),
       ),
       const SizedBox(height: 10),
-      FTextField.password(
+      AvertInput.password(
         controller: controllers['password']!,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         hint: "Enter password",
         validator: (value) => 8 <= (value?.length ?? 0) ? null : "Password must be at least 8 characters long.",
+        forceErrMsg: passErrMsg,
+        onChange: (_) => _clearPasswordErr(),
       ),
       const SizedBox(height: 20),
       FButton(
-        label: const Text("Login"),
+        label: const Text("Login",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         onPress: authenticateUser,
       ),
     ];
@@ -79,27 +81,16 @@ class _FormState extends State<LoginForm> {
     );
   }
 
-  void onChangeUsername(String? value) {
-    if (userErrMsg != null) {
-      setState(() => userErrMsg = null);
-    }
-  }
-
-  void onChangePassword(String? value) {
-    if (passErrMsg != null) {
-      setState(() => passErrMsg = null);
-    }
-  }
-
   Future<void> authenticateUser() async {
     printInfo("Logging in!");
+    _clearErrMsgs();
     final bool isValid = key.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }
     String username = controllers['username']!.value.text;
     String password = controllers['password']!.value.text;
-    printInfo("Validating the ff. values -> Username: $username | Password: $password");
+
     var bytes = utf8.encode(password);
     Digest digest = sha256.convert(bytes);
 
@@ -141,5 +132,20 @@ class _FormState extends State<LoginForm> {
       }
     }
     setState(() => passErrMsg = "Incorrect Password!");
+  }
+
+  void _clearErrMsgs() {
+    _clearPasswordErr();
+    _clearUserNameErr();
+  }
+
+  void _clearPasswordErr() {
+    if (passErrMsg == null) return;
+    setState(() => passErrMsg = null);
+  }
+
+  void _clearUserNameErr() {
+    if (userErrMsg == null) return;
+    setState(() => userErrMsg = null);
   }
 }
