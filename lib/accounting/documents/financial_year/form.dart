@@ -1,5 +1,6 @@
 import "package:avert/accounting/documents/financial_year/view.dart";
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/ui.dart";
 
 import "document.dart";
 
@@ -189,7 +190,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
             );
           }
         ));
-        notifyUpdate(context, msg);
+        notify(context, msg);
       }
     }
   }
@@ -218,7 +219,7 @@ class _FormState extends State<FinancialYearForm> implements DocumentForm {
       msg = "Successfully changed company details";
     }
 
-    if (mounted) notifyUpdate(context, msg);
+    if (mounted) notify(context, msg);
 
     setState(() {
       isDirty = false;

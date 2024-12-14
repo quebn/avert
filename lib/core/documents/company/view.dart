@@ -1,4 +1,5 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/ui.dart";
 
 import "form.dart";
 
@@ -111,10 +112,10 @@ class _ViewState extends State<CompanyView> implements DocumentView {
     if (widget.onSetDefault != null) {
       bool success = widget.onSetDefault!();
       if (success) {
-        notifyUpdate(context, "'${widget.document.name}' is now the Default Company!");
+        notify(context, "'${widget.document.name}' is now the Default Company!");
       }
     }
-    notifyUpdate(context, "'${widget.document.name}' is already the default company!");
+    notify(context, "'${widget.document.name}' is already the default company!");
   }
 
   Future<bool?> confirmDelete() {
@@ -157,7 +158,7 @@ class _ViewState extends State<CompanyView> implements DocumentView {
 
     if (success && mounted) {
       Navigator.maybePop(context);
-      notifyUpdate(context, "Company '${widget.document.name}' successfully deleted!");
+      notify(context, "Company '${widget.document.name}' successfully deleted!");
       if (widget.onDelete != null) widget.onDelete!();
     }
   }

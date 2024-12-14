@@ -1,5 +1,6 @@
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
 class SignUpForm extends StatefulWidget {
@@ -111,7 +112,7 @@ class _FormState extends State<SignUpForm> {
     bool success = await user.insert();
     if (mounted && success) {
       widget.gotoLoginForm();
-      notifyUpdate(
+      notify(
         context,
         "User '${user.name}' has been successfully created!"
       );
