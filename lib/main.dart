@@ -25,7 +25,7 @@ void main() async {
         )
       );
 
-      int userID = 0;
+      int userID = cachedPrefs.getInt("user_id") ?? 0;
       if ( userID != 0 ) {
         user = await _fetchUser(db, userID);
       }
