@@ -49,11 +49,12 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
   Widget build(BuildContext context) {
     printTrack("Building CompanyDocumentForm");
     return AvertDocumentForm(
-      title:  Text("${isNew(widget.document) ? "New" : "Edit"} Company"),
+      formKey: key,
+      title: Text("${isNew(widget.document) ? "New" : "Edit"} Company",),
       contents: [
         AvertInput.text(
           label: "Name",
-          hint: "Acme Inc.",
+          hint: "Ex. Acme Inc.",
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
@@ -69,7 +70,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
-      formKey: key,
+      resizeToAvoidBottomInset: true,
     );
   }
 

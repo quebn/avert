@@ -23,17 +23,17 @@ Future<bool?> confirm(BuildContext context) {
       body: const Text("Are you sure you want to leave this page?"),
       actions: <Widget>[
         FButton(
+          label: const Text("Stay"),
           style: FButtonStyle.outline,
           onPress: () {
             Navigator.of(context).pop(false);
           },
-          label: const Text("Stay"),
         ),
         FButton(
+          label: const Text("Leave"),
           onPress: () {
             Navigator.of(context).pop(true);
           },
-          label: const Text("Leave"),
         ),
       ],
     ),
