@@ -19,7 +19,9 @@ class AvertDocumentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FThemeData theme = FTheme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       resizeToAvoidBottomInset: false,
       body: FScaffold(
         content: Column(
@@ -75,6 +77,8 @@ class AvertDocumentForm extends StatelessWidget {
     this.formKey,
     this.actions,
     this.isDirty = true,
+    this.tabview,
+    this.resizeToAvoidBottomInset = false,
   });
 
   final Widget title;
@@ -84,29 +88,60 @@ class AvertDocumentForm extends StatelessWidget {
   final Widget? leading;
   final List<Widget>? actions;
   final bool isDirty;
+  final FTabs? tabview;
+  final bool resizeToAvoidBottomInset;
 
   @override
   Widget build(BuildContext context) {
-    //final FThemeData theme = FTheme.of(context);
+    final FThemeData theme = FTheme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: FScaffold(
-        header: FHeader(
-          title: title,
+        header: FHeader.nested(
+          suffixActions: actions ?? [],
+          prefixActions: [
+            leading ?? FHeaderAction(
+              icon: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: FIcon(FAssets.icons.chevronLeft),
+              ),
+              onPress: () => Navigator.of(context).maybePop(),
+            ),
+          ],
+          style: theme.headerStyle.nestedStyle,
+          title: const Text("Avert",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
+            ),
+          ),
         ),
         content: Form(
           key: formKey,
           canPop: !isDirty,
           onPopInvokedWithResult: (bool didPop, Object? value) async {
-            if (didPop) {
-              return;
-            }
+            if (didPop) return;
             final bool shouldPop = await confirm(context) ?? false;
             if (shouldPop && context.mounted) {
-              Navigator.pop(context);
+              Navigator.of(context).pop();
             }
           },
-          child: Column(
-            children: contents,
+          child: FCard(
+            title: Container(
+              alignment: Alignment.center,
+              child: title,
+            ),
+            child: Column(
+              children: [
+                Column(
+                  children: contents,
+                ),
+                Container(
+                  child: tabview,
+                ),
+              ]
+            ),
           ),
         ),
       ),

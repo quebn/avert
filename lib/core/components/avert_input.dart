@@ -35,7 +35,7 @@ class AvertInput extends StatefulWidget {
   const AvertInput.text({super.key,
     required this.label,
     required this.controller,
-    required this.hint,
+    this.hint,
     this.required = false,
     this.validator,
     this.onChange,

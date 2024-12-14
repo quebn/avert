@@ -78,7 +78,9 @@ class _ScreenState extends State<AuthScreen> with TickerProviderStateMixin{
         ),
       )
     );
+    FThemeData theme = FTheme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       resizeToAvoidBottomInset: false,
       body: content,
     );
