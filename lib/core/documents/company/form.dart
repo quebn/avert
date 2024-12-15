@@ -134,8 +134,8 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
       msg = "Company '${company.name}' successfully created!";
 
       if (mounted) {
-        Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(
+        Navigator.of(context).pop();
+        Navigator.of(context).push(MaterialPageRoute(
           builder: (BuildContext context) {
             return CompanyView(
               document: widget.document,
