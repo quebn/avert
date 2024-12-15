@@ -6,64 +6,78 @@ class AvertDocumentView extends StatelessWidget {
   const AvertDocumentView({super.key,
     required this.name,
     required this.title,
-    this.image,
-    this.body,
-    this.header,
-    this.actions,
+    required this.controller,
+    //this.image,
+    this.subtitle,
+    this.menuActions,
+    this.leading,
+    this.onEdit,
+    this.onDelete,
+    this.content,
+    this.tabview,
   });
 
   final String name;
-  final Widget? image, header, body;
-  final List<Widget>? actions;
-  final Widget title;
+  final Widget? /*image,*/ title, subtitle, leading, content;
+  final List<FTileGroupMixin<FTileMixin>>? menuActions;
+  final FPopoverController controller;
+  final FTabs? tabview;
+  final Function()? onEdit, onDelete;
 
   @override
   Widget build(BuildContext context) {
+    final List<FTileGroupMixin<FTileMixin>> actionsGroups = menuActions ?? [];
+    actionsGroups.add(
+      FTileGroup(
+        children: [
+          FTile(
+            enabled: onDelete != null,
+            prefixIcon: FIcon(FAssets.icons.trash2),
+            title: const Text("Delete Document"),
+            onPress: onDelete,
+          ),
+        ],
+      )
+    );
     FThemeData theme = FTheme.of(context);
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       resizeToAvoidBottomInset: false,
       body: FScaffold(
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _headerContent(),
-            _bodyContent(),
-          ]
+        header: FHeader.nested(
+          title: Text(name),
+          style: theme.headerStyle.nestedStyle,
+          prefixActions:[
+            leading ?? FHeaderAction(
+              icon: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: FIcon(FAssets.icons.chevronLeft),
+              ),
+              onPress: () => Navigator.of(context).maybePop(),
+            ),
+          ],
+          suffixActions: [
+            FHeaderAction(
+              icon: FIcon(FAssets.icons.filePenLine),
+              onPress: onEdit,
+            ),
+            FPopoverMenu.tappable(
+              controller: controller,
+              menu: actionsGroups,
+              child: FIcon(FAssets.icons.ellipsisVertical,
+                size: 28,
+              ),
+            ),
+          ],
+        ),
+        content:Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(child: content),
+              Container(child: tabview),
+            ]
         ),
       ),
-    );
-  }
-
-  Widget _headerContent() {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      color: Colors.white,
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                child: image,
-              ),
-              Container(
-                child: title,
-              ),
-            ]
-          ),
-          Container(
-            margin: EdgeInsets.all(8),
-            child: header,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _bodyContent() {
-    return Container(
-      child: body,
     );
   }
 }

@@ -1,8 +1,6 @@
 import "package:flutter/material.dart";
-import "package:avert/core/utils/common.dart";
 import "package:flutter/services.dart";
 import "package:forui/forui.dart";
-import "package:forui_assets/forui_assets.dart";
 
 enum AvertInputType {
   text,

@@ -1,12 +1,10 @@
+import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
+import "package:forui/forui.dart";
 
 import "form.dart";
 
-// TODO: Do something on the ff. in the future.
-//  - show the fields from other modules like the default accounts of a company.
-//  - validation.
-//  - onSave should have parameters of the values of controllers in a dict.
 class CompanyView extends StatefulWidget {
   const CompanyView({super.key,
     required this.document,
@@ -23,72 +21,49 @@ class CompanyView extends StatefulWidget {
   State<StatefulWidget> createState() => _ViewState();
 }
 
-class _ViewState extends State<CompanyView> implements DocumentView {
+class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin implements DocumentView  {
+  late final FPopoverController controller = FPopoverController(vsync: this);
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building Company Document View");
     printInfo("company.id = ${widget.document.id}");
-    throw UnimplementedError();
-    //return AvertDocumentView(
-    //  name: widget.document.name,
-    //  image: IconButton(
-    //    icon: CircleAvatar(
-    //      radius: 50,
-    //      child: Text(widget.document.name[0].toUpperCase(),
-    //        textAlign: TextAlign.center,
-    //        style: TextStyle(
-    //          fontSize: 50,
-    //        ),
-    //      ),
-    //    ),
-    //    onPressed: () => printInfo("Pressed Profile Pic"),
-    //  ),
-    //  titleChildren: [
-    //    Text(widget.document.name,
-    //      style: const TextStyle(
-    //        fontSize: 30,
-    //        fontWeight: FontWeight.bold,
-    //      ),
-    //    ),
-    //    const Text("Current Company",
-    //      style: TextStyle(
-    //        fontSize: 18,
-    //      ),
-    //    ),
-    //
-    //  ],
-    //  //isDirty: isDirty,
-    //  actions: [
-    //    TextButton(
-    //      onPressed: setAsDefault,
-    //      child: const Text("Set as Default",
-    //        style: TextStyle(
-    //          fontWeight: FontWeight.bold,
-    //          fontSize: 16,
-    //          color: Colors.white,
-    //        ),
-    //      ),
-    //    ),
-    //    Padding(
-    //      padding: const EdgeInsets.symmetric(horizontal: 16),
-    //      child: IconButton(
-    //        iconSize: 32,
-    //        onPressed: deleteDocument,
-    //        icon: const Icon(Icons.delete_rounded,
-    //        ),
-    //      ),
-    //    ),
-    //  ],
-    //  floatingActionButton: IconButton.filled(
-    //    onPressed: editDocument,
-    //    iconSize: 48,
-    //    icon: Icon(Icons.edit_rounded,
-    //    )
-    //  ),
-    //  //formKey: key,
-    //  body: Container(),
-    //);
+    return AvertDocumentView(
+      controller: controller,
+      name: "Company",
+      title: Text(widget.document.name),
+      //image: IconButton(
+      //  icon: CircleAvatar(
+      //    radius: 50,
+      //    child: Text(widget.document.name[0].toUpperCase(),
+      //      textAlign: TextAlign.center,
+      //      style: TextStyle(
+      //        fontSize: 50,
+      //      ),
+      //    ),
+      //  ),
+      //  onPressed: () => printInfo("Pressed Profile Pic"),
+      //),
+      menuActions: [
+        FTileGroup(
+          children: [
+            FTile(
+              prefixIcon: FIcon(FAssets.icons.building),
+              title: const Text("Set as Default"),
+              onPress: () {},
+            ),
+          ],
+        ),
+      ],
+      onEdit: editDocument,
+      content: Container(),
+    );
   }
 
   void editDocument() {
