@@ -47,12 +47,13 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
             FTile(
               prefixIcon: FIcon(FAssets.icons.building),
               title: const Text("Set as Default"),
-              onPress: () {},
+              onPress: setAsDefault,
             ),
           ],
         ),
       ],
       onEdit: editDocument,
+      onDelete: deleteDocument,
       content: Container(),
     );
   }
@@ -61,13 +62,13 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
     Navigator.push(context, MaterialPageRoute(
       builder: (BuildContext context) => CompanyForm(
         document: widget.document,
-        // HACK: currently alway rebuilds the whole Widget.
-        // TODO: maybe use map for the args to assign for setUpdate?
         onUpdate: () {
+          // HACK: currently alway rebuilds the whole Widget.
+          // TODO: maybe use map for the args to assign for setUpdate?
           setState(() {});
           if (widget.onUpdate != null) {
-              widget.onUpdate!();
-            }
+            widget.onUpdate!();
+          }
         },
       ),
     ));
@@ -85,47 +86,49 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
   }
 
   Future<bool?> confirmDelete() {
-    throw UnimplementedError();
-    //return showDialog<bool>(
-    //  context: context,
-    //  builder: (BuildContext context) {
-    //    return AlertDialog(
-    //      title: Text("Delete '${widget.document.name}'?"),
-    //      content: const Text("Are you sure you want to delete this Company?"),
-    //      actions: <Widget>[
-    //        AvertButton(
-    //          name: "Yes",
-    //          onPressed: () {
-    //            Navigator.pop(context, true);
-    //          }
-    //        ),
-    //        AvertButton(
-    //          name: "No",
-    //          onPressed: () {
-    //            Navigator.pop(context, false);
-    //          },
-    //        ),
-    //      ],
-    //    );
-    //  },
-    //);
+    FThemeData theme = context.theme;
+    return showAdaptiveDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => FDialog(
+        direction: Axis.horizontal,
+        title: Text("Delete '${widget.document.name}'?"),
+        body: const Text("Are you sure you want to delete this Company?"),
+        actions: <Widget>[
+          FButton(
+            label: const Text("No"),
+            style: FButtonStyle.outline,
+            onPress: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          FButton(
+            style: theme.buttonStyles.destructive,
+            //.copyWith(
+            //  color
+            //),
+            label: const Text("Yes"),
+            onPress: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Future<void> deleteDocument() async {
     final bool shouldDelete = await confirmDelete() ?? false;
 
-    if (!shouldDelete) {
-      return;
-    }
+    if (shouldDelete) {
+      final bool success = await widget.document.delete();
+      printWarn("Deleting Company:${widget.document.name} with id of: ${widget.document.id}");
 
-    final bool success = await widget.document.delete();
-    printWarn("Deleting Company:${widget.document.name} with id of: ${widget.document.id}");
-
-    if (success && mounted) {
-      Navigator.maybePop(context);
-      notify(context, "Company '${widget.document.name}' successfully deleted!");
-      if (widget.onDelete != null) widget.onDelete!();
+      if (success && mounted) {
+        Navigator.maybePop(context);
+        notify(context, "Company '${widget.document.name}' successfully deleted!");
+        if (widget.onDelete != null) widget.onDelete!();
+      }
     }
   }
 }
