@@ -86,7 +86,6 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
   }
 
   Future<bool?> confirmDelete() {
-    FThemeData theme = context.theme;
     return showAdaptiveDialog<bool>(
       context: context,
       builder: (BuildContext context) => FDialog(
@@ -102,10 +101,7 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
             },
           ),
           FButton(
-            style: theme.buttonStyles.destructive,
-            //.copyWith(
-            //  color
-            //),
+            style: FButtonStyle.destructive,
             label: const Text("Yes"),
             onPress: () {
               Navigator.of(context).pop(true);
