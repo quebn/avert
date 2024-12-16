@@ -10,9 +10,11 @@ class CompanyView extends StatefulWidget {
     required this.document,
     this.onUpdate,
     this.onDelete,
-    this.onSetDefault
+    this.onSetDefault,
+    this.isDefault = false,
   });
 
+  final bool isDefault;
   final Company document;
   final void Function()? onUpdate, onDelete;// onPop;
   final bool Function()? onSetDefault;
@@ -37,19 +39,8 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
     return AvertDocumentView(
       controller: controller,
       name: "Company",
-      title: Text(widget.document.name),
-      //image: IconButton(
-      //  icon: CircleAvatar(
-      //    radius: 50,
-      //    child: Text(widget.document.name[0].toUpperCase(),
-      //      textAlign: TextAlign.center,
-      //      style: TextStyle(
-      //        fontSize: 50,
-      //      ),
-      //    ),
-      //  ),
-      //  onPressed: () => printInfo("Pressed Profile Pic"),
-      //),
+      title: widget.document.name,
+      subtitle: widget.isDefault ? "Current Company" : "Company",
       menuActions: [
         FTileGroup(
           children: [

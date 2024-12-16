@@ -39,3 +39,11 @@ Digest hashString(String string) {
   var bytes = utf8.encode(string);
   return sha256.convert(bytes);
 }
+
+String getAcronym(String name) {
+  List<String> letters = [];
+  for (String word in name.split(" ")) {
+    letters.add(word[0]);
+  }
+  return letters.join();
+}
