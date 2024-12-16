@@ -1,3 +1,4 @@
+import "package:avert/core/utils/common.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
 import "package:avert/core/utils/ui.dart";
@@ -7,7 +8,7 @@ class AvertDocumentView extends StatelessWidget {
     required this.name,
     required this.title,
     required this.controller,
-    //this.image,
+    this.image,
     this.subtitle,
     this.menuActions,
     this.leading,
@@ -15,17 +16,22 @@ class AvertDocumentView extends StatelessWidget {
     this.onDelete,
     this.content,
     this.tabview,
+    this.onImagePress,
   });
 
-  final String name;
-  final Widget? /*image,*/ title, subtitle, leading, content;
+  final String name, title;
+  final String? subtitle;
+  final Widget?  leading, content;
   final List<FTileGroupMixin<FTileMixin>>? menuActions;
   final FPopoverController controller;
   final FTabs? tabview;
-  final Function()? onEdit, onDelete;
+  final ImageProvider<Object>? image;
+  final Function()? onEdit, onDelete, onImagePress;
 
   @override
   Widget build(BuildContext context) {
+    FThemeData theme = FTheme.of(context);
+
     final List<FTileGroupMixin<FTileMixin>> actionsGroups = menuActions ?? [];
     actionsGroups.add(
       FTileGroup(
@@ -39,7 +45,46 @@ class AvertDocumentView extends StatelessWidget {
         ],
       )
     );
-    FThemeData theme = FTheme.of(context);
+
+    Widget contentHeading = Row(
+      children: [
+        FButton.raw(
+          onPress: onImagePress,
+          child: Container(
+            alignment: Alignment.center,
+            height: 150,
+            width: 150,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              color: theme.avatarStyle.backgroundColor,
+              image: image != null ? DecorationImage(
+                image: image!,
+                fit: BoxFit.cover,
+              ) : null,
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Text(getAcronym(title),
+              style: theme.typography.xl6
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                style: theme.cardStyle.contentStyle.titleTextStyle
+              ),
+              Text(subtitle ?? "" ,
+                style: theme.cardStyle.contentStyle.subtitleTextStyle
+              ),
+            ],
+          ),
+        ),
+      ]
+    );
+
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       resizeToAvoidBottomInset: false,
@@ -71,11 +116,12 @@ class AvertDocumentView extends StatelessWidget {
           ],
         ),
         content:Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(child: content),
-              Container(child: tabview),
-            ]
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            contentHeading,
+            Container(child: content),
+            Container(child: tabview),
+          ]
         ),
       ),
     );
