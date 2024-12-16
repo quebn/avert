@@ -12,10 +12,10 @@ class AvertDocumentView extends StatelessWidget {
     this.subtitle,
     this.menuActions,
     this.leading,
-    this.onEdit,
-    this.onDelete,
     this.content,
     this.tabview,
+    this.onEdit,
+    this.onDelete,
     this.onImagePress,
   });
 
@@ -118,8 +118,12 @@ class AvertDocumentView extends StatelessWidget {
         content:Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            contentHeading,
+            Padding(
+              padding: EdgeInsets.only(top: 16),
+              child:contentHeading,
+            ),
             Container(child: content),
+            FDivider(),
             Container(child: tabview),
           ]
         ),
