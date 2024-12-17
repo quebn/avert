@@ -53,7 +53,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
               divider: FTileDivider.full,
               children: [
                 FTile(
-                  onPress: null,
+                  onPress: viewProfile,
                   prefixIcon: FIcon(FAssets.icons.circleUserRound),
                   title: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 4),
@@ -92,6 +92,19 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
           ]
         )
       )
+    );
+  }
+
+  void viewProfile() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => UserView(
+          document: widget.user,
+          user: widget.user,
+          onUpdate: null,
+          onDelete: null,
+        ),
+      ),
     );
   }
 

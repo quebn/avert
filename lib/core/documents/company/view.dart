@@ -24,12 +24,12 @@ class CompanyView extends StatefulWidget {
 }
 
 class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin implements DocumentView  {
-  late final FPopoverController controller = FPopoverController(vsync: this);
+  late final FPopoverController _controller = FPopoverController(vsync: this);
 
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    _controller.dispose();
   }
 
   @override
@@ -37,7 +37,7 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
     printTrack("Building Company Document View");
     printInfo("company.id = ${widget.document.id}");
     return AvertDocumentView(
-      controller: controller,
+      controller: _controller,
       name: "Company",
       title: widget.document.name,
       subtitle: widget.isDefault ? "Current Company" : "Company",
@@ -122,8 +122,8 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
 
       if (success && mounted) {
         Navigator.maybePop(context);
-        notify(context, "Company '${widget.document.name}' successfully deleted!");
         if (widget.onDelete != null) widget.onDelete!();
+        notify(context, "Company '${widget.document.name}' successfully deleted!");
       }
     }
   }
