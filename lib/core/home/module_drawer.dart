@@ -29,11 +29,12 @@ class HomeModuleDrawer extends StatelessWidget {
         ),
         child: Column(
           children: [
-            SizedBox(height: 16),
+            SizedBox(height: 24),
             FSelectTileGroup<Module>(
               style: theme.tileGroupStyle.copyWith(
                 tileStyle: theme.tileGroupStyle.tileStyle.copyWith(
-                  border: Border.all(width: 0),
+                  focusedBorder: Border.all(style: BorderStyle.none),
+                  border: Border.all(style: BorderStyle.none),
                   enabledBackgroundColor: theme.colorScheme.secondary
                 ),
               ),

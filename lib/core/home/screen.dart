@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: FButtonStyle.ghost,
               onPress: () => Scaffold.of(context).openEndDrawer(),
               child: FAvatar.raw(
-                child: Text(getAcronym(widget.user.name)),
+                child: FIcon(FAssets.icons.user),
               ),
             ),
           )

@@ -1,5 +1,6 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/documents/user/view.dart";
+import "package:forui/forui.dart";
 
 class HomeProfileDrawer extends StatefulWidget {
   const HomeProfileDrawer({super.key,
@@ -18,120 +19,123 @@ class HomeProfileDrawer extends StatefulWidget {
 
 class _ProfileDrawerState extends State<HomeProfileDrawer> {
   late String username = widget.user.name;
-  // TODO: have a variable that will update the users picture if changed.
+
   @override
   Widget build(BuildContext context) {
     printTrack("Building Home Profile Drawer!");
+    final FThemeData theme = context.theme;
     return Drawer(
-      width: 250,
-      child: Column(
-        children: [
-          DrawerHeader(
-            margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8, top: 32),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-            ),
-            child: Center(
-              child: Text(username,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.account_circle),
-            title: const Text("Profile",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () {
-              printInfo("Open Profile Page.");
-              Navigator.push(context,
-                MaterialPageRoute(
-                  builder: (context) => UserView(
-                    document: widget.user,
-                    onDelete: widget.onUserDelete,
-                    onSave: () => setState(() => username = widget.user.name),
-                    viewOnly: false,
-                  ),
-                )
-              );
-            }
-          ),
-          Divider(),
-          //ListTile(
-          //  leading: const Icon(Icons.check_box_rounded),
-          //  title: const Text("Tasks",
-          //    style: TextStyle(
-          //      fontSize: 16,
-          //    ),
-          //  ),
-          //  onTap: () { printInfo("Open Task list");}
-          //),
-          //Divider(),
-          ListTile(
-            leading: const Icon(Icons.groups_3_rounded),
-            title: const Text("Users",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(
-                builder: (BuildContext context) {
-                  throw UnimplementedError();
-                  //return UserListView(
-                  //  user: widget.user,
-                  //);
-                }
-              ));
-            }
-          ),
-          Divider(),
-          //ListTile(
-          //  leading: const Icon(Icons.business_rounded),
-          //  title: const Text("Companies",
-          //    style: TextStyle(
-          //      fontSize: 16,
-          //    ),
-          //  ),
-          //  onTap: () { printInfo("Open Company list");}
-          //),
-          //Divider(),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text("App Settings",
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            onTap: () { printInfo("Open Settings App Settings.");}
-          ),
-          Divider(),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout_rounded),
-                  title: const Text("Log Out",
-                    style: TextStyle(
-                      fontSize: 16,
+      backgroundColor: theme.colorScheme.background,
+      width: 200,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.viewPaddingOf(context).top,
+          left: 8,
+          right: 8,
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: 24),
+            profile(context),
+            FTileGroup(
+              style: theme.tileGroupStyle.copyWith(
+                tileStyle: theme.tileGroupStyle.tileStyle.copyWith(
+                  focusedBorder: Border.all(style: BorderStyle.none),
+                  border: Border.symmetric(
+                    vertical: BorderSide.none,
+                    horizontal: BorderSide(
+                      color: theme.colorScheme.border
                     ),
                   ),
-                  onTap: widget.onLogout,
+                  borderRadius: BorderRadius.all(Radius.zero),
                 ),
-              ]
+              ),
+              divider: FTileDivider.full,
+              children: [
+                FTile(
+                  onPress: null,
+                  prefixIcon: FIcon(FAssets.icons.circleUserRound),
+                  title: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child:Text("Profile")
+                  ),
+                ),
+                FTile(
+                  onPress: null,
+                  prefixIcon: FIcon(FAssets.icons.building2),
+                  title: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child:Text("Companies")
+                  ),
+                ),
+              ],
             ),
-          ),
-        ]
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FDivider(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: FButton(
+                      style: FButtonStyle.destructive,
+                      prefix: FIcon(FAssets.icons.logOut),
+                      label: const Text("Log Out"),
+                      onPress: widget.onLogout,
+                    ),
+                  ),
+                  FDivider(),
+                ]
+              ),
+            ),
+
+          ]
+        )
       )
     );
   }
+
+  Widget profile(BuildContext context) => SizedBox(
+    child: Column(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          height: 100,
+          width: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            color: context.theme.avatarStyle.backgroundColor,
+            //image: image != null ? DecorationImage(
+            //  image: image!,
+            //  fit: BoxFit.cover,
+            //) : null,
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: FIcon(FAssets.icons.user,
+            size: 80,
+          ),
+        ),
+        //FAvatar.raw(
+        //  child: Text(getAcronym(username)),
+        //),
+        Text(
+          username,
+          style: context.theme.typography.lg.copyWith(
+            color: context.theme.colorScheme.foreground,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        widget.user.isAdmin
+        ? FBadge(
+          style: FBadgeStyle.destructive,
+          label: const Text("Admin")
+        )
+        : FBadge(
+          label: const Text("User")
+        ),
+        SizedBox(height: 24),
+      ],
+    ),
+  );
 }
 
