@@ -147,10 +147,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> logout(BuildContext context) async {
     bool shouldLogout = await confirmLogout() ?? false;
+
     if (shouldLogout && context.mounted) {
       widget.user.forget();
-      Navigator.pop(context);
-      Navigator.push(context,
+      Navigator.of(context).pop();
+      Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => AuthScreen(
             title: "Avert",
@@ -162,28 +163,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<bool?> confirmLogout() async {
-    throw UnimplementedError();
-    //return showDialog<bool>(
-    //  context: context,
-    //  builder: (BuildContext context) => AlertDialog(
-    //    title: Text("Log out user?"),
-    //    content: Center(
-    //      heightFactor: 1,
-    //      child: Text("Are you sure you want to logout user '${widget.user.name}'?"),
-    //    ),
-    //    actions: [
-    //      AvertButton(
-    //        name: "No",
-    //        onPressed: () => Navigator.pop(context, false),
-    //      ),
-    //      AvertButton(
-    //        name: "Yes",
-    //        onPressed: () => Navigator.pop(context, true)
-    //      ),
-    //    ]
-    //  ),
-    //);
-
+    return showAdaptiveDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => FDialog(
+        direction: Axis.horizontal,
+        title: Text("Log out?"),
+        body: Text("Are you sure you want to logout user '${widget.user.name}'?"),
+        actions: <Widget>[
+          FButton(
+            label: const Text("No"),
+            style: FButtonStyle.outline,
+            onPress: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          FButton(
+            style: FButtonStyle.destructive,
+            label: const Text("Yes"),
+            onPress: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 

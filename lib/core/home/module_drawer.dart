@@ -39,7 +39,7 @@ class HomeModuleDrawer extends StatelessWidget {
                 ),
               ),
               controller: FRadioSelectGroupController(value: currentModule),
-              divider: FTileDivider.none,
+              divider: FTileDivider.full,
               label: const Text("Modules"),
               children: drawerModuleTiles,
             )

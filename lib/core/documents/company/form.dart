@@ -85,33 +85,6 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
     });
   }
 
-  Future<bool?> confirmDelete() {
-    throw UnimplementedError();
-    //return showDialog<bool>(
-    //  context: context,
-    //  builder: (BuildContext context) {
-    //    return AlertDialog(
-    //      title: Text("Delete '${widget.document.name}'?"),
-    //      content: const Text("Are you sure you want to delete this Company?"),
-    //      actions: <Widget>[
-    //        AvertButton(
-    //          name: "Yes",
-    //          onPressed: () {
-    //            Navigator.pop(context, true);
-    //          }
-    //        ),
-    //        AvertButton(
-    //          name: "No",
-    //          onPressed: () {
-    //            Navigator.pop(context, false);
-    //          },
-    //        ),
-    //      ],
-    //    );
-    //  },
-    //);
-  }
-
   @override
   Future<void> insertDocument() async {
     final bool isValid = key.currentState?.validate() ?? false;
