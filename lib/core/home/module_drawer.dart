@@ -8,12 +8,11 @@ class HomeModuleDrawer extends StatelessWidget {
     required this.onModuleSelect,
   });
 
-
+  final Module currentModule;
+  final void Function(bool selected, Module module) onModuleSelect;
   final List<Module> modules = const [
     Accounting(),
   ];
-  final Module currentModule;
-  final void Function(Module selected) onModuleSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -29,38 +28,40 @@ class HomeModuleDrawer extends StatelessWidget {
           right: 8,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: drawerWidgets(context),
+          children: [
+            SizedBox(height: 16),
+            FSelectTileGroup<Module>(
+              style: theme.tileGroupStyle.copyWith(
+                tileStyle: theme.tileGroupStyle.tileStyle.copyWith(
+                  border: Border.all(width: 0),
+                  enabledBackgroundColor: theme.colorScheme.secondary
+                ),
+              ),
+              controller: FRadioSelectGroupController(value: currentModule),
+              divider: FTileDivider.none,
+              label: const Text("Modules"),
+              children: drawerModuleTiles,
+            )
+          ]
         )
       )
     );
   }
 
-  List<Widget> drawerWidgets(BuildContext context) {
-    final List<Widget> widgets = [
-      const FDivider(),
-      Padding(
-        padding: EdgeInsets.only(left: 8, bottom: 8),
-        child: Text("Modules",
-          style: context.theme.typography.lg,
-        ),
-      ),
-    ];
-    if (modules.isEmpty) return widgets;
+  List<FSelectTile<Module>> get drawerModuleTiles {
+    final List<FSelectTile<Module>> items = [];
+    if (modules.isEmpty) return items;
     for (final Module module in modules) {
-      widgets.add(
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: FButton(
-            style: module == currentModule ? FButtonStyle.primary : FButtonStyle.ghost,
-            onPress: () {},//module.drawerSelect,
-            label: Text(module.name),
-            prefix: module.icon,
-          )
+      items.add(
+        FSelectTile<Module>.suffix(
+          value: module,
+          prefixIcon: module.icon,
+          title: Text(module.name),
+          onChange: (selected) => onModuleSelect(selected, module),
         ),
       );
     }
-    return widgets;
+    return items;
   }
 }
 

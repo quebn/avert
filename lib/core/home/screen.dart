@@ -38,8 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text("Settings")),
   ];
 
-
-  // Company selector
   @override
   Widget build(BuildContext context) {
     if (company == null) {
@@ -119,37 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
     drawer: HomeModuleDrawer(
       currentModule: currentModule,
-      onModuleSelect: (Module selected){},
+      onModuleSelect: (selected, module) { if (selected) printTrack("Selecting: ${module.name}");},
     ),
-    //bottomNavigationBar: BottomNavigationBar(
-    //  selectedItemColor: Colors.black,
-    //  unselectedItemColor: Colors.grey,
-    //  onTap: (int index) => setState(() => currentIndex = index),
-    //  showUnselectedLabels: true,
-    //  currentIndex: currentIndex,
-    //  items: const [
-    //    BottomNavigationBarItem(
-    //      icon: Icon(Icons.dashboard_outlined),
-    //      label: "Dashboard",
-    //      activeIcon: Icon(Icons.dashboard_sharp)
-    //    ),
-    //    BottomNavigationBarItem(
-    //      icon: Icon(Icons.library_books_outlined),
-    //      label: "Documents",
-    //      activeIcon: Icon(Icons.library_books_sharp),
-    //    ),
-    //    BottomNavigationBarItem(
-    //      icon: Icon(Icons.bar_chart_outlined),
-    //      label: "Reports",
-    //      activeIcon: Icon(Icons.bar_chart_sharp),
-    //    ),
-    //    BottomNavigationBarItem(
-    //      icon: Icon(Icons.settings_outlined),
-    //      label: "Settings",
-    //      activeIcon: Icon(Icons.bar_chart_rounded),
-    //    ),
-    //  ],
-    //),
   );
 
   Widget leftDrawer() {
