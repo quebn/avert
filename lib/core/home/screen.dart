@@ -65,9 +65,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget mainDisplay(BuildContext context) => Scaffold(
     body: FScaffold(
-      header: _HomeHeader(
-        title: widget.company!.name,
-        fallbackString: getAcronym(widget.user.name),
+      header: FHeader(
+        title: Row(
+          children: [
+            Builder(
+              builder: (BuildContext context) => FButton.icon(
+                onPress: () => Scaffold.of(context).openDrawer(),
+                style: FButtonStyle.ghost,
+                child: FIcon(FAssets.icons.menu,
+                  size: 28,
+                ),
+              ),
+            ),
+            SizedBox(width: 16,),
+            FButton.raw(
+              style: FButtonStyle.ghost,
+              onPress: viewCurrentCompany,
+              child: Text(company!.name,
+                style: context.theme.typography.xl2,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          FHeaderAction(
+            icon: FIcon(FAssets.icons.bell,
+              size: 28,
+            ),
+            onPress: () {},
+          ),
+          Builder(
+            builder: (BuildContext context) => FButton.icon(
+              style: FButtonStyle.ghost,
+              onPress: () => Scaffold.of(context).openEndDrawer(),
+              child: FAvatar(
+                image: const NetworkImage(''),
+                fallback: Text(getAcronym(widget.user.name)),
+              ),
+            ),
+          )
+        ],
       ),
       content: pages[currentIndex],
     ),
@@ -244,61 +281,5 @@ class EmptyScreen extends StatelessWidget {
       ),
       ),
     );
-  }
-}
-
-class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({
-    required this.title,
-    required this.fallbackString,
-    this.onTitlePress,
-    this.avatarImage,
-  });
-
-  final String title;
-  final void Function()? onTitlePress;
-  final ImageProvider<Object>? avatarImage;
-  final String fallbackString;
-
-  @override
-  Widget build(BuildContext context) {
-    return FHeader(
-        // TODO: add leading icon to open left drawer.
-        title: Row(
-          children: [
-            FButton.icon(
-              onPress: () => Scaffold.of(context).openDrawer(),
-              style: FButtonStyle.ghost,
-              child: FIcon(FAssets.icons.menu,
-                size: 28,
-              ),
-            ),
-            SizedBox(width: 16,),
-            FButton.raw(
-              style: FButtonStyle.ghost,
-              onPress: onTitlePress,
-              child: Text(title,
-                style: context.theme.typography.xl2,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          FHeaderAction(
-            icon: FIcon(FAssets.icons.bell,
-              size: 28,
-            ),
-            onPress: () {},
-          ),
-          FButton.icon(
-            style: FButtonStyle.ghost,
-            onPress: () => Scaffold.of(context).openEndDrawer(),
-            child: FAvatar(
-              image: avatarImage ?? const NetworkImage(''),
-              fallback: Text(fallbackString),
-            ),
-          ),
-        ],
-      );
   }
 }
