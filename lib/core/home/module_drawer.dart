@@ -58,6 +58,7 @@ class HomeModuleDrawer extends StatelessWidget {
           prefixIcon: module.icon,
           title: Text(module.name),
           onChange: (selected) => onModuleSelect(selected, module),
+          checkedIcon: SizedBox(),
         ),
       );
     }
