@@ -64,63 +64,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget mainDisplay(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: TextButton(
-        onPressed: () {
-          printInfo("Viewing Current Company!");
-          Navigator.push(context,
-            MaterialPageRoute(
-              builder: (context) => CompanyView(
-                document: company!,
-                onDelete: onCompanyDelete,
-                onUpdate: () {
-                  printError("From Main Display of HomeScreen");
-                  setState(() {});
-                }
-              ),
-            )
-          );
-        },
-        child: Text(company!.name,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 24,
-          ),
-        ),
+    body: FScaffold(
+      header: _HomeHeader(
+        title: widget.company!.name,
+        fallbackString: getAcronym(widget.user.name),
       ),
-      actions: [
-        IconButton(
-          padding: const EdgeInsets.only(right:16),
-          icon: const Icon(Icons.notifications_rounded),
-          iconSize: 30,
-          onPressed: () => printInfo("Pressed Notification Button!"),
-          //tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        ),
-        Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              padding: const EdgeInsets.only(right: 16),
-              icon: const CircleAvatar(
-                backgroundColor: Colors.white,
-              ),
-              iconSize: 36,
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-            );
-          },
-        ),
-      ],
-      //excludeHeaderSemantics: true,
-      leading: Builder(
-        builder: (BuildContext context) {
-          return IconButton(
-            icon: const Icon(Icons.menu),
-            iconSize: 30,
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          );
-        },
-      ),
+      content: pages[currentIndex],
     ),
     endDrawer: HomeProfileDrawer(
       user: widget.user,
@@ -142,42 +91,58 @@ class _HomeScreenState extends State<HomeScreen> {
       currentIndex: moduleIndex,
       onModuleSelect: (int index){},
     ),
-    body: pages[currentIndex],
-    bottomNavigationBar: BottomNavigationBar(
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
-      onTap: (int index) => setState(() => currentIndex = index),
-      showUnselectedLabels: true,
-      currentIndex: currentIndex,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard_outlined),
-          label: "Dashboard",
-          activeIcon: Icon(Icons.dashboard_sharp)
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.library_books_outlined),
-          label: "Documents",
-          activeIcon: Icon(Icons.library_books_sharp),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart_outlined),
-          label: "Reports",
-          activeIcon: Icon(Icons.bar_chart_sharp),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings_outlined),
-          label: "Settings",
-          activeIcon: Icon(Icons.bar_chart_rounded),
-        ),
-      ],
-    ),
+    //bottomNavigationBar: BottomNavigationBar(
+    //  selectedItemColor: Colors.black,
+    //  unselectedItemColor: Colors.grey,
+    //  onTap: (int index) => setState(() => currentIndex = index),
+    //  showUnselectedLabels: true,
+    //  currentIndex: currentIndex,
+    //  items: const [
+    //    BottomNavigationBarItem(
+    //      icon: Icon(Icons.dashboard_outlined),
+    //      label: "Dashboard",
+    //      activeIcon: Icon(Icons.dashboard_sharp)
+    //    ),
+    //    BottomNavigationBarItem(
+    //      icon: Icon(Icons.library_books_outlined),
+    //      label: "Documents",
+    //      activeIcon: Icon(Icons.library_books_sharp),
+    //    ),
+    //    BottomNavigationBarItem(
+    //      icon: Icon(Icons.bar_chart_outlined),
+    //      label: "Reports",
+    //      activeIcon: Icon(Icons.bar_chart_sharp),
+    //    ),
+    //    BottomNavigationBarItem(
+    //      icon: Icon(Icons.settings_outlined),
+    //      label: "Settings",
+    //      activeIcon: Icon(Icons.bar_chart_rounded),
+    //    ),
+    //  ],
+    //),
   );
 
   Widget leftDrawer() {
     return const Drawer(
       width: 250,
       //child: Listjk
+    );
+  }
+
+  void viewCurrentCompany() {
+    printInfo("Viewing Current Company!");
+    Navigator.push(context,
+      MaterialPageRoute(
+        builder: (context) => CompanyView(
+          document: company!,
+          onDelete: onCompanyDelete,
+          onUpdate: () {
+            throw UnimplementedError();
+            printError("From Main Display of HomeScreen");
+            setState(() {});
+          }
+        ),
+      )
     );
   }
 
@@ -279,5 +244,61 @@ class EmptyScreen extends StatelessWidget {
       ),
       ),
     );
+  }
+}
+
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({
+    required this.title,
+    required this.fallbackString,
+    this.onTitlePress,
+    this.avatarImage,
+  });
+
+  final String title;
+  final void Function()? onTitlePress;
+  final ImageProvider<Object>? avatarImage;
+  final String fallbackString;
+
+  @override
+  Widget build(BuildContext context) {
+    return FHeader(
+        // TODO: add leading icon to open left drawer.
+        title: Row(
+          children: [
+            FButton.icon(
+              onPress: () => Scaffold.of(context).openDrawer(),
+              style: FButtonStyle.ghost,
+              child: FIcon(FAssets.icons.menu,
+                size: 28,
+              ),
+            ),
+            SizedBox(width: 16,),
+            FButton.raw(
+              style: FButtonStyle.ghost,
+              onPress: onTitlePress,
+              child: Text(title,
+                style: context.theme.typography.xl2,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          FHeaderAction(
+            icon: FIcon(FAssets.icons.bell,
+              size: 28,
+            ),
+            onPress: () {},
+          ),
+          FButton.icon(
+            style: FButtonStyle.ghost,
+            onPress: () => Scaffold.of(context).openEndDrawer(),
+            child: FAvatar(
+              image: avatarImage ?? const NetworkImage(''),
+              fallback: Text(fallbackString),
+            ),
+          ),
+        ],
+      );
   }
 }

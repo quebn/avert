@@ -119,7 +119,7 @@ class AvertDocumentView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: EdgeInsets.only(top: 16),
+              padding: EdgeInsets.only(top: 16, left: 16),
               child:contentHeading,
             ),
             Container(child: content),

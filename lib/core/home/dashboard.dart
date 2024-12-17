@@ -23,7 +23,7 @@ class Dashboard extends StatelessWidget {
   }
 
   Widget headerContent(BuildContext context) {
-    return  Stack(
+    return Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
         Container(
@@ -40,16 +40,6 @@ class Dashboard extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            //padding: EdgeInsets.symmetric(top:)
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(20)
-            ),
-          ),
-          height: 24,
-        )
       ],
     );
   }
