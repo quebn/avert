@@ -1,14 +1,11 @@
 import "package:avert/core/core.dart";
+import "package:forui/forui.dart";
 
 class Accounting implements Module {
-  const Accounting(this.company,);
-
-
-  @override
-  final Company company;
+  const Accounting();
 
   @override
-  IconData get iconData => Icons.account_balance;
+  Widget get icon => FIcon(FAssets.icons.handCoins);
 
   @override
   String get name => "Accounting";

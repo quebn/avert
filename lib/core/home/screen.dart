@@ -24,8 +24,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Module currentModule = const Accounting();
   int currentIndex = 0;
-  int moduleIndex = 0;
   bool lastStatus = true;
 
   final double height = 390;
@@ -38,11 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text("Settings")),
   ];
 
-  late final List<Module> modules = [
-    Accounting(company!),
-  ];
-
-  Module get currentModule => modules[moduleIndex];
 
   // Company selector
   @override
@@ -73,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPress: () => Scaffold.of(context).openDrawer(),
                 style: FButtonStyle.ghost,
                 child: FIcon(FAssets.icons.menu,
-                  size: 28,
+                  size: 24,
                 ),
               ),
             ),
@@ -90,17 +85,16 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           FHeaderAction(
             icon: FIcon(FAssets.icons.bell,
-              size: 28,
+              size: 24,
             ),
-            onPress: () {},
+            onPress: null,
           ),
           Builder(
             builder: (BuildContext context) => FButton.icon(
               style: FButtonStyle.ghost,
               onPress: () => Scaffold.of(context).openEndDrawer(),
-              child: FAvatar(
-                image: const NetworkImage(''),
-                fallback: Text(getAcronym(widget.user.name)),
+              child: FAvatar.raw(
+                child: Text(getAcronym(widget.user.name)),
               ),
             ),
           )
@@ -124,9 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ),
     drawer: HomeModuleDrawer(
-      modules: modules,
-      currentIndex: moduleIndex,
-      onModuleSelect: (int index){},
+      currentModule: currentModule,
+      onModuleSelect: (Module selected){},
     ),
     //bottomNavigationBar: BottomNavigationBar(
     //  selectedItemColor: Colors.black,
