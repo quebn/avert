@@ -33,7 +33,7 @@ abstract class Document {
 
   int id;
   String name;
-  DateTime createdAt;
+  final DateTime createdAt;
 
   // TODO: make insert return a message on success and failure.
   Future<bool> update();

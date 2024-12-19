@@ -27,7 +27,7 @@ class User implements Document {
   String name;
 
   @override
-  DateTime createdAt;
+  final DateTime createdAt;
 
   String _password = "";
   bool get isAdmin => id == 1;

@@ -15,7 +15,7 @@ class Company implements Document {
   String name;
 
   @override
-  DateTime createdAt;
+  final DateTime createdAt;
 
   static String getTableQuery() => """
     CREATE TABLE companies(
