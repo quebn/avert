@@ -1,6 +1,8 @@
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
+import "documents/account/document.dart";
+
 class Accounting implements Module {
   const Accounting();
 
@@ -10,7 +12,6 @@ class Accounting implements Module {
   @override
   String get name => "Accounting";
 
-  // IMPORTANT: implement dashboard stuff.
   @override
   Widget dashboardHeader(BuildContext context) {
     return SizedBox(
@@ -47,37 +48,53 @@ class Accounting implements Module {
     throw UnimplementedError();
   }
 
-  Widget createFinancialYear(BuildContext context) {
-    return Column(
-      children: [
-        const Text("No Financial Year Found!",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        SizedBox(
-          child: TextButton(
-            onPressed: null,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.add_rounded,
-                  color: Colors.white,
-                  size: 36,
-                ),
-                Text("Create Financial Year",
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ]
-            ),
-          )
-        )
-      ]
-    );
+  List<Account> createLiabilities(Company company) {
+    return [
+      Account.liability(
+        company: company,
+        name: "Accounts Payable",
+        type: AccountType.payable,
+      ),
+      Account.liability(
+        company: company,
+        name: "Input",
+        type: AccountType.payable,
+      ),
+      Account.liability(
+        company: company,
+        name: "Accounts Payable",
+        type: AccountType.payable,
+      ),
+    ];
   }
+
+  //List<Account> createRootAccounts(Company company) {
+  //  return [
+  //    Account.asset(
+  //      id: 100,
+  //      company: company,
+  //      name: "Assets",
+  //    ),
+  //    Account.liability(
+  //      id: 200,
+  //      company: company,
+  //      name: "Liabilities",
+  //    ),
+  //    Account.asset(
+  //      id: 300,
+  //      company: company,
+  //      name: "Owner's Equity",
+  //    ),
+  //    Account.asset(
+  //      id: 400,
+  //      company: company,
+  //      name: "Revenue",
+  //    ),
+  //    Account.asset(
+  //      id: 500,
+  //      company: company,
+  //      name: "Expenses",
+  //    ),
+  //  ];
+  //}
 }
