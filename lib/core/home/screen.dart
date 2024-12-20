@@ -99,6 +99,28 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       content: pages[currentIndex],
+      footer: FBottomNavigationBar(
+        index: currentIndex,
+        onChange: (index) => setState(() => currentIndex = index),
+        children: [
+        FBottomNavigationBarItem(
+          icon: FIcon(FAssets.icons.layoutDashboard),
+          label: const Text("Dashboard"),
+        ),
+        FBottomNavigationBarItem(
+          icon: FIcon(FAssets.icons.bookText),
+          label: const Text("Documents"),
+        ),
+        FBottomNavigationBarItem(
+          icon: FIcon(FAssets.icons.chartNoAxesCombined),
+          label: const Text("Reports"),
+        ),
+        FBottomNavigationBarItem(
+          icon: FIcon(FAssets.icons.settings),
+          label: const Text("Settings"),
+        ),
+        ],
+      ),
     ),
     endDrawer: HomeProfileDrawer(
       user: widget.user,
