@@ -1,3 +1,4 @@
+import "package:avert/accounting/documents/account/default.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
@@ -12,9 +13,17 @@ class Accounting implements Module {
   @override
   String get name => "Accounting";
 
+  final Map<String, List<Account>> chartOfAccounts = const {
+    "Assets": [],
+    "Liabilities": [],
+    "Equity": [],
+    "Income": [],
+    "Expenses": [],
+  };
+
   @override
   Widget dashboardHeader(BuildContext context) {
-    return SizedBox(
+    return FCard.raw(
       child: const Text("Accounting",
         textAlign: TextAlign.center,
         style: TextStyle(
@@ -48,24 +57,12 @@ class Accounting implements Module {
     throw UnimplementedError();
   }
 
-  List<Account> createLiabilities(Company company) {
-    return [
-      Account.liability(
-        company: company,
-        name: "Accounts Payable",
-        type: AccountType.payable,
-      ),
-      Account.liability(
-        company: company,
-        name: "Input",
-        type: AccountType.payable,
-      ),
-      Account.liability(
-        company: company,
-        name: "Accounts Payable",
-        type: AccountType.payable,
-      ),
-    ];
+  void createDefaultCOA(Company company) {
+    chartOfAccounts["Assets"]       = createAssets(company);
+    chartOfAccounts["Liabilities"]  = createLiabilities(company);
+    chartOfAccounts["Equity"]       = createEquity(company);
+    chartOfAccounts["Income"]       = createIncome(company);
+    chartOfAccounts["Expenses"]     = createExpenses(company);
   }
 
   //List<Account> createRootAccounts(Company company) {
