@@ -4,6 +4,7 @@ import "package:avert/core/auth/screen.dart";
 import "package:avert/core/documents/company/form.dart";
 import "package:avert/core/documents/company/view.dart";
 import "package:avert/core/home/module_drawer.dart";
+import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 import "dashboard.dart";
 import "profile_drawer.dart";
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final double height = 390;
 
   late Company? company = widget.company;
+
   late List<Widget> pages = [
     Dashboard(module: currentModule),
     const Center(child: Text("Documents")),
@@ -38,14 +40,17 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text("Settings")),
   ];
 
+  set currentCompany(Company? newCompany) => setState(() => company = newCompany);
+
   @override
   Widget build(BuildContext context) {
     if (company == null) {
       Company c = Company();
       return EmptyScreen(
         company: c,
-        onCreate: () => setState(() => company = c),
+        onCreate: () => currentCompany = c,
         onUpdate: () => setState(() {}),
+        onDelete: onCompanyDelete,
       );
     }
     printTrack("Building HomeSceen");
@@ -53,7 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void onCompanyDelete() {
-    setState(() => company = null);
+    final String m = "Company '${company!.name}' successfully deleted!";
+    currentCompany = null;
+    printInfo("notifying of company deletion");
+    notify(context, m);
   }
 
   Widget mainDisplay(BuildContext context) => Scaffold(
@@ -217,55 +225,56 @@ class EmptyScreen extends StatelessWidget {
     required this.company,
     required this.onCreate,
     required this.onUpdate,
+    required this.onDelete,
   });
 
   final Company company;
-  final void Function() onCreate, onUpdate;
+  final void Function() onCreate, onUpdate, onDelete;
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building EmptyScreen");
-    return FTheme(
-      data: FTheme.of(context),
-      child: FScaffold(
-      content: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("No Company Found",
-            style: TextStyle(
+    FThemeData theme = context.theme;
+    return Scaffold(
+      backgroundColor: theme.scaffoldStyle.backgroundColor,
+      body: FScaffold(
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("No Company Found", style: theme.typography.xl3.copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w900,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              printInfo("Redirecting to Company Creation Page.");
-              Navigator.push(context,
-                MaterialPageRoute(
-                  builder: (context) => CompanyForm(
-                    document: company,
-                    onInsert: onCreate,
-                    onUpdate: onUpdate,
+            )),
+            TextButton(
+              onPressed: () {
+                printInfo("Redirecting to Company Creation Page.");
+                Navigator.push(context,
+                  MaterialPageRoute(
+                    builder: (context) => CompanyForm(
+                      document: company,
+                      onInsert: onCreate,
+                      onUpdate: onUpdate,
+                      onDelete: onDelete,
+                    ),
+                  )
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon( Icons.add_rounded,
+                    size: 36,
                   ),
-                )
-              );
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon( Icons.add_rounded,
-                  size: 36,
-                ),
-                Text("Create Company",
-                  style: TextStyle(
-                    fontSize: 20,
+                  Text("Create Company",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
                   ),
-                ),
-              ]
+                ]
+              ),
             ),
-          ),
-        ]
-      ),
+          ]
+        ),
       ),
     );
   }

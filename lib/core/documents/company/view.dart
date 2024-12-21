@@ -123,7 +123,6 @@ class _ViewState extends State<CompanyView> with SingleTickerProviderStateMixin 
       if (success && mounted) {
         Navigator.maybePop(context);
         if (widget.onDelete != null) widget.onDelete!();
-        notify(context, "Company '${widget.document.name}' successfully deleted!");
       }
     }
   }

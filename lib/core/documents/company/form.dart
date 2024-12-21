@@ -11,11 +11,12 @@ class CompanyForm extends StatefulWidget {
     required this.document,
     this.onInsert,
     this.onUpdate,
+    this.onDelete,
     this.onSetDefault,
   });
 
   final Company document;
-  final void Function()? onInsert, onUpdate;
+  final void Function()? onInsert, onUpdate, onDelete;
   final bool Function()? onSetDefault;
 
   @override
@@ -113,6 +114,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
             return CompanyView(
               document: widget.document,
               onUpdate: widget.onUpdate,
+              onDelete: widget.onDelete,
             );
           }
         ));
