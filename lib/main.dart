@@ -36,7 +36,7 @@ void main() async {
         );
         printInfo("${results.length} user(s) found with values of: ${results.toString()}");
         hasUsers = results.isNotEmpty;
-        //if (!hasUsers) await _createUser();
+        if (!hasUsers) await _createUser();
       }
       company = await Company.fetchDefault(db, cachedPrefs);
       //company = await _getCompany(db, cachedPrefs);
