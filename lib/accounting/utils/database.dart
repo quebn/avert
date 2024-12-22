@@ -1,6 +1,6 @@
 import "package:sqflite/sqflite.dart";
 
-void tablesInitAccounting(Batch batch) {
+void createAccountingTables(Batch batch) {
   List<String> queries = [
   ];
 

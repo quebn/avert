@@ -1,9 +1,8 @@
 import "package:avert/core/core.dart";
 
-void tablesInitCore(Batch batch) {
+void createCoreTables(Batch batch) {
   List<String> queries = [
-    User.getTableQuery(),
-    Company.getTableQuery(),
+    Profile.tableQuery,
     // Task.getTableQuery() // NOTE: Not planned.
   ];
 

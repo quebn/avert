@@ -1,7 +1,9 @@
 //import "package:avert/core/documents/company/document.dart";
+import "package:avert/accounting/accounting.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
 
+export "package:avert/core/documents/profile/document.dart";
 export "package:flutter/material.dart";
 export "package:sqflite/sqflite.dart";
 export "package:avert/core/documents/task/document.dart";
@@ -47,7 +49,7 @@ abstract class DocumentView {
 
 abstract class DocumentForm {
 
-  final GlobalKey<FormState> key = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> controllers = {};
 
   bool isDirty = false;
@@ -59,4 +61,7 @@ abstract class DocumentForm {
 
 class Core {
   static Database? database;
+  static const List<Module> modules = [
+    Accounting()
+  ];
 }
