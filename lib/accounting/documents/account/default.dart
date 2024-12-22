@@ -1,40 +1,40 @@
-import "package:avert/core/documents/company/document.dart";
+import "package:avert/core/documents/profile/document.dart";
 
 import "document.dart";
 
 // MARK: Liabilities
-List<Account> createAssets(Company company) {
+List<Account> createAssets(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.asset,
       name: "Curent Assets",
-      company: company,
-      children: createCurrentAssets(company),
+      profile: profile,
+      children: createCurrentAssets(profile),
     ),
     Account.parent(
       root: AccountRoot.asset,
       name: "Non-current Assets",
-      company: company,
+      profile: profile,
       children: [
       ],
     ),
   ];
 }
 
-List<Account> createCurrentAssets(Company company) {
+List<Account> createCurrentAssets(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Cash and cash equivalents",
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Bank",
           type: AccountType.bank,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Cash",
           type: AccountType.cash,
         ),
@@ -42,17 +42,17 @@ List<Account> createCurrentAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Receivables",
       type: AccountType.receivable,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Cash Advances to Suppliers",
           type: AccountType.receivable,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Accounts Receivable",
           type: AccountType.receivable,
         ),
@@ -60,17 +60,17 @@ List<Account> createCurrentAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Stock",
       type: AccountType.inventory,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Inventory",
           type: AccountType.inventory,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Merchandise",
           type: AccountType.inventory,
         ),
@@ -79,33 +79,33 @@ List<Account> createCurrentAssets(Company company) {
   ];
 }
 
-List<Account> createNoncurrentAssets(Company company) {
+List<Account> createNoncurrentAssets(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Property Plant and Equipment",
       type: AccountType.fixedAsset,
-      children: createPPEAssets (company),
+      children: createPPEAssets (profile),
     ),
   ];
 }
 
-List<Account> createPPEAssets(Company company) {
+List<Account> createPPEAssets(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Land",
       type: AccountType.fixedAsset,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Land - Cost",
           type: AccountType.fixedAsset,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Land - Development",
           type: AccountType.fixedAsset,
         ),
@@ -113,17 +113,17 @@ List<Account> createPPEAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Machinery",
       type: AccountType.fixedAsset,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Equipment - Cost",
           type: AccountType.fixedAsset,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Equipment - Accum. Depreciation",
           type: AccountType.accumDepreciation,
         ),
@@ -131,17 +131,17 @@ List<Account> createPPEAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Tools",
       type: AccountType.fixedAsset,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Tools - Cost",
           type: AccountType.fixedAsset,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Tools - Accum. Depreciation",
           type: AccountType.accumDepreciation,
         ),
@@ -149,17 +149,17 @@ List<Account> createPPEAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Buildings",
       type: AccountType.fixedAsset,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Buildings - Cost",
           type: AccountType.fixedAsset,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Buildings - Accum. Depreciation",
           type: AccountType.accumDepreciation,
         ),
@@ -167,17 +167,17 @@ List<Account> createPPEAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Devices",
       type: AccountType.fixedAsset,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Devices - Cost",
           type: AccountType.fixedAsset,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Devices - Accum. Depreciation",
           type: AccountType.accumDepreciation,
         ),
@@ -185,24 +185,24 @@ List<Account> createPPEAssets(Company company) {
     ),
     Account.parent(
       root: AccountRoot.asset,
-      company: company,
+      profile: profile,
       name: "Vehicles",
       type: AccountType.fixedAsset,
       children: [
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Vehicles - Cost",
           type: AccountType.fixedAsset,
         ),
         Account.asset(
-          company: company,
+          profile: profile,
           name: "Vehicles - Accum. Depreciation",
           type: AccountType.accumDepreciation,
         ),
       ],
     ),
     Account.asset(
-      company: company,
+      profile: profile,
       name: "Capital Work in Progress",
       type: AccountType.cwip,
     )
@@ -210,48 +210,48 @@ List<Account> createPPEAssets(Company company) {
 }
 
 // MARK: Liabilities
-List<Account> createLiabilities(Company company) {
+List<Account> createLiabilities(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.liability,
       name: "Curent liabilities",
-      company: company,
-      children: createLiabilities(company),
+      profile: profile,
+      children: createLiabilities(profile),
     ),
     Account.parent(
       root: AccountRoot.liability,
       name: "Non-current Liabilities",
-      company: company,
-      children: createNoncurrentLiabilities(company),
+      profile: profile,
+      children: createNoncurrentLiabilities(profile),
     ),
   ];
 }
 
-List<Account> createCurrentLiabilities(Company company) {
+List<Account> createCurrentLiabilities(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.liability,
-      company: company,
+      profile: profile,
       name: "Payables",
       type: AccountType.payable,
       children: [
         Account.liability(
-          company: company,
+          profile: profile,
           name: "Cash Advances from Customers",
           type: AccountType.payable,
         ),
         Account.liability(
-          company: company,
+          profile: profile,
           name: "Accounts Payable",
           type: AccountType.payable,
         ),
         Account.liability(
-          company: company,
+          profile: profile,
           name: "Wages Payable",
           type: AccountType.payable,
         ),
         Account.liability(
-          company: company,
+          profile: profile,
           name: "Tax Payable",
           type: AccountType.payable,
         ),
@@ -260,57 +260,57 @@ List<Account> createCurrentLiabilities(Company company) {
   ];
 }
 
-List<Account> createNoncurrentLiabilities(Company company) {
+List<Account> createNoncurrentLiabilities(Profile profile) {
   return [];
 }
 
 // MARK: Equity
-List<Account> createEquity(Company company) {
+List<Account> createEquity(Profile profile) {
   return [
     Account.equity(
       name: "Retained Earnings",
-      company: company
+      profile: profile
     ),
     Account.equity(
       name: "Shareholder's Dividend",
-      company: company
+      profile: profile
     ),
     Account.equity(
       name: "Shareholder's Capital",
-      company: company
+      profile: profile
     ),
   ];
 }
 
 // MARK: Income
-List<Account> createIncome(Company company) {
+List<Account> createIncome(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.income,
-      company: company,
+      profile: profile,
       name: "Direct Sales",
       children: [
         Account.income(
-          company: company,
+          profile: profile,
           name: "Sales Revenue",
         ),
         Account.income(
-          company: company,
+          profile: profile,
           name: "Sales Discount",
         ),
       ],
     ),
     Account.parent(
       root: AccountRoot.income,
-      company: company,
+      profile: profile,
       name: "Indirect Sales",
       children: [
         Account.income(
-          company: company,
+          profile: profile,
           name: "Interest Revenue",
         ),
         Account.income(
-          company: company,
+          profile: profile,
           name: "Indirect Sales Income",
         ),
       ],
@@ -319,109 +319,109 @@ List<Account> createIncome(Company company) {
 }
 
 // MARK: Expenses
-List<Account> createExpenses(Company company) {
+List<Account> createExpenses(Profile profile) {
   return [
     Account.parent(
       root: AccountRoot.expense,
       name: "Cost of Goods Sold",
       type: AccountType.cogs,
-      company: company,
-      children: createCOGS(company),
+      profile: profile,
+      children: createCOGS(profile),
     ),
     Account.parent(
       root: AccountRoot.expense,
       name: "Maintenance and Repairs",
-      company: company,
-      children: createMR(company),
+      profile: profile,
+      children: createMR(profile),
     ),
     Account.parent(
       root: AccountRoot.expense,
       name: "Utilities",
-      company: company,
-      children: createUtilities(company),
+      profile: profile,
+      children: createUtilities(profile),
     ),
     Account.parent(
       root: AccountRoot.expense,
       name: "Other Expenses",
-      company: company,
-      children: createOtherExpenses(company),
+      profile: profile,
+      children: createOtherExpenses(profile),
     ),
     Account.expense(
       name: "Tax",
-      company: company,
+      profile: profile,
       type: AccountType.depreciation,
     ),
     Account.expense(
       name: "Depreciations",
-      company: company,
+      profile: profile,
       type: AccountType.tax,
     ),
   ];
 }
 
-List<Account> createCOGS(Company company) {
+List<Account> createCOGS(Profile profile) {
   return [
     Account.expense(
       name: "Product Cost",
       type: AccountType.cogs,
-      company: company
+      profile: profile
     ),
     Account.expense(
       name: "Material Cost",
       type: AccountType.cogs,
-      company: company
+      profile: profile
     ),
     Account.expense(
       name: "Labor Cost",
       type: AccountType.cogs,
-      company: company
+      profile: profile
     ),
     Account.expense(
       name: "Overhead Cost",
       type: AccountType.cogs,
-      company: company
+      profile: profile
     )
   ];
 }
 
-List<Account> createMR(Company company) {
+List<Account> createMR(Profile profile) {
   return [
     Account.expense(
       name: "Maintenance",
-      company: company,
+      profile: profile,
     ),
     Account.expense(
       name: "Repair",
-      company: company,
+      profile: profile,
     )
   ];
 }
 
-List<Account> createUtilities(Company company) {
+List<Account> createUtilities(Profile profile) {
   return [
     Account.expense(
       name: "Travel",
-      company: company,
+      profile: profile,
     ),
     Account.expense(
       name: "Food",
-      company: company,
+      profile: profile,
     ),
     Account.expense(
       name: "Water",
-      company: company,
+      profile: profile,
     ),
     Account.expense(
       name: "Electricity",
-      company: company,
+      profile: profile,
     ),
   ];
 }
-List<Account> createOtherExpenses(Company company) {
+List<Account> createOtherExpenses(Profile profile) {
   return [
     Account.expense(
       name: "Round off",
-      company: company,
+      profile: profile,
     ),
   ];
 }

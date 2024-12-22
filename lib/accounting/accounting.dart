@@ -7,7 +7,7 @@ import "documents/account/document.dart";
 // IMPORTANT: TODO for accounting module.
 // - create a company tab view. for create accounting master documents related to company.
 // - create dashboard number cards for accounting dashboard heading.
-class Accounting implements Module, CompanyTabView {
+class Accounting implements Module {
   const Accounting();
 
   @override
@@ -60,16 +60,15 @@ class Accounting implements Module, CompanyTabView {
     );
   }
 
-  void createDefaultCOA(Company company) {
-    chartOfAccounts["Assets"]       = createAssets(company);
-    chartOfAccounts["Liabilities"]  = createLiabilities(company);
-    chartOfAccounts["Equity"]       = createEquity(company);
-    chartOfAccounts["Income"]       = createIncome(company);
-    chartOfAccounts["Expenses"]     = createExpenses(company);
+  void createDefaultCOA(Profile profile) {
+    chartOfAccounts["Assets"]       = createAssets(profile);
+    chartOfAccounts["Liabilities"]  = createLiabilities(profile);
+    chartOfAccounts["Equity"]       = createEquity(profile);
+    chartOfAccounts["Income"]       = createIncome(profile);
+    chartOfAccounts["Expenses"]     = createExpenses(profile);
   }
 
-  @override
-  Widget getCompanyTabView(BuildContext context) {
+  Widget getProfileTabView(BuildContext context) {
     return SizedBox(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

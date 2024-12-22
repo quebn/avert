@@ -29,7 +29,7 @@ enum AccountType {
 class Account implements Document {
   Account({
     required this.root,
-    required this.company,
+    required this.profile,
     this.id = 0,
     this.name = "",
     this.parent,
@@ -39,7 +39,7 @@ class Account implements Document {
 
   Account.parent({
     required this.root,
-    required this.company,
+    required this.profile,
     this.id = 0,
     this.name = "",
     this.parent,
@@ -55,14 +55,14 @@ class Account implements Document {
   }
 
   Account.asset({
-    required Company company,
+    required Profile profile,
     int id = 0,
     String name = "",
     Account? parent,
     AccountType type = AccountType.none,
   }) : this(
     id: id,
-    company: company,
+    profile: profile,
     name: name,
     parent: parent,
     type: type,
@@ -70,14 +70,14 @@ class Account implements Document {
   );
 
   Account.liability({
-    required Company company,
+    required Profile profile,
     int id = 0,
     String name = "",
     Account? parent,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
-    company: company,
+    profile: profile,
     name: name,
     parent: parent,
     type: type,
@@ -85,14 +85,14 @@ class Account implements Document {
   );
 
   Account.equity({
-    required Company company,
+    required Profile profile,
     int id = 0,
     String name = "",
     Account? parent,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
-    company: company,
+    profile: profile,
     name: name,
     parent: parent,
     type: type,
@@ -100,14 +100,14 @@ class Account implements Document {
   );
 
   Account.income({
-    required Company company,
+    required Profile profile,
     int id = 0,
     String name = "",
     Account? parent,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
-    company: company,
+    profile: profile,
     name: name,
     parent: parent,
     type: type,
@@ -115,14 +115,14 @@ class Account implements Document {
   );
 
   Account.expense({
-    required Company company,
+    required Profile profile,
     int id = 0,
     String name = "",
     Account? parent,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
-    company: company,
+    profile: profile,
     name: name,
     parent: parent,
     type: type,
@@ -138,7 +138,7 @@ class Account implements Document {
   @override
   final DateTime createdAt;
 
-  final Company company;
+  final Profile profile;
   final AccountRoot root;
   final AccountType type;
   final List<Account>? children;
