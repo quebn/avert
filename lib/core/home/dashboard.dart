@@ -1,4 +1,5 @@
 import "package:avert/core/core.dart";
+import "package:forui/forui.dart";
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key,
@@ -26,18 +27,11 @@ class Dashboard extends StatelessWidget {
     return Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
-        Container(
+        SizedBox(
           width: MediaQuery.sizeOf(context).width,
           height: 300,
-          color: Colors.black,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: module.dashboardHeader(context),
-              ),
-            ],
+          child: FCard.raw(
+            child: module.dashboardHeader(context),
           ),
         ),
       ],

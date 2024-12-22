@@ -1,4 +1,3 @@
-import "package:avert/accounting/accounting.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/auth/screen.dart";
 import "package:avert/core/documents/company/form.dart";
@@ -25,7 +24,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Module currentModule = const Accounting();
+  // TODO: should get the last session module but for now default to first index of module list.
+  Module currentModule = Core.modules[0];
   int currentIndex = 0;
   bool lastStatus = true;
 
@@ -51,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onCreate: () => currentCompany = c,
         onUpdate: () => setState(() {}),
         onDelete: onCompanyDelete,
+        onLogout: () => logout(context),
       );
     }
     printTrack("Building HomeSceen");
@@ -83,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: FButtonStyle.ghost,
               onPress: viewCurrentCompany,
               child: Text(company!.name,
-                style: context.theme.typography.xl2,
+                style: FTheme.of(context).typography.xl2,
               ),
             ),
           ],
@@ -167,8 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
           onDelete: onCompanyDelete,
           onUpdate: () {
             throw UnimplementedError();
-            printError("From Main Display of HomeScreen");
-            setState(() {});
+            //printError("From Main Display of HomeScreen");
+            //setState(() {});
           }
         ),
       )
@@ -226,18 +227,29 @@ class EmptyScreen extends StatelessWidget {
     required this.onCreate,
     required this.onUpdate,
     required this.onDelete,
+    required this.onLogout,
   });
 
   final Company company;
-  final void Function() onCreate, onUpdate, onDelete;
+  final void Function() onCreate, onUpdate, onDelete, onLogout;
+  //final FPopoverController actionMenuController;
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building EmptyScreen");
-    FThemeData theme = context.theme;
+    final FThemeData theme = FTheme.of(context);
     return Scaffold(
       backgroundColor: theme.scaffoldStyle.backgroundColor,
       body: FScaffold(
+        header: FHeader(
+          title: Container(),
+          actions: [
+            FHeaderAction(
+              icon: FIcon(FAssets.icons.logOut),
+              onPress: onLogout,
+            ),
+          ],
+        ),
         content: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

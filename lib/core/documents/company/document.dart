@@ -118,3 +118,6 @@ class Company implements Document {
   }
 }
 
+abstract class CompanyTabView {
+  Widget getCompanyTabView(BuildContext context);
+}

@@ -1,9 +1,8 @@
-//import "package:avert/core/components/avert_button.dart";
-//import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
+import "package:forui/forui.dart";
 import "view.dart";
 
 class CompanyForm extends StatefulWidget {
@@ -15,6 +14,7 @@ class CompanyForm extends StatefulWidget {
     this.onSetDefault,
   });
 
+  //final List<Module> modules;
   final Company document;
   final void Function()? onInsert, onUpdate, onDelete;
   final bool Function()? onSetDefault;
@@ -23,9 +23,12 @@ class CompanyForm extends StatefulWidget {
   State<StatefulWidget> createState() => _NewState();
 }
 
-class _NewState extends State<CompanyForm> implements DocumentForm {
+class _NewState extends State<CompanyForm> with SingleTickerProviderStateMixin implements DocumentForm {
+
+  late final FTabController _tabController = FTabController(length: Core.modules.length, vsync: this);
+
   @override
-  final GlobalKey<FormState> key = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   final Map<String, TextEditingController> controllers = {
@@ -43,14 +46,16 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building CompanyDocumentForm");
+    final List<FTabEntry> formtabs = createCompanyTabs();
     return AvertDocumentForm(
-      formKey: key,
+      formKey: formKey,
       title: Text("${isNew(widget.document) ? "New" : "Edit"} Company",),
       contents: [
         AvertInput.text(
@@ -64,6 +69,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
             return value != widget.document.name;
           }),
         ),
+        FDivider(),
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null :IconButton.filled(
@@ -72,7 +78,24 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
         icon: Icon(Icons.save_rounded)
       ),
       resizeToAvoidBottomInset: true,
+      tabview: FTabs(
+        tabs: formtabs,
+        controller: _tabController
+      ),
     );
+  }
+
+  List<FTabEntry> createCompanyTabs() {
+    List<FTabEntry> list = [];
+    for (Module m in Core.modules) {
+      if (m is CompanyTabView) {
+        list.add(FTabEntry(
+          label: Text(m.name),
+          content: (m as CompanyTabView).getCompanyTabView(context),
+        ));
+      }
+    }
+    return list;
   }
 
   void onValueChange(bool Function() isDirtyCallback) {
@@ -88,7 +111,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
 
   @override
   Future<void> insertDocument() async {
-    final bool isValid = key.currentState?.validate() ?? false;
+    final bool isValid = formKey.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }
@@ -125,7 +148,7 @@ class _NewState extends State<CompanyForm> implements DocumentForm {
 
   @override
   void updateDocument() async {
-    final bool isValid = key.currentState?.validate() ?? false;
+    final bool isValid = formKey.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }

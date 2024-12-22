@@ -1,4 +1,3 @@
-import "package:avert/accounting/accounting.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
@@ -10,13 +9,10 @@ class HomeModuleDrawer extends StatelessWidget {
 
   final Module currentModule;
   final void Function(bool selected, Module module) onModuleSelect;
-  final List<Module> modules = const [
-    Accounting(),
-  ];
 
   @override
   Widget build(BuildContext context) {
-    FThemeData theme = context.theme;
+    final FThemeData theme = FTheme.of(context);
     printTrack("Building Home Module Drawer!");
     return Drawer(
       backgroundColor: theme.colorScheme.background,
@@ -50,15 +46,16 @@ class HomeModuleDrawer extends StatelessWidget {
   }
 
   List<FSelectTile<Module>> get drawerModuleTiles {
+    final List<Module> modules = Core.modules;
     final List<FSelectTile<Module>> items = [];
     if (modules.isEmpty) return items;
-    for (final Module module in modules) {
+    for (final Module m in modules) {
       items.add(
         FSelectTile<Module>.suffix(
-          value: module,
-          prefixIcon: module.icon,
-          title: Text(module.name),
-          onChange: (selected) => onModuleSelect(selected, module),
+          value: m,
+          prefixIcon: m.icon,
+          title: Text(m.name),
+          onChange: (selected) => onModuleSelect(selected, m),
           checkedIcon: SizedBox(),
         ),
       );

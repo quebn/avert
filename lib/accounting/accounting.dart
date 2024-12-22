@@ -4,7 +4,10 @@ import "package:forui/forui.dart";
 
 import "documents/account/document.dart";
 
-class Accounting implements Module {
+// IMPORTANT: TODO for accounting module.
+// - create a company tab view. for create accounting master documents related to company.
+// - create dashboard number cards for accounting dashboard heading.
+class Accounting implements Module, CompanyTabView {
   const Accounting();
 
   @override
@@ -23,14 +26,8 @@ class Accounting implements Module {
 
   @override
   Widget dashboardHeader(BuildContext context) {
-    return FCard.raw(
-      child: const Text("Accounting",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 20,
-          color: Colors.white,
-        ),
-      ),
+    return SizedBox(
+      child: Center(),
     );
   }
 
@@ -57,6 +54,12 @@ class Accounting implements Module {
     throw UnimplementedError();
   }
 
+  Widget companyTab() {
+    return SizedBox(
+      child: Column(),
+    );
+  }
+
   void createDefaultCOA(Company company) {
     chartOfAccounts["Assets"]       = createAssets(company);
     chartOfAccounts["Liabilities"]  = createLiabilities(company);
@@ -65,33 +68,15 @@ class Accounting implements Module {
     chartOfAccounts["Expenses"]     = createExpenses(company);
   }
 
-  //List<Account> createRootAccounts(Company company) {
-  //  return [
-  //    Account.asset(
-  //      id: 100,
-  //      company: company,
-  //      name: "Assets",
-  //    ),
-  //    Account.liability(
-  //      id: 200,
-  //      company: company,
-  //      name: "Liabilities",
-  //    ),
-  //    Account.asset(
-  //      id: 300,
-  //      company: company,
-  //      name: "Owner's Equity",
-  //    ),
-  //    Account.asset(
-  //      id: 400,
-  //      company: company,
-  //      name: "Revenue",
-  //    ),
-  //    Account.asset(
-  //      id: 500,
-  //      company: company,
-  //      name: "Expenses",
-  //    ),
-  //  ];
-  //}
+  @override
+  Widget getCompanyTabView(BuildContext context) {
+    return SizedBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text("Hello from Accounting Module"),
+        ],
+      ),
+    );
+  }
 }

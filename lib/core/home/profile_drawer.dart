@@ -23,7 +23,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building Home Profile Drawer!");
-    final FThemeData theme = context.theme;
+    final FThemeData theme = FTheme.of(context);
     return Drawer(
       backgroundColor: theme.colorScheme.background,
       width: 200,
@@ -117,7 +117,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
           width: 100,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(8)),
-            color: context.theme.avatarStyle.backgroundColor,
+            color: FTheme.of(context).avatarStyle.backgroundColor,
             //image: image != null ? DecorationImage(
             //  image: image!,
             //  fit: BoxFit.cover,
@@ -133,8 +133,8 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
         //),
         Text(
           username,
-          style: context.theme.typography.lg.copyWith(
-            color: context.theme.colorScheme.foreground,
+          style: FTheme.of(context).typography.lg.copyWith(
+            color: FTheme.of(context).colorScheme.foreground,
             fontWeight: FontWeight.w600,
           ),
         ),
