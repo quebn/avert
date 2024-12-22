@@ -30,7 +30,7 @@ class AvertDocumentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FThemeData theme = FTheme.of(context);
+    final FThemeData theme = FTheme.of(context);
 
     final List<FTileGroupMixin<FTileMixin>> actionsGroups = menuActions ?? [];
     actionsGroups.add(
