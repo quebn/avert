@@ -136,7 +136,8 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
         Navigator.of(context).push(MaterialPageRoute(
           builder: (BuildContext context) {
             return ProfileView(
-              document: widget.document,
+              document: profile,
+              profile: profile,
               onUpdate: widget.onUpdate,
               onDelete: widget.onDelete,
             );

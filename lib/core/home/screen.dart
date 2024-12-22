@@ -11,12 +11,10 @@ import "profile_drawer.dart";
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key,
     required this.title,
-    required this.user,
     required this.profile,
   });
 
   final String title;
-  final User user;
   final Profile profile;
 
   @override
@@ -108,10 +106,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       endDrawer: HomeProfileDrawer(
-        user: widget.user,
+        profile: widget.profile,
         onLogout: () => logout(context),
         onUserDelete: () {
-          widget.user.forget();
+          // TODO: IMPLEMENT profile.forget
+          // widget.profile.forget();
           Navigator.pop(context);
           Navigator.push(context,
             MaterialPageRoute(
@@ -150,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) => ProfileView(
           document: currentProfile,
+          profile: currentProfile,
           onDelete: onCompanyDelete,
           onUpdate: () {
             throw UnimplementedError();
@@ -165,7 +165,8 @@ class _HomeScreenState extends State<HomeScreen> {
     bool shouldLogout = await confirmLogout() ?? false;
 
     if (shouldLogout && context.mounted) {
-      widget.user.forget();
+      // TODO: Implement profile.forget()
+      //widget.profile.forget();
       Navigator.of(context).pop();
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -184,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) => FDialog(
         direction: Axis.horizontal,
         title: Text("Log out?"),
-        body: Text("Are you sure you want to logout user '${widget.user.name}'?"),
+        body: Text("Are you sure you want to logout user '${widget.profile.name}'?"),
         actions: <Widget>[
           FButton(
             label: const Text("No"),

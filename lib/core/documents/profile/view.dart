@@ -8,6 +8,7 @@ import "form.dart";
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key,
     required this.document,
+    required this.profile,
     this.onUpdate,
     this.onDelete,
     this.onSetDefault,
@@ -15,7 +16,7 @@ class ProfileView extends StatefulWidget {
   });
 
   final bool isDefault;
-  final Profile document;
+  final Profile document, profile;
   final void Function()? onUpdate, onDelete;// onPop;
   final bool Function()? onSetDefault;
 

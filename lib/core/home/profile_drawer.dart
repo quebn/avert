@@ -1,15 +1,15 @@
 import "package:avert/core/core.dart";
-import "package:avert/core/documents/user/view.dart";
+import "package:avert/core/documents/profile/view.dart";
 import "package:forui/forui.dart";
 
 class HomeProfileDrawer extends StatefulWidget {
   const HomeProfileDrawer({super.key,
-    required this.user,
+    required this.profile,
     required this.onLogout,
     required this.onUserDelete,
   });
 
-  final User user;
+  final Profile profile;
   final void Function() onLogout;
   final void Function() onUserDelete;
 
@@ -18,7 +18,7 @@ class HomeProfileDrawer extends StatefulWidget {
 }
 
 class _ProfileDrawerState extends State<HomeProfileDrawer> {
-  late String username = widget.user.name;
+  late String profileName = widget.profile.name;
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +98,9 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
   void viewProfile() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (BuildContext context) => UserView(
-          document: widget.user,
-          user: widget.user,
+        builder: (BuildContext context) => ProfileView(
+          document: widget.profile,
+          profile: widget.profile,
           onUpdate: null,
           onDelete: null,
         ),
@@ -132,19 +132,14 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
         //  child: Text(getAcronym(username)),
         //),
         Text(
-          username,
+          profileName,
           style: FTheme.of(context).typography.lg.copyWith(
             color: FTheme.of(context).colorScheme.foreground,
             fontWeight: FontWeight.w600,
           ),
         ),
-        widget.user.isAdmin
-        ? FBadge(
-          style: FBadgeStyle.destructive,
-          label: const Text("Admin")
-        )
-        : FBadge(
-          label: const Text("User")
+        FBadge(
+          label: const Text("Default")
         ),
         SizedBox(height: 24),
       ],
