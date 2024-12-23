@@ -1,4 +1,5 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/home/screen.dart";
 import "form_selector.dart";
 import "form_creator.dart";
 import "package:forui/forui.dart";
@@ -22,6 +23,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   late final FRadioSelectGroupController<Profile> _selectController;
   late final FTabController _tabController;
 
+  Profile get selectedProfile => _selectController.values.single;
 
   @override
   void initState() {
@@ -52,6 +54,16 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
         content: SelectProfileForm(
           profiles: widget.profiles,
           controller: _selectController,
+          onEnter: widget.profiles.isNotEmpty ? () {
+            Navigator.of(context).pop();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(
+                  title: "Avert",
+                  profile: selectedProfile,
+                )
+              ));
+          }: null,
         ),
       ),
       FTabEntry(

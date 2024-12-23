@@ -1,7 +1,25 @@
-import "package:flutter/material.dart";
+import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
-import "logger.dart";
 
+Future<List<Profile>> fetchAllProfile(Database db) async {
+  List<Map<String, Object?>> values = await db.query(Profile.tableName,
+    columns: ["id", "name", "createdAt"],
+  );
+
+  List<Profile> list = [];
+
+  if (values.isNotEmpty) {
+    for (Map<String, Object?> v in values) {
+      list.add(Profile.map(
+        id: v["id"]!,
+        name: v["name"]!,
+        createdAt: v["createdAt"]!,
+      ));
+    }
+  }
+
+  return list;
+}
 
 void notify(BuildContext context, String msg) {
   final SnackBar snackBar = SnackBar(

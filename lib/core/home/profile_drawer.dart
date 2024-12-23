@@ -60,14 +60,6 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                     child:Text("Profile")
                   ),
                 ),
-                FTile(
-                  onPress: null,
-                  prefixIcon: FIcon(FAssets.icons.building2),
-                  title: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
-                    child:Text("Companies")
-                  ),
-                ),
               ],
             ),
             Expanded(

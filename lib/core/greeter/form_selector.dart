@@ -7,10 +7,12 @@ class SelectProfileForm extends StatelessWidget {
   const SelectProfileForm({super.key,
     required this.profiles,
     required this.controller,
+    this.onEnter,
   });
 
   final List<Profile> profiles;
   final FRadioSelectGroupController<Profile> controller;
+  final Function()? onEnter;
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +32,12 @@ class SelectProfileForm extends StatelessWidget {
       ),
       const SizedBox(height: 20),
       FButton(
+        onPress: onEnter,
         label: const Text("Enter",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
-        onPress: profiles.isEmpty ? null : () => throw UnimplementedError(),
       ),
     ];
 

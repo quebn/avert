@@ -69,8 +69,8 @@ class _SelectState<T extends Document> extends State<AvertSelect<T>> {
   Future<void> getValueFromSelections() async {
     T? selectedValue = await openSelectionDialog(selections);
 
-    if (selectedValue != null || selectedValue != currentValue) {
-      setState(() => widget.controller.select(selectedValue!, true));
+    if (selectedValue != null && selectedValue != currentValue) {
+      setState(() => widget.controller.select(selectedValue, true));
     }
   }
 
@@ -85,7 +85,7 @@ class _SelectState<T extends Document> extends State<AvertSelect<T>> {
           divider: FTileDivider.full,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: (value) {
-            T? selected = value?.singleOrNull;
+            T? selected = value?.single;
             if (selected == null) return;
             Navigator.of(context).pop(selected);
             return null;

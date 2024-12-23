@@ -78,9 +78,9 @@ class _FormState extends State<CreateProfileForm> {
 
   Future<void> createProfile() async {
     final bool isValid = key.currentState?.validate() ?? false;
-    if (!isValid) {
-      return;
-    }
+
+    if (!isValid) return;
+
     Profile p = Profile(name: controllers['name']!.value.text,);
 
     if (await p.exists()) {

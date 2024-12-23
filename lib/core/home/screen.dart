@@ -1,5 +1,4 @@
 import "package:avert/core/core.dart";
-import "package:avert/core/documents/profile/view.dart";
 import "package:avert/core/greeter/screen.dart";
 import "package:avert/core/home/module_drawer.dart";
 import "package:avert/core/utils/ui.dart";
@@ -54,12 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(width: 16,),
-              FButton.raw(
-                style: FButtonStyle.ghost,
-                onPress: viewCurrentCompany,
-                child: Text(currentProfile.name,
-                  style: FTheme.of(context).typography.xl2,
-                ),
+              Text(currentModule.name,
+                style: FTheme.of(context).typography.xl2,
               ),
             ],
           ),
@@ -129,13 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void onCompanyDelete() {
-    final String m = "Profile '${currentProfile.name}' successfully deleted!";
-    printInfo("notifying of company deletion");
-    // TODO: should redirect to Greeter on Profile Deletion
-    notify(context, m);
-  }
-
   Widget leftDrawer() {
     return const Drawer(
       width: 250,
@@ -143,39 +131,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void viewCurrentCompany() {
-    printInfo("Viewing Current Company!");
-    Navigator.push(context,
-      MaterialPageRoute(
-        builder: (context) => ProfileView(
-          document: currentProfile,
-          profile: currentProfile,
-          onDelete: onCompanyDelete,
-          onUpdate: () {
-            throw UnimplementedError();
-            //printError("From Main Display of HomeScreen");
-            //setState(() {});
-          }
-        ),
-      )
-    );
-  }
-
   Future<void> logout(BuildContext context) async {
     bool shouldLogout = await confirmLogout() ?? false;
 
-    if (shouldLogout && context.mounted) {
-      // TODO: Implement profile.forget()
-      //widget.profile.forget();
-      Navigator.of(context).pop();
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => GreeterScreen(
-            title: "Avert",
-            profiles: [],
-          ),
-        )
-      );
+    if (shouldLogout) {
+      List<Profile> profiles = await fetchAllProfile(Core.database!);
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => GreeterScreen(
+              title: "Avert",
+              profiles: profiles,
+              initialProfile: widget.profile,
+            ),
+          )
+        );
+    }
     }
   }
 

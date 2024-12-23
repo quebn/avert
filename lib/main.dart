@@ -1,5 +1,6 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/greeter/screen.dart";
+import "package:avert/core/utils/ui.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:forui/theme.dart";
 import "dart:io";
@@ -14,17 +15,7 @@ void main() async {
     version: 1,
     onCreate: _onCreate,
     onOpen: (db) async {
-      List<Map<String, Object?>> values = await db.query(Profile.tableName,
-        columns: ["id", "name", "createdAt"],
-      );
-      if (values.isEmpty) return;
-      for (Map<String, Object?> v in values) {
-        profiles.add(Profile.map(
-          id: v["id"]!,
-          name: v["name"]!,
-          createdAt: v["createdAt"]!,
-        ));
-      }
+      profiles = await fetchAllProfile(db);
     }
   );
   printWarn("After opening of Database Path:${Core.database!.path}");
