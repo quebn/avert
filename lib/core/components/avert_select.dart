@@ -1,7 +1,6 @@
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
-// TODO: make this into stateless and add controller.
 class AvertSelect<T extends Document> extends StatefulWidget {
   const AvertSelect({super.key,
     required this.label,
@@ -69,7 +68,7 @@ class _SelectState<T extends Document> extends State<AvertSelect<T>> {
   Future<void> getValueFromSelections() async {
     T? selectedValue = await openSelectionDialog(selections);
 
-    if (selectedValue != null && selectedValue != currentValue) {
+    if (selectedValue != null) {
       setState(() => widget.controller.select(selectedValue, true));
     }
   }
