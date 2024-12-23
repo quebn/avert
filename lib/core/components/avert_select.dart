@@ -7,7 +7,7 @@ class AvertSelect<T extends Document> extends StatefulWidget {
     required this.label,
     required this.valueBuilder,
     required this.tileSelectBuilder,
-    required this.initialValue,
+    required this.controller,
     this.options = const [],
     this.description,
     this.error,
@@ -15,7 +15,6 @@ class AvertSelect<T extends Document> extends StatefulWidget {
     this.suffix,
     this.enabled = true,
     this.dialogActions = const [],
-    this.onValueChange,
   });
 
   final Widget label;
@@ -23,10 +22,9 @@ class AvertSelect<T extends Document> extends StatefulWidget {
   final FSelectTile<T> Function(BuildContext context, T value, T? currentValue) tileSelectBuilder;
   final List<T> options;
   final Widget? prefix, suffix, description, error;
-  final T? initialValue;
   final bool enabled;
   final List<Widget> dialogActions;
-  final Function(T)? onValueChange;
+  final FRadioSelectGroupController<T> controller;
 
   @override
   State<StatefulWidget> createState() => _SelectState<T>();
@@ -35,7 +33,7 @@ class AvertSelect<T extends Document> extends StatefulWidget {
 class _SelectState<T extends Document> extends State<AvertSelect<T>> {
 
   final List<FSelectTile<T>> selections = [];
-  late T? currentValue = widget.initialValue;
+  T? get currentValue => widget.controller.values.firstOrNull;
 
   @override
   void initState() {
@@ -72,12 +70,8 @@ class _SelectState<T extends Document> extends State<AvertSelect<T>> {
     T? selectedValue = await openSelectionDialog(selections);
 
     if (selectedValue != null || selectedValue != currentValue) {
-      setState(() => currentValue = selectedValue);
-      if (widget.onValueChange != null) {
-        widget.onValueChange!(currentValue!);
-      }
+      setState(() => widget.controller.select(selectedValue!, true));
     }
-
   }
 
   Future<T?> openSelectionDialog(List<FSelectTile<T>> selections) {
@@ -87,17 +81,16 @@ class _SelectState<T extends Document> extends State<AvertSelect<T>> {
       builder: (BuildContext context) => FDialog(
         direction: Axis.vertical,
         title: widget.label,
-        body: FSelectTileGroup(
+        body: FSelectTileGroup<T>(
           divider: FTileDivider.full,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: (value) {
             T? selected = value?.singleOrNull;
             if (selected == null) return;
-            printInfo("Selecting profile: ${selected.name}");
             Navigator.of(context).pop(selected);
             return null;
           },
-          controller: FRadioSelectGroupController(value: currentValue),
+          controller: widget.controller,
           children: selections,
         ),
         actions: widget.dialogActions,

@@ -19,19 +19,22 @@ class GreeterScreen extends StatefulWidget {
 }
 
 class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
+  late final FRadioSelectGroupController<Profile> _selectController;
   late final FTabController _tabController;
-  late Profile? selectedProfile = widget.initialProfile;
+
 
   @override
   void initState() {
     super.initState();
     _tabController = FTabController(length: 2, vsync: this, initialIndex: 0);
+    _selectController = FRadioSelectGroupController<Profile>(value: widget.initialProfile);
   }
 
   @override
   void dispose() {
     super.dispose();
     _tabController.dispose();
+    _selectController.dispose();
   }
 
   @override
@@ -47,9 +50,8 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
           ),
         ),
         content: SelectProfileForm(
-          initialProfile: selectedProfile,
           profiles: widget.profiles,
-          onSelect: (profile) => setState(() => selectedProfile = profile),
+          controller: _selectController,
         ),
       ),
       FTabEntry(

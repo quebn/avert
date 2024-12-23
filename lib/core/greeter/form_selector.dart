@@ -5,14 +5,12 @@ import "package:forui/forui.dart";
 
 class SelectProfileForm extends StatelessWidget {
   const SelectProfileForm({super.key,
-    required this.initialProfile,
     required this.profiles,
-    this.onSelect,
+    required this.controller,
   });
 
-  final Profile? initialProfile;
   final List<Profile> profiles;
-  final Function(Profile)? onSelect;
+  final FRadioSelectGroupController<Profile> controller;
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +20,12 @@ class SelectProfileForm extends StatelessWidget {
       AvertSelect<Profile>(
         label: const Text("Profile"),
         prefix: FIcon(FAssets.icons.user),
-        initialValue: initialProfile,
+        controller: controller,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? "No Profile Found"),
         tileSelectBuilder: (context, value, current) => FSelectTile<Profile>(
           title: Text(value.name),
           value: value,
         ),
-        onValueChange: onSelect,
         options: profiles,
       ),
       const SizedBox(height: 20),

@@ -25,7 +25,6 @@ class ProfileForm extends StatefulWidget {
 }
 
 class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin implements DocumentForm {
-
   late final FTabController _tabController = FTabController(length: Core.modules.length, vsync: this);
 
   @override
