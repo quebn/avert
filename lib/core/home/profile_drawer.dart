@@ -94,7 +94,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
           document: widget.profile,
           profile: widget.profile,
           onUpdate: null,
-          onDelete: null,
+          onDelete: widget.onUserDelete,
         ),
       ),
     );

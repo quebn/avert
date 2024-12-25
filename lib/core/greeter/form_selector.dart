@@ -17,13 +17,14 @@ class SelectProfileForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     printTrack("Building SelectProfileForm");
-    List<Widget> widgets = [
+    final String valueText = profiles.isEmpty? "No Profiles Found" :  "No Profile Selected";
+    final List<Widget> widgets = [
       const SizedBox(height: 20),
       AvertSelect<Profile>(
         label: const Text("Profile"),
         prefix: FIcon(FAssets.icons.user),
         controller: controller,
-        valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? "No Profile Found"),
+        valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
         tileSelectBuilder: (context, value, current) => FSelectTile<Profile>(
           title: Text(value.name),
           value: value,

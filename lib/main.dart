@@ -15,7 +15,7 @@ void main() async {
     version: 1,
     onCreate: _onCreate,
     onOpen: (db) async {
-      profiles = await fetchAllProfile(db);
+      profiles = await fetchAllProfile(database: db);
     }
   );
   printWarn("After opening of Database Path:${Core.database!.path}");

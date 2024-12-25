@@ -1,6 +1,5 @@
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
-import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
 import "form.dart";
@@ -11,14 +10,12 @@ class ProfileView extends StatefulWidget {
     required this.profile,
     this.onUpdate,
     this.onDelete,
-    this.onSetDefault,
     this.isDefault = false,
   });
 
   final bool isDefault;
   final Profile document, profile;
   final void Function()? onUpdate, onDelete;// onPop;
-  final bool Function()? onSetDefault;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
@@ -42,17 +39,6 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
       name: "Profile",
       title: widget.document.name,
       subtitle: widget.isDefault ? "Current Profile" : "Profile",
-      menuActions: [
-        FTileGroup(
-          children: [
-            FTile(
-              prefixIcon: FIcon(FAssets.icons.building),
-              title: const Text("Set as Default"),
-              onPress: setAsDefault,
-            ),
-          ],
-        ),
-      ],
       onEdit: editDocument,
       onDelete: deleteDocument,
       content: Container(),
@@ -73,17 +59,6 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
         },
       ),
     ));
-  }
-
-  void setAsDefault() {
-    widget.document.remember();
-    if (widget.onSetDefault != null) {
-      bool success = widget.onSetDefault!();
-      if (success) {
-        notify(context, "'${widget.document.name}' is now the Default Profile!");
-      }
-    }
-    notify(context, "'${widget.document.name}' is already the default profile!");
   }
 
   Future<bool?> confirmDelete() {
@@ -119,9 +94,9 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
 
     if (shouldDelete) {
       final bool success = await widget.document.delete();
-      printWarn("Deleting Profile:${widget.document.name} with id of: ${widget.document.id}");
 
       if (success && mounted) {
+        printWarn("Deleting Profile:${widget.document.name} with id of: ${widget.document.id}");
         Navigator.maybePop(context);
         if (widget.onDelete != null) widget.onDelete!();
       }

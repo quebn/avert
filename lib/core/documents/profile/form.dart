@@ -25,7 +25,7 @@ class ProfileForm extends StatefulWidget {
 }
 
 class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin implements DocumentForm {
-  late final FTabController _tabController = FTabController(length: Core.modules.length, vsync: this);
+  late final FTabController _tabController;
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -42,6 +42,12 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
   String? errMsg;
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = FTabController(length: Core.modules.length, vsync: this);
+  }
+
+  @override
   void dispose() {
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
@@ -53,7 +59,6 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
   @override
   Widget build(BuildContext context) {
     printTrack("Building ProfileDocumentForm");
-    final List<FTabEntry> formtabs = createProfileTabs();
     return AvertDocumentForm(
       formKey: formKey,
       title: Text("${isNew(widget.document) ? "New" : "Edit"} Profile",),
@@ -79,8 +84,13 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
       ),
       resizeToAvoidBottomInset: true,
       tabview: FTabs(
-        tabs: formtabs,
-        controller: _tabController
+        controller: _tabController,
+        tabs: [
+          FTabEntry(
+            label: const Text("Accounting"),
+            content: _AccountingTab(profile: widget.document),
+          )
+          ],
       ),
     );
   }
@@ -172,5 +182,20 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
     setState(() {
       isDirty = false;
     });
+  }
+}
+
+class _AccountingTab extends StatelessWidget {
+  const _AccountingTab({
+    required this.profile,
+  });
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: const Text("Profile Accounting Tab")
+    );
   }
 }

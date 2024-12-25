@@ -1,8 +1,8 @@
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
-Future<List<Profile>> fetchAllProfile(Database db) async {
-  List<Map<String, Object?>> values = await db.query(Profile.tableName,
+Future<List<Profile>> fetchAllProfile({Database? database}) async {
+  List<Map<String, Object?>> values = await (database ?? Core.database!).query(Profile.tableName,
     columns: ["id", "name", "createdAt"],
   );
 

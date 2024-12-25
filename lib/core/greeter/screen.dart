@@ -1,5 +1,6 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/home/screen.dart";
+import "package:avert/core/utils/ui.dart";
 import "form_selector.dart";
 import "form_creator.dart";
 import "package:forui/forui.dart";
@@ -29,7 +30,9 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     _tabController = FTabController(length: 2, vsync: this, initialIndex: 0);
-    _selectController = FRadioSelectGroupController<Profile>(value: widget.initialProfile);
+    _selectController = FRadioSelectGroupController<Profile>(
+      value: widget.initialProfile ?? widget.profiles.firstOrNull
+    );
   }
 
   @override
@@ -55,8 +58,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
           profiles: widget.profiles,
           controller: _selectController,
           onEnter: widget.profiles.isNotEmpty ? () {
-            Navigator.of(context).pop();
-            Navigator.of(context).push(
+            Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => HomeScreen(
                   title: "Avert",
@@ -75,12 +77,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
         ),
         content: CreateProfileForm(
           profiles: widget.profiles,
-          onCreate: (createdProfile) {
-            setState( () {
-              _tabController.index = 0;
-              widget.profiles.add(createdProfile);
-            });
-          },
+          onCreate: _onProfileCreate,
         ),
       ),
     ];
@@ -114,5 +111,14 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
       resizeToAvoidBottomInset: false,
       body: content,
     );
+  }
+
+  void _onProfileCreate(Profile profile) {
+    _selectController.select(profile, true);
+    setState( () {
+      _tabController.index = 0;
+      widget.profiles.add(profile);
+    });
+    notify(context, "Profile '${profile.name}' has been successfully created!");
   }
 }

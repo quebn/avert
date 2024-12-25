@@ -103,18 +103,20 @@ class _HomeScreenState extends State<HomeScreen> {
       endDrawer: HomeProfileDrawer(
         profile: widget.profile,
         onLogout: () => logout(context),
-        onUserDelete: () {
-          // TODO: IMPLEMENT profile.forget
-          // widget.profile.forget();
-          Navigator.pop(context);
-          Navigator.push(context,
-            MaterialPageRoute(
-              builder: (context) => GreeterScreen(
-                title: "Avert",
-                profiles: [],
-              ),
-            )
-          );
+        onUserDelete: () async {
+          //throw UnimplementedError("Should Log out!");
+          printWarn("Logging Out");
+          List<Profile> profiles = await fetchAllProfile();
+          if (context.mounted) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => GreeterScreen(
+                  title: "Avert",
+                  profiles: profiles,
+                ),
+              )
+            );
+          }
         },
       ),
       drawer: HomeModuleDrawer(
@@ -135,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool shouldLogout = await confirmLogout() ?? false;
 
     if (shouldLogout) {
-      List<Profile> profiles = await fetchAllProfile(Core.database!);
+      List<Profile> profiles = await fetchAllProfile();
       if (context.mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).push(

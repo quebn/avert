@@ -1,6 +1,5 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/components/avert_input.dart";
-import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
 class CreateProfileForm extends StatefulWidget {
@@ -92,10 +91,6 @@ class _FormState extends State<CreateProfileForm> {
     bool success = await p.insert();
     if (mounted && success) {
       widget.onCreate(p);
-      notify(
-        context,
-        "Profile '${p.name}' has been successfully created!"
-      );
     }
   }
 }

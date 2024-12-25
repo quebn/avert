@@ -1,5 +1,4 @@
 import "package:avert/core/core.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
 class Profile implements Document {
   Profile({
@@ -51,11 +50,6 @@ class Profile implements Document {
     return values.isNotEmpty;
   }
 
-  void remember() {
-    SharedPreferencesAsync sp = SharedPreferencesAsync();
-    sp.setInt("profile_id", id);
-  }
-
   @override
   Future<bool> update() async {
     if (await valuesNotValid() || isNew(this)) return false;
@@ -95,38 +89,6 @@ class Profile implements Document {
       whereArgs: [id],
     );
     return result == id;
-  }
-
-  static Future<Profile?> fetchDefault(Database db, SharedPreferencesWithCache sp) async {
-    List<Map<String, Object?>> results = await db.query(tableName,
-      columns: ["id", "name", "createdAt",]
-    );
-
-    if (results.isEmpty) {
-      return null;
-    }
-
-    printInfo("${results.length} $tableName found with values of: ${results.toString()}");
-    int profileID = sp.getInt("profile_id") ?? 0;
-    if (profileID == 0) {
-      return Profile(
-        id: results[0]['id']! as int,
-        name: results[0]['name']! as String,
-        createdAt: results[0]['createdAt']! as int,
-      );
-    }
-
-    for (Map<String, Object?> data in results) {
-      if (profileID == data['id']) {
-        return Profile(
-          id: data['id']! as int,
-          name: data['name']! as String,
-          createdAt: data['createdAt']! as int,
-        );
-      }
-      break;
-    }
-    return null;
   }
 }
 
