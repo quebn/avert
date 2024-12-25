@@ -39,7 +39,7 @@ class AvertDocumentView extends StatelessWidget {
           FTile(
             enabled: onDelete != null,
             prefixIcon: FIcon(FAssets.icons.trash2),
-            title: const Text("Delete Document"),
+            title: Text("Delete $name"),
             onPress: onDelete,
           ),
         ],

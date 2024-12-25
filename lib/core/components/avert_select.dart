@@ -7,7 +7,7 @@ class AvertSelect<T extends Document> extends StatefulWidget {
     required this.valueBuilder,
     required this.tileSelectBuilder,
     required this.controller,
-    this.options = const [],
+    required this.options,
     this.description,
     this.error,
     this.prefix,
