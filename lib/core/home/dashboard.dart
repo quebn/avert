@@ -16,7 +16,7 @@ class Dashboard extends StatelessWidget {
           headerContent(context),
           Container(
             padding: EdgeInsets.all(8),
-            child: module.dashboardBody(),
+            child: module.dashboardBody(context),
           ),
         ]
       ),

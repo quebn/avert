@@ -4,11 +4,7 @@ import "package:forui/forui.dart";
 
 import "documents/account/document.dart";
 
-// IMPORTANT: TODO for accounting module.
-// - create a company tab view. for create accounting master documents related to company.
-// - create dashboard number cards for accounting dashboard heading.
 class Accounting implements Module {
-  const Accounting();
 
   @override
   Widget get icon => FIcon(FAssets.icons.handCoins);
@@ -16,40 +12,55 @@ class Accounting implements Module {
   @override
   String get name => "Accounting";
 
-  final Map<String, List<Account>> chartOfAccounts = const {
-    "Assets": [],
-    "Liabilities": [],
-    "Equity": [],
-    "Income": [],
-    "Expenses": [],
-  };
+  final List<Account> chartOfAccounts = [];
+
+  bool get isCompleteEmpty {
+    return chartOfAccounts.isEmpty;
+  }
 
   @override
   Widget dashboardHeader(BuildContext context) {
+    // TODO: check for chart of accounts.
     return SizedBox(
-      child: Center(),
+      child: Center(
+        child: isCompleteEmpty ? FButton(
+          onPress: null,
+          label: const Text("Generate Chart of Accounts"),
+        ) : null,
+      ),
     );
   }
 
   @override
-  Widget dashboardBody() {
+  Widget dashboardBody(BuildContext context) {
     return SizedBox();
   }
 
   @override
-  Widget documents() {
-    // TODO: implement viewDocuments
-    throw UnimplementedError();
+  List<Widget> documents(BuildContext context, Profile profile) {
+    return [
+      FTileGroup(
+        label: const Text("Master"),
+        divider: FTileDivider.full,
+        children: [
+          FTile(
+            onPress: () => Account.listScreen(context, profile),
+            title: const Text("Accounts"),
+            prefixIcon: FIcon(FAssets.icons.fileChartColumn),
+          ),
+        ],
+      ),
+    ];
   }
 
   @override
-  Widget reports() {
+  Widget reports(BuildContext context) {
     // TODO: implement viewReport
     throw UnimplementedError();
   }
 
   @override
-  Widget settings() {
+  Widget settings(BuildContext context) {
     // TODO: implement viewSettings
     throw UnimplementedError();
   }
@@ -60,22 +71,11 @@ class Accounting implements Module {
     );
   }
 
-  void createDefaultCOA(Profile profile) {
-    chartOfAccounts["Assets"]       = createAssets(profile);
-    chartOfAccounts["Liabilities"]  = createLiabilities(profile);
-    chartOfAccounts["Equity"]       = createEquity(profile);
-    chartOfAccounts["Income"]       = createIncome(profile);
-    chartOfAccounts["Expenses"]     = createExpenses(profile);
-  }
-
-  Widget getProfileTabView(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text("Hello from Accounting Module"),
-        ],
-      ),
-    );
+  void createCOA(Profile profile) {
+    chartOfAccounts.add(createAssets(profile));
+    chartOfAccounts.add(createLiabilities(profile));
+    chartOfAccounts.add(createEquity(profile));
+    chartOfAccounts.add(createIncome(profile));
+    chartOfAccounts.add(createExpenses(profile));
   }
 }

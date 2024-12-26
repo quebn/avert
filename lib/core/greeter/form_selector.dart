@@ -21,11 +21,11 @@ class SelectProfileForm extends StatelessWidget {
     final List<Widget> widgets = [
       const SizedBox(height: 20),
       AvertSelect<Profile>(
-        label: const Text("Profile"),
+        label: "Profile",
         prefix: FIcon(FAssets.icons.user),
         controller: controller,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
-        tileSelectBuilder: (context, value, current) => FSelectTile<Profile>(
+        tileSelectBuilder: (context, value) => FSelectTile<Profile>(
           title: Text(value.name),
           value: value,
         ),

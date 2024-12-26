@@ -1,12 +1,13 @@
 //import "package:avert/core/documents/company/document.dart";
 import "package:avert/accounting/accounting.dart";
+import "package:avert/core/documents/profile/document.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
+
 
 export "package:avert/core/documents/profile/document.dart";
 export "package:flutter/material.dart";
 export "package:sqflite/sqflite.dart";
-export "package:avert/core/documents/task/document.dart";
 export "package:avert/core/utils/logger.dart";
 export "package:avert/core/utils/common.dart";
 
@@ -18,10 +19,10 @@ abstract class Module {
   final String name = "Module";
 
   Widget dashboardHeader(BuildContext context);
-  Widget dashboardBody();
-  Widget documents();
-  Widget reports();
-  Widget settings();
+  Widget dashboardBody(BuildContext context);
+  List<Widget> documents(BuildContext context, Profile profile);
+  Widget reports(BuildContext context);
+  Widget settings(BuildContext context);
 }
 
 abstract class Document {
@@ -41,8 +42,11 @@ abstract class Document {
   Future<bool> delete();
 }
 
-abstract class DocumentView {
+abstract class DocumentView<T extends Document> {
   Future<void> deleteDocument();
+  void editDocument();
+  late T document;
+  bool edited = false;
 }
 
 abstract class DocumentForm {
@@ -53,13 +57,13 @@ abstract class DocumentForm {
   bool isDirty = false;
   String? errMsg;
 
-  void updateDocument();
-  void insertDocument();
+  void onValueChange(bool Function() isDirtyCallback);
+  void submitDocument();
 }
 
 class Core {
   static Database? database;
-  static const List<Module> modules = [
+  static List<Module> modules = [
     Accounting()
   ];
 }

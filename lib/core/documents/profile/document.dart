@@ -1,4 +1,5 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/database.dart";
 
 class Profile implements Document {
   Profile({
@@ -37,17 +38,8 @@ class Profile implements Document {
   """;
 
   Future<bool> valuesNotValid() async {
-    bool hasDuplicates = await exists();
+    bool hasDuplicates = await exists(this, tableName);
     return name.isEmpty || hasDuplicates;
-  }
-
-  Future<bool> exists() async {
-    List<Map<String, Object?>> values = await Core.database!.query(tableName,
-      columns: ["id"],
-      where: "name = ?",
-      whereArgs: [name],
-    );
-    return values.isNotEmpty;
   }
 
   @override
@@ -84,14 +76,11 @@ class Profile implements Document {
 
   @override
   Future<bool> delete() async {
-    int result =  await Core.database!.delete(tableName,
+    int count = await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
     );
-    return result == id;
-  }
-}
 
-abstract class ProfileTabView {
-  Widget getProfileTabView(BuildContext context);
+    return count == 1;
+  }
 }

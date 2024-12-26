@@ -1,31 +1,22 @@
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/components/avert_input.dart";
 import "package:avert/core/core.dart";
-import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
-
-import "view.dart";
 
 class ProfileForm extends StatefulWidget {
   const ProfileForm({super.key,
     required this.document,
-    this.onInsert,
-    this.onUpdate,
-    this.onDelete,
-    this.onSetDefault,
+    required this.onSubmit,
   });
 
-  //final List<Module> modules;
   final Profile document;
-  final void Function()? onInsert, onUpdate, onDelete;
-  final bool Function()? onSetDefault;
+  final Future<bool> Function() onSubmit;
 
   @override
   State<StatefulWidget> createState() => _NewState();
 }
 
 class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin implements DocumentForm {
-  late final FTabController _tabController;
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -42,23 +33,17 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
   String? errMsg;
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = FTabController(length: Core.modules.length, vsync: this);
-  }
-
-  @override
   void dispose() {
-    for (TextEditingController controller in controllers.values) {
-      controller.dispose();
-    }
-    _tabController.dispose();
     super.dispose();
+    for (TextEditingController c in controllers.values) {
+      c.dispose();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building ProfileDocumentForm");
+    FThemeData theme = FTheme.of(context);
     return AvertDocumentForm(
       formKey: formKey,
       title: Text("${isNew(widget.document) ? "New" : "Edit"} Profile",),
@@ -69,6 +54,7 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           initialValue: widget.document.name,
           onChange: (value) => onValueChange((){
             return value != widget.document.name;
@@ -77,88 +63,36 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
         FDivider(),
       ],
       isDirty: isDirty,
-      floatingActionButton: !isDirty ? null :IconButton.filled(
-        onPressed: isNew(widget.document) ? insertDocument : updateDocument,
-        iconSize: 48,
-        icon: Icon(Icons.save_rounded)
+      floatingActionButton: !isDirty ? null : FButton.icon(
+        style: theme.buttonStyles.primary.copyWith(
+          enabledBoxDecoration: theme.buttonStyles.primary.enabledBoxDecoration.copyWith(
+            borderRadius: BorderRadius.circular(33),
+          )
+        ),
+        onPress: submitDocument,
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: FIcon(FAssets.icons.save,
+            size: 32,
+          ),
+        )
       ),
       resizeToAvoidBottomInset: true,
-      tabview: FTabs(
-        controller: _tabController,
-        tabs: [
-          FTabEntry(
-            label: const Text("Accounting"),
-            content: _AccountingTab(profile: widget.document),
-          )
-          ],
-      ),
     );
   }
 
-  List<FTabEntry> createProfileTabs() {
-    List<FTabEntry> list = [];
-    for (Module m in Core.modules) {
-      if (m is ProfileTabView) {
-        list.add(FTabEntry(
-          label: Text(m.name),
-          content: (m as ProfileTabView).getProfileTabView(context),
-        ));
-      }
-    }
-    return list;
-  }
-
+  @override
   void onValueChange(bool Function() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
     if (isReallyDirty == isDirty) {
       return;
     }
-    printTrack("Setting state of is dirty = $isReallyDirty");
-    setState(() {
-      isDirty = isReallyDirty;
-    });
+    printTrack("Setting state of isdirty = $isReallyDirty");
+    setState(() => isDirty = isReallyDirty );
   }
 
   @override
-  Future<void> insertDocument() async {
-    final bool isValid = formKey.currentState?.validate() ?? false;
-    if (!isValid) {
-      return;
-    }
-
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    Profile profile = widget.document;
-    profile.name = controllers['name']!.value.text;
-
-
-    bool success =  await profile.insert();
-
-    String msg = "Error writing the document to the database!";
-
-    if (success) {
-      if (widget.onInsert != null) widget.onInsert!();
-      msg = "Profile '${profile.name}' successfully created!";
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) {
-            return ProfileView(
-              document: profile,
-              profile: profile,
-              onUpdate: widget.onUpdate,
-              onDelete: widget.onDelete,
-            );
-          }
-        ));
-        notify(context, msg);
-      }
-    }
-  }
-
-  @override
-  void updateDocument() async {
+  void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
     if (!isValid) {
       return;
@@ -167,35 +101,10 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
 
     widget.document.name = controllers['name']!.value.text;
 
-    String msg = "Error writing the document to the database!";
+    bool shouldPop = await widget.onSubmit();
 
-    // TODO: Maybe this function should return false when no changes are made.
-    bool success = await widget.document.update();
-
-    if (success) {
-      if (widget.onUpdate != null) widget.onUpdate!();
-      msg = "Successfully changed profile details";
+    if (shouldPop && mounted) {
+      Navigator.of(context).pop<Profile>(widget.document);
     }
-
-    if (mounted) notify(context, msg);
-
-    setState(() {
-      isDirty = false;
-    });
-  }
-}
-
-class _AccountingTab extends StatelessWidget {
-  const _AccountingTab({
-    required this.profile,
-  });
-
-  final Profile profile;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: const Text("Profile Accounting Tab")
-    );
   }
 }

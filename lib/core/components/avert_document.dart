@@ -1,21 +1,21 @@
-import "package:avert/core/utils/common.dart";
-import "package:flutter/material.dart";
+import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 import "package:avert/core/utils/ui.dart";
 
-class AvertDocumentView extends StatelessWidget {
+class AvertDocumentView<T extends Document> extends StatelessWidget {
   const AvertDocumentView({super.key,
     required this.name,
     required this.title,
     required this.controller,
+    required this.deleteDocument,
+    required this.result,
     this.image,
     this.subtitle,
     this.menuActions,
     this.leading,
     this.content,
     this.tabview,
-    this.onEdit,
-    this.onDelete,
+    this.editDocument,
     this.onImagePress,
   });
 
@@ -26,7 +26,8 @@ class AvertDocumentView extends StatelessWidget {
   final FPopoverController controller;
   final FTabs? tabview;
   final ImageProvider<Object>? image;
-  final Function()? onEdit, onDelete, onImagePress;
+  final Function()? editDocument, deleteDocument, onImagePress;
+  final T? result;
 
   @override
   Widget build(BuildContext context) {
@@ -37,14 +38,15 @@ class AvertDocumentView extends StatelessWidget {
       FTileGroup(
         children: [
           FTile(
-            enabled: onDelete != null,
+            enabled: deleteDocument != null,
             prefixIcon: FIcon(FAssets.icons.trash2),
             title: Text("Delete $name"),
-            onPress: onDelete,
+            onPress: deleteDocument,
           ),
         ],
       )
     );
+    printInfo(title);
 
     Widget contentHeading = Row(
       children: [
@@ -85,54 +87,61 @@ class AvertDocumentView extends StatelessWidget {
       ]
     );
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      resizeToAvoidBottomInset: false,
-      body: FScaffold(
-        header: FHeader.nested(
-          title: Text(name),
-          style: theme.headerStyle.nestedStyle,
-          prefixActions:[
-            leading ?? FHeaderAction(
-              icon: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: FIcon(FAssets.icons.chevronLeft),
+    return PopScope<T>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        Navigator.of(context).pop<T>(result);
+      },
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.background,
+        resizeToAvoidBottomInset: false,
+        body: FScaffold(
+          header: FHeader.nested(
+            title: Text(name),
+            style: theme.headerStyle.nestedStyle,
+            prefixActions:[
+              leading ?? FHeaderAction(
+                icon: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: FIcon(FAssets.icons.chevronLeft),
+                ),
+                onPress: () => Navigator.of(context).maybePop(),
               ),
-              onPress: () => Navigator.of(context).maybePop(),
-            ),
-          ],
-          suffixActions: [
-            FHeaderAction(
-              icon: FIcon(FAssets.icons.filePenLine),
-              onPress: onEdit,
-            ),
-            FPopoverMenu.tappable(
-              controller: controller,
-              menu: actionsGroups,
-              child: FIcon(FAssets.icons.ellipsisVertical,
-                size: 28,
+            ],
+            suffixActions: [
+              FHeaderAction(
+                icon: FIcon(FAssets.icons.filePenLine),
+                onPress: editDocument,
               ),
-            ),
-          ],
-        ),
-        content:Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 16, left: 16),
-              child:contentHeading,
-            ),
-            Container(child: content),
-            FDivider(),
-            Container(child: tabview),
-          ]
+              FPopoverMenu.tappable(
+                controller: controller,
+                menu: actionsGroups,
+                child: FIcon(FAssets.icons.ellipsisVertical,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
+          content:Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 16, left: 16),
+                child:contentHeading,
+              ),
+              Container(child: content),
+              FDivider(),
+              Container(child: tabview),
+            ]
+          ),
         ),
       ),
     );
   }
 }
 
-class AvertDocumentForm extends StatelessWidget {
+class AvertDocumentForm<T extends Document> extends StatelessWidget {
   const AvertDocumentForm({super.key,
     required this.title,
     required this.contents,
@@ -170,7 +179,7 @@ class AvertDocumentForm extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: FIcon(FAssets.icons.chevronLeft),
               ),
-              onPress: () => Navigator.of(context).maybePop(),
+              onPress: () => Navigator.of(context).maybePop<T>(),
             ),
           ],
           style: theme.headerStyle.nestedStyle,
@@ -184,11 +193,11 @@ class AvertDocumentForm extends StatelessWidget {
         content: Form(
           key: formKey,
           canPop: !isDirty,
-          onPopInvokedWithResult: (bool didPop, Object? value) async {
+          onPopInvokedWithResult: (didPop, _) async {
             if (didPop) return;
             final bool shouldPop = await confirm(context) ?? false;
             if (shouldPop && context.mounted) {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop<T>(null);
             }
           },
           child: FCard(

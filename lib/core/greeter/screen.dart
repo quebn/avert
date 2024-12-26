@@ -98,7 +98,6 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
             ),
             FDivider(),
             FTabs(
-              initialIndex: 0,
               controller: _tabController,
               tabs: tabs,
             ),
@@ -116,8 +115,8 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   void _onProfileCreate(Profile profile) {
     _selectController.select(profile, true);
     setState( () {
-      _tabController.index = 0;
       widget.profiles.add(profile);
+      _tabController.index = 0;
     });
     notify(context, "Profile '${profile.name}' has been successfully created!");
   }

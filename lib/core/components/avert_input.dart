@@ -139,7 +139,6 @@ class _InputState extends State<AvertInput> {
     return content;
   }
 
-  // TODO: turn this into richtext.
   Widget get _label => RichText(
     text: TextSpan(
       text:widget.label,
@@ -159,7 +158,7 @@ class _InputState extends State<AvertInput> {
   Widget get _textField => FTextField(
     description: widget.description,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
-    label: Text(widget.label, style: widget.labelStyle), // TODO: turn this into richtext.
+    label: _label,
     hint: widget.hint,
     autofocus: widget.autofocus,
     readOnly: widget.readOnly,

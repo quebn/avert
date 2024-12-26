@@ -1,11 +1,22 @@
+import "package:avert/core/components/avert_list_screen.dart";
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/database.dart";
+import "package:avert/core/utils/ui.dart";
+
+import "form.dart";
+import "tile.dart";
 
 enum AccountRoot {
   asset,
   liability,
   equity,
   income,
-  expense,
+  expense;
+
+  @override
+  String toString() {
+    return titleCase(name);
+  }
 }
 
 enum AccountType {
@@ -23,26 +34,33 @@ enum AccountType {
   roundoff,
   cogs,
   tax,
-  investment,
+  investment;
+
+  @override
+  String toString() => name;
+
+  String get displayName => titleCase(name);
 }
 
 class Account implements Document {
   Account({
-    required this.root,
     required this.profile,
+    this.root = AccountRoot.asset,
     this.id = 0,
     this.name = "",
-    this.parent,
+    this.parentID = 0,
     this.type = AccountType.none,
+    this.isGroup = false,
     int createdAt = 0,
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), children = null;
 
-  Account.parent({
-    required this.root,
+  Account.group({
     required this.profile,
+    required this.root,
     this.id = 0,
     this.name = "",
-    this.parent,
+    this.parentID = 0,
+    this.isGroup = true,
     this.type = AccountType.none,
     this.children = const [],
     int createdAt = 0,
@@ -50,7 +68,7 @@ class Account implements Document {
     if (children!.isEmpty) return;
     for (Account child in children!) {
       assert(child.root == root, "Account Root Error: ${child.name}'s root is not the same as parent: $name");
-      child.parent = this;
+      child.parentID = id;
     }
   }
 
@@ -58,13 +76,13 @@ class Account implements Document {
     required Profile profile,
     int id = 0,
     String name = "",
-    Account? parent,
+    int parentID = 0,
     AccountType type = AccountType.none,
   }) : this(
     id: id,
     profile: profile,
     name: name,
-    parent: parent,
+    parentID: parentID,
     type: type,
     root: AccountRoot.asset
   );
@@ -73,13 +91,13 @@ class Account implements Document {
     required Profile profile,
     int id = 0,
     String name = "",
-    Account? parent,
+    int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
     profile: profile,
     name: name,
-    parent: parent,
+    parentID: parentID,
     type: type,
     root: AccountRoot.liability
   );
@@ -88,13 +106,13 @@ class Account implements Document {
     required Profile profile,
     int id = 0,
     String name = "",
-    Account? parent,
+    int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
     profile: profile,
     name: name,
-    parent: parent,
+    parentID: parentID,
     type: type,
     root: AccountRoot.equity
   );
@@ -103,13 +121,13 @@ class Account implements Document {
     required Profile profile,
     int id = 0,
     String name = "",
-    Account? parent,
+    int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
     profile: profile,
     name: name,
-    parent: parent,
+    parentID: parentID,
     type: type,
     root: AccountRoot.income
   );
@@ -118,15 +136,36 @@ class Account implements Document {
     required Profile profile,
     int id = 0,
     String name = "",
-    Account? parent,
+    int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
     id: id,
     profile: profile,
     name: name,
-    parent: parent,
+    parentID: parentID,
     type: type,
     root: AccountRoot.expense
+  );
+
+  // TODO: implement
+  Account.map({
+    required Profile profile,
+    required Object parentID,
+    required Object id,
+    required Object name,
+    required Object root,
+    required Object type,
+    required Object createdAt,
+    required Object isGroup,
+  }): this(
+    id: id as int,
+    name: name as String,
+    createdAt: createdAt as int,
+    profile: profile,
+    isGroup: isGroup as int == 1,
+    root: AccountRoot.values[root as int],
+    type: AccountType.values.byName(type as String),
+    parentID: parentID as int,
   );
 
   @override
@@ -139,37 +178,142 @@ class Account implements Document {
   final DateTime createdAt;
 
   final Profile profile;
-  final AccountRoot root;
-  final AccountType type;
   final List<Account>? children;
-  Account? parent;
+
+  AccountRoot root;
+  AccountType type;
+  bool isGroup;
+  int parentID;
 
   // TODO: implement getTableQuery
-  static String get getTableQuery => throw UnimplementedError();
-  //"""
-  //  CREATE TABLE accounts(
-  //    id INTEGER PRIMARY KEY,
-  //    name TEXT NOT NULL,
-  //    createdAt INTEGER NOT NULL,
-  //    type INTEGER NOT NULL
-  //  )
-  //""";
+  static String get tableName => "accounts";
+  static String get tableQuery => """ CREATE TABLE $tableName(
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    createdAt INTEGER NOT NULL,
+    profile_id INTEGER NOT NULL,
+    is_group INTEGER NOT NULL,
+    parent_id INTEGER,
+    root INTEGER NOT NULL,
+    type TEXT NOT NULL
+  ) """;
 
   @override
-  Future<bool> delete() {
-    // TODO: implement delete
-    throw UnimplementedError();
+  Future<bool> delete() async {
+    int count =  await Core.database!.delete(tableName,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+    return count == 1;
   }
 
   @override
-  Future<bool> insert() {
-    // TODO: implement insert
-    throw UnimplementedError();
+  Future<bool> insert() async {
+    if (!isNew(this)) {
+      printInfo("Document is already be in database with id of '$id'");
+      return false;
+    }
+    if (await valuesNotValid()) return false;
+
+    int now = DateTime.now().millisecondsSinceEpoch;
+
+    Map<String, Object?> values = {
+      "name": name,
+      "createdAt": now,
+      "profile_id": profile.id,
+      "root": root.index,
+      "type": type.toString(),
+      "parent_id": parentID,
+      "is_group": isGroup ? 1 : 0,
+    };
+
+    printWarn("creating profile with values of: ${values.toString()}");
+    id = await Core.database!.insert(tableName, values);
+    printSuccess("profile created with id of $id");
+
+    return id != 0;
   }
 
   @override
   Future<bool> update() {
     // TODO: implement update
     throw UnimplementedError();
+  }
+
+  Future<bool> valuesNotValid() async {
+    bool hasDuplicates = await exists(this, tableName);
+    return name.isEmpty || hasDuplicates;
+  }
+
+  Future<bool> get hasChild async {
+    List<Map<String, Object?>> values = await Core.database!.query(tableName,
+      columns: ["id"],
+      where: "id != ? and parent_id = ?",
+      whereArgs: [id , id],
+    );
+
+    return values.isNotEmpty;
+  }
+
+  static Future<List<Account>> list(Profile profile) async {
+    List<Account> list = [];
+    List<Map<String, Object?>> values = await Core.database!.query(tableName,
+      where: "profile_id = ?",
+      whereArgs: [profile.id],
+    );
+
+    if (values.isEmpty) return list;
+
+    for (Map<String, Object?> value in values ) {
+      printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
+      list.add(Account.map(
+        profile: profile,
+        id: value["id"]!,
+        name: value["name"]!,
+        createdAt: value["createdAt"]!,
+        root: value["root"]!,
+        type: value["type"]!,
+        parentID: value["parent_id"]!,
+        isGroup: value["is_group"]!,
+      ));
+    }
+    return list;
+  }
+
+  static void listScreen(BuildContext context, Profile profile) async {
+    final List<Account> accounts = await list(profile);
+
+    if (context.mounted) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AvertListScreen<Account>(
+            title: Text("Accounts"),
+            initialList: accounts,
+            tileBuilder: (key ,context, account, deleteDocument) => AccountTile(
+              key: key,
+              document: account,
+              profile: profile,
+              onDelete: () => deleteDocument(),
+            ),
+            formBuilder: (context) {
+              Account d = Account(profile: profile);
+              return AccountForm(
+                document: d,
+                profile: profile,
+                onSubmit: () async {
+                  String msg = "Error inserting the document to the database!";
+                  bool success = await d.insert();
+
+                  if (success) msg = "Account '${d.name}' created!";
+                  if (context.mounted) notify(context, msg);
+
+                  return success;
+                },
+              );
+            },
+          ),
+        ),
+      );
+    }
   }
 }

@@ -6,6 +6,10 @@ bool isNew(Document document) {
   return document.id == 0;
 }
 
+T? getResult<T extends Document>(DocumentView<T> view) {
+  return view.edited ? view.document : null;
+}
+
 String getDate(DateTime datetime) {
   return datetime.toString().split(" ")[0];
 }
@@ -42,8 +46,16 @@ Digest hashString(String string) {
 
 String getAcronym(String name) {
   List<String> letters = [];
-  for (String word in name.split(" ")) {
+
+  List<String> words = name.split(" ");
+
+  for (String word in words) {
+    if (word.isEmpty) continue;
     letters.add(word[0]);
   }
   return letters.join();
+}
+
+String titleCase(String string) {
+  return "${string[0].toUpperCase()}${string.substring(1)}";
 }

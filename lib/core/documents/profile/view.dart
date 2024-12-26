@@ -1,5 +1,6 @@
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
 import "form.dart";
@@ -8,21 +9,30 @@ class ProfileView extends StatefulWidget {
   const ProfileView({super.key,
     required this.document,
     required this.profile,
-    this.onUpdate,
-    this.onDelete,
-    this.isDefault = false,
+    required this.deleteDocument,
   });
 
-  final bool isDefault;
   final Profile document, profile;
-  final void Function()? onUpdate, onDelete;// onPop;
+  final Function() deleteDocument;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
 }
 
-class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin implements DocumentView  {
-  late final FPopoverController _controller = FPopoverController(vsync: this);
+class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin implements DocumentView<Profile> {
+  late final FPopoverController _controller;
+
+  @override
+  bool edited = false;
+
+  @override
+  late Profile document = widget.document;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = FPopoverController(vsync: this);
+  }
 
   @override
   void dispose() {
@@ -33,35 +43,63 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   @override
   Widget build(BuildContext context) {
     printTrack("Building Profile Document View");
-    printInfo("profile.id = ${widget.document.id}");
-    return AvertDocumentView(
+    return AvertDocumentView<Profile>(
+      result: getResult(this),
       controller: _controller,
       name: "Profile",
-      title: widget.document.name,
-      subtitle: widget.isDefault ? "Current Profile" : "Profile",
-      onEdit: editDocument,
-      onDelete: deleteDocument,
+      title: document.name,
+      subtitle: document != widget.profile ? "Current Profile" : "Profile",
+      editDocument: editDocument,
+      deleteDocument: deleteDocument,
       content: Container(),
     );
   }
 
-  void editDocument() {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (BuildContext context) => ProfileForm(
-        document: widget.document,
-        onUpdate: () {
-          // HACK: currently alway rebuilds the whole Widget.
-          // TODO: maybe use map for the args to assign for setUpdate?
-          setState(() {});
-          if (widget.onUpdate != null) {
-            widget.onUpdate!();
-          }
-        },
-      ),
-    ));
+  @override
+  Future<void> deleteDocument() async {
+    final bool shouldDelete = await _confirmDelete() ?? false;
+
+    printError("print if success: $shouldDelete");
+    if (shouldDelete) {
+      final bool success = await document.delete();
+
+      if (success) {
+        printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
+        if (mounted) Navigator.of(context).pop<Profile>(null);
+        await widget.deleteDocument();
+      }
+    }
   }
 
-  Future<bool?> confirmDelete() {
+  @override
+  void editDocument() async {
+    Profile? p = await Navigator.of(context).push<Profile>(
+      MaterialPageRoute(
+        builder: (BuildContext context) => ProfileForm(
+          document: document,
+          onSubmit: _onEdit,
+        ),
+      )
+    );
+
+    edited = p != null;
+    if (edited) {
+      setState(() => document = p!);
+    }
+  }
+
+  Future<bool> _onEdit() async {
+    // NOTE: add checks here.
+    String msg = "Error writing the document to the database!";
+
+    bool success = await document.update();
+    if (success) msg = "Successfully changed profile details";
+    if (mounted) notify(context, msg);
+
+    return success;
+  }
+
+  Future<bool?> _confirmDelete() {
     return showAdaptiveDialog<bool>(
       context: context,
       builder: (BuildContext context) => FDialog(
@@ -88,18 +126,4 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
     );
   }
 
-  @override
-  Future<void> deleteDocument() async {
-    final bool shouldDelete = await confirmDelete() ?? false;
-
-    if (shouldDelete) {
-      final bool success = await widget.document.delete();
-
-      if (success && mounted) {
-        printWarn("Deleting Profile:${widget.document.name} with id of: ${widget.document.id}");
-        Navigator.maybePop(context);
-        if (widget.onDelete != null) widget.onDelete!();
-      }
-    }
-  }
 }

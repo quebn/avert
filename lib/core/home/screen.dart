@@ -1,10 +1,11 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/greeter/screen.dart";
 import "package:avert/core/home/module_drawer.dart";
-import "package:avert/core/utils/ui.dart";
+import "package:avert/core/utils/database.dart";
 import "package:forui/forui.dart";
 
 import "dashboard.dart";
+import "documents.dart";
 import "profile_drawer.dart";
 
 class HomeScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late List<Widget> pages = [
     Dashboard(module: currentModule),
-    const Center(child: Text("Documents")),
+    Documents(module: currentModule, profile: currentProfile),
     const Center(child: Text("Reports")),
     const Center(child: Text("Settings")),
   ];
@@ -53,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(width: 16,),
-              Text(currentModule.name,
+              Text(widget.title,
                 style: FTheme.of(context).typography.xl2,
               ),
             ],
@@ -102,20 +103,15 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       endDrawer: HomeProfileDrawer(
         profile: widget.profile,
-        onLogout: () => logout(context),
-        onUserDelete: () async {
-          //throw UnimplementedError("Should Log out!");
-          printWarn("Logging Out");
+        onDeleteProfile: () async {
           List<Profile> profiles = await fetchAllProfile();
-          if (context.mounted) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => GreeterScreen(
-                  title: "Avert",
-                  profiles: profiles,
-                ),
-              )
-            );
+          _logout(profiles);
+        },
+        onLogout: () async {
+          bool shouldLogout = await _confirmLogout() ?? false;
+          if (shouldLogout) {
+            List<Profile> profiles = await fetchAllProfile();
+            _logout(profiles);
           }
         },
       ),
@@ -126,34 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget leftDrawer() {
-    return const Drawer(
-      width: 250,
-      //child: Listjk
+  void _logout(List<Profile> profiles) {
+    printWarn("Logging Out");
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => GreeterScreen(
+          title: widget.title,
+          profiles: profiles,
+        ),
+      )
     );
   }
 
-  Future<void> logout(BuildContext context) async {
-    bool shouldLogout = await confirmLogout() ?? false;
-
-    if (shouldLogout) {
-      List<Profile> profiles = await fetchAllProfile();
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => GreeterScreen(
-              title: "Avert",
-              profiles: profiles,
-              initialProfile: widget.profile,
-            ),
-          )
-        );
-    }
-    }
-  }
-
-  Future<bool?> confirmLogout() async {
+  Future<bool?> _confirmLogout() async {
     return showAdaptiveDialog<bool>(
       context: context,
       builder: (BuildContext context) => FDialog(
