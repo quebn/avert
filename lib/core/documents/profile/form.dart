@@ -15,7 +15,6 @@ class ProfileForm extends StatefulWidget {
     this.onSetDefault,
   });
 
-  //final List<Module> modules;
   final Profile document;
   final void Function()? onInsert, onUpdate, onDelete;
   final bool Function()? onSetDefault;
@@ -25,7 +24,7 @@ class ProfileForm extends StatefulWidget {
 }
 
 class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin implements DocumentForm {
-  late final FTabController _tabController;
+  //late final FTabController _tabController;
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -44,16 +43,16 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
   @override
   void initState() {
     super.initState();
-    _tabController = FTabController(length: Core.modules.length, vsync: this);
+    //_tabController = FTabController(length: Core.modules.length, vsync: this);
   }
 
   @override
   void dispose() {
+    super.dispose();
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
-    _tabController.dispose();
-    super.dispose();
+    //_tabController.dispose();
   }
 
   @override
@@ -77,35 +76,22 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
         FDivider(),
       ],
       isDirty: isDirty,
-      floatingActionButton: !isDirty ? null :IconButton.filled(
+      floatingActionButton: !isDirty ? null : IconButton.filled(
         onPressed: isNew(widget.document) ? insertDocument : updateDocument,
         iconSize: 48,
         icon: Icon(Icons.save_rounded)
       ),
       resizeToAvoidBottomInset: true,
-      tabview: FTabs(
-        controller: _tabController,
-        tabs: [
-          FTabEntry(
-            label: const Text("Accounting"),
-            content: _AccountingTab(profile: widget.document),
-          )
-          ],
-      ),
+      //tabview: FTabs(
+      //  controller: _tabController,
+      //  tabs: [
+      //    FTabEntry(
+      //      label: const Text("Accounting"),
+      //      content: _AccountingTab(profile: widget.document),
+      //    )
+      //    ],
+      //),
     );
-  }
-
-  List<FTabEntry> createProfileTabs() {
-    List<FTabEntry> list = [];
-    for (Module m in Core.modules) {
-      if (m is ProfileTabView) {
-        list.add(FTabEntry(
-          label: Text(m.name),
-          content: (m as ProfileTabView).getProfileTabView(context),
-        ));
-      }
-    }
-    return list;
   }
 
   void onValueChange(bool Function() isDirtyCallback) {
@@ -182,20 +168,5 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
     setState(() {
       isDirty = false;
     });
-  }
-}
-
-class _AccountingTab extends StatelessWidget {
-  const _AccountingTab({
-    required this.profile,
-  });
-
-  final Profile profile;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: const Text("Profile Accounting Tab")
-    );
   }
 }
