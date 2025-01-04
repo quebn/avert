@@ -25,6 +25,24 @@ abstract class Module {
   Widget settings(BuildContext context);
 }
 
+enum DocumentAction {
+  none,
+  insert,
+  update,
+  delete,
+}
+
+// TODO: use this struct as result to be returned in Navigator.of(context) functions.
+class DocumentResult<T extends Document> {
+  const DocumentResult(this.document):action = DocumentAction.none;
+  const DocumentResult.insert(this.document):action = DocumentAction.insert;
+  const DocumentResult.update(this.document):action = DocumentAction.update;
+  const DocumentResult.delete(this.document):action = DocumentAction.delete;
+
+  final T document;
+  final DocumentAction action;
+}
+
 abstract class Document {
   Document({
     required this.id,

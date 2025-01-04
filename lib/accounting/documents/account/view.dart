@@ -46,9 +46,8 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   @override
   Widget build(BuildContext context) {
     printTrack("Building Account Document View");
-    printInfo("profile.id = ${document.id}");
-    printInfo("profile.name = ${document.name}");
     return AvertDocumentView<Account>(
+      // IMPORTANT: allow overriding of results
       result: getResult(this),
       controller: _controller,
       name: "Account",
