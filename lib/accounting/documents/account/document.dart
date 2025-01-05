@@ -1,3 +1,4 @@
+import "package:avert/accounting/utils/common.dart";
 import "package:avert/core/components/avert_list_screen.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/database.dart";
@@ -43,8 +44,7 @@ enum AccountType {
 }
 
 class Account implements Document {
-  Account({
-    required this.profile,
+  Account(this.profile, {
     this.root = AccountRoot.asset,
     this.id = 0,
     this.name = "",
@@ -79,8 +79,8 @@ class Account implements Document {
     int parentID = 0,
     AccountType type = AccountType.none,
   }) : this(
+    profile,
     id: id,
-    profile: profile,
     name: name,
     parentID: parentID,
     type: type,
@@ -94,8 +94,8 @@ class Account implements Document {
     int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
+    profile,
     id: id,
-    profile: profile,
     name: name,
     parentID: parentID,
     type: type,
@@ -109,8 +109,8 @@ class Account implements Document {
     int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
+    profile,
     id: id,
-    profile: profile,
     name: name,
     parentID: parentID,
     type: type,
@@ -124,8 +124,8 @@ class Account implements Document {
     int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
+    profile,
     id: id,
-    profile: profile,
     name: name,
     parentID: parentID,
     type: type,
@@ -139,8 +139,8 @@ class Account implements Document {
     int parentID = 0,
     AccountType type =  AccountType.none,
   }) : this(
+    profile,
     id: id,
-    profile: profile,
     name: name,
     parentID: parentID,
     type: type,
@@ -158,10 +158,10 @@ class Account implements Document {
     required Object createdAt,
     required Object isGroup,
   }): this(
+    profile,
     id: id as int,
     name: name as String,
     createdAt: createdAt as int,
-    profile: profile,
     isGroup: isGroup as int == 1,
     root: AccountRoot.values[root as int],
     type: AccountType.values.byName(type as String),
@@ -285,38 +285,58 @@ class Account implements Document {
   static void listScreen(BuildContext context, Profile profile) async {
     final List<Account> accounts = await list(profile);
 
-    if (context.mounted) {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => AvertListScreen<Account>(
-            title: Text("Accounts"),
-            initialList: accounts,
-            tileBuilder: (key ,context, account, removeDocument) => AccountTile(
-              key: key,
-              document: account,
-              profile: profile,
-              removeDocument: removeDocument,
-              //onDelete: () => deleteDocument(),
-            ),
-            formBuilder: (context) {
-              Account d = Account(profile: profile);
-              return AccountForm(
-                document: d,
-                profile: profile,
-                onSubmit: () async {
-                  String msg = "Error inserting the document to the database!";
-                  Result<Account> result = await d.insert();
+    if (!context.mounted) return;
 
-                  if (!result.isEmpty) msg = "Account '${d.name}' created!";
-                  if (context.mounted) notify(context, msg);
-
-                  return result;
-                },
-              );
-            },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AvertListScreen<Account>(
+          title: Text("Accounts"),
+          initialList: accounts,
+          tileBuilder: (key ,context, account, removeDocument) => AccountTile(
+            key: key,
+            document: account,
+            profile: profile,
+            removeDocument: removeDocument,
+            //onDelete: () => deleteDocument(),
           ),
+          createDocument: (addDocument) async {
+            Result<Account> createResult =  await _createAccount(context, profile);
+            if (createResult.isEmpty || createResult.action != DocumentAction.insert) return;
+
+            if(!context.mounted) return;
+            Result<Account> viewResult = await viewAccount(context, createResult.document!);
+
+            if (viewResult.isEmpty) return;
+
+            switch(viewResult.action) {
+              case DocumentAction.delete:
+                break;
+              default:
+                addDocument(viewResult.document!);
+                break;
+            }
+          }
         ),
-      );
-    }
+      ),
+    );
   }
+}
+
+Future<Result<Account>> _createAccount(BuildContext context, Profile profile) async {
+  return await Navigator.of(context).push<Result<Account>>(
+    MaterialPageRoute(
+      builder: (context) => AccountForm(
+        document: Account(profile),
+        onSubmit: (d) async {
+          String msg = "Error inserting the document to the database!";
+          Result<Account> result = await d.insert();
+
+          if (!result.isEmpty) msg = "Account '${d.name}' created!";
+          if (context.mounted) notify(context, msg);
+
+          return result;
+        },
+      ),
+    )
+  ) ?? Result.empty();
 }

@@ -41,7 +41,13 @@ void printSuccess(String text) {
   debugPrint("\x1B[34m [SUCCESS]: $text\x1B[0m");
 }
 
+void printImplement(String errMsg) {
+  // Magenta: \x1B[35m
+  throw UnimplementedError("\x1B[35m[ASSERTION FAILED]: $errMsg\x1B[0m");
+}
+
 void printAssert(bool assertCondition, String errMsg) {
+  // Red:     \x1B[31m
   if (kReleaseMode) return;
   assert(assertCondition, "\x1B[33m[ASSERTION FAILED]: $errMsg\x1B[0m");
 }

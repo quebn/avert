@@ -10,13 +10,11 @@ import "document.dart";
 class AccountForm extends StatefulWidget {
   const AccountForm({super.key,
     required this.document,
-    required this.profile,
     required this.onSubmit,
   });
 
   final Account document;
-  final Profile profile;
-  final Future<Result<Account>> Function() onSubmit;
+  final Future<Result<Account>> Function(Account) onSubmit;
 
   @override
   State<StatefulWidget> createState() => _NewState();
@@ -177,10 +175,10 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     widget.document.type = _typeSelectController.values.single;
     widget.document.parentID = _parentSelectController.values.singleOrNull?.id ?? 0;
 
-    final Result<Account> result = await widget.onSubmit();
+    final Result<Account> result = await widget.onSubmit(widget.document);
+
     if (!result.isEmpty && mounted) {
-      // TODO: try to replace this with a DocumentView builder and use pushReplace() instead of pop().
-      Navigator.of(context).pop<Result<Account>>(result);
+       Navigator.of(context).pop<Result<Account>>(result);
     }
   }
 }

@@ -9,10 +9,8 @@ import "form.dart";
 class AccountView extends StatefulWidget {
   const AccountView({super.key,
     required this.document,
-    required this.profile,
   });
 
-  final Profile profile;
   final Account document;
 
   @override
@@ -59,7 +57,6 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   void editDocument() async {
     Result<Account>? result = await Navigator.of(context).push<Result<Account>>(MaterialPageRoute(
       builder: (BuildContext context) => AccountForm(
-        profile: widget.profile,
         document: document,
         onSubmit: _onEdit,
       ),
@@ -71,7 +68,7 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
     }
   }
 
-  Future<Result<Account>> _onEdit() async  {
+  Future<Result<Account>> _onEdit(Account document) async  {
     throw UnimplementedError();
     //String msg = "Error writing the document to the database!";
     //

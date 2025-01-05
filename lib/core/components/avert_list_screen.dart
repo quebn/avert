@@ -5,16 +5,14 @@ class AvertListScreen<T extends Document> extends StatefulWidget {
   const AvertListScreen({super.key,
     required this.initialList,
     required this.tileBuilder,
-    required this.formBuilder,
     required this.title,
-    this.createDocument,
+    required this.createDocument,
   });
 
   final Widget title;
   final List<T> initialList;
-  final Widget Function(ObjectKey, BuildContext, T, Function(T)) tileBuilder;
-  final Function()? createDocument;
-  final Widget Function(BuildContext) formBuilder;
+  final Widget Function(ObjectKey, BuildContext, T, void Function(T)) tileBuilder;
+  final void Function(void Function(T))? createDocument;
 
   @override
   State<StatefulWidget> createState() => _ListScreenState<T>();
@@ -34,8 +32,8 @@ class _ListScreenState<T extends Document> extends State<AvertListScreen<T>> {
     printTrack("Building ${widget.title} Tile List Screen");
     FThemeData theme = FTheme.of(context);
     return Scaffold(
-      floatingActionButton: FButton.icon(
-        onPress: _createDocument,
+      floatingActionButton: widget.createDocument != null ? FButton.icon(
+        onPress: () => widget.createDocument!(_addDocument),
         style: theme.buttonStyles.primary.copyWith(
           enabledBoxDecoration: theme.buttonStyles.primary.enabledBoxDecoration.copyWith(
             borderRadius: BorderRadius.circular(33),
@@ -47,7 +45,7 @@ class _ListScreenState<T extends Document> extends State<AvertListScreen<T>> {
             size: 32,
           ),
         )
-      ),
+      ) : null,
       backgroundColor: theme.scaffoldStyle.backgroundColor,
       body: FScaffold(
         header: FHeader.nested(
@@ -76,22 +74,18 @@ class _ListScreenState<T extends Document> extends State<AvertListScreen<T>> {
     );
   }
 
-  void _createDocument() async {
-    final Result<T> result = await Navigator.of(context).push<Result<T>>(
-      MaterialPageRoute(
-        builder: (context) => widget.formBuilder(context),
-      )
-    ) ?? Result<T>.empty();
-    if (result.isEmpty) return;
-    switch(result.action) {
-      case DocumentAction.insert:
-      case DocumentAction.update:
-        _addDocument(result.document!);
-        break;
-      default:
-        break;
-    }
-  }
+  //void _createDocument() async {
+  //  final Result<T> result = await Navigator.of(context).push<Result<T>>(
+  //    MaterialPageRoute(
+  //      builder: (context) => widget.formBuilder(context),
+  //    )
+  //  ) ?? Result<T>.empty();
+  //  if (result.isEmpty) return;
+  //  printImplement("should add document to list");
+  //  //throw UnimplementedError("should add document to list");
+  //  // TODO: this should only expect a document if there is document returned add, else dont,
+  //
+  //}
 
   void _addDocument(T document) {
     if (list.contains(document)) return;

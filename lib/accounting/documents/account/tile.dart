@@ -1,8 +1,8 @@
+import "package:avert/accounting/utils/common.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
 import "document.dart";
-import "view.dart";
 
 class AccountTile extends StatefulWidget {
   const AccountTile({super.key,
@@ -13,7 +13,7 @@ class AccountTile extends StatefulWidget {
 
   final Account document;
   final Profile profile;
-  final Function(Account) removeDocument;
+  final void Function(Account) removeDocument;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -31,20 +31,12 @@ class _TileState extends State<AccountTile> {
       prefixIcon: FIcon(_icon),
       subtitle: Text(_root),
       title: Text(_name),
-      onPress: _viewProfile,
+      onPress: _viewAccount,
     );
   }
 
-  void _viewProfile() async {
-    final Result<Account> result = await Navigator.of(context).push<Result<Account>>(
-      MaterialPageRoute(
-        builder: (context) => AccountView(
-          document: widget.document,
-          profile: widget.profile,
-        ),
-      )
-    ) ?? Result.empty();
-
+  void _viewAccount() async {
+    final Result<Account> result = await viewAccount(context, widget.document);
     if (result.isEmpty) return;
 
     switch (result.action) {

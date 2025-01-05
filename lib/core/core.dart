@@ -39,6 +39,7 @@ class Result<T extends Document> {
 
   T? document;
   final DocumentAction action;
+  // TODO: add message String
 
   bool get isEmpty => document == null;
 }
