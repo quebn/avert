@@ -199,21 +199,22 @@ class Account implements Document {
   ) """;
 
   @override
-  Future<bool> delete() async {
-    int count =  await Core.database!.delete(tableName,
+  Future<Result<Account>> delete() async {
+    final bool success =  await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
-    );
-    return count == 1;
+    ) == 1;
+    if (success) return Result<Account>.delete(this);
+    return Result<Account>.empty();
   }
 
   @override
-  Future<bool> insert() async {
+  Future<Result<Account>> insert() async {
     if (!isNew(this)) {
       printInfo("Document is already be in database with id of '$id'");
-      return false;
+      return Result<Account>.empty();
     }
-    if (await valuesNotValid()) return false;
+    if (await valuesNotValid()) return Result<Account>.empty();
 
     int now = DateTime.now().millisecondsSinceEpoch;
 
@@ -230,12 +231,13 @@ class Account implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
+    if (id == 0) return Result<Account>.empty();
 
-    return id != 0;
+    return Result<Account>.insert(this);
   }
 
   @override
-  Future<bool> update() {
+  Future<Result<Account>> update() {
     // TODO: implement update
     throw UnimplementedError();
   }
@@ -302,12 +304,12 @@ class Account implements Document {
                 profile: profile,
                 onSubmit: () async {
                   String msg = "Error inserting the document to the database!";
-                  bool success = await d.insert();
+                  Result<Account> result = await d.insert();
 
-                  if (success) msg = "Account '${d.name}' created!";
+                  if (!result.isEmpty) msg = "Account '${d.name}' created!";
                   if (context.mounted) notify(context, msg);
 
-                  return success;
+                  return result;
                 },
               );
             },

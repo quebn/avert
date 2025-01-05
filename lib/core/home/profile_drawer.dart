@@ -87,18 +87,25 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
   }
 
   void _viewProfile() async {
-    Profile? profile = await Navigator.of(context).push<Profile>(
+    final Result<Profile>? result = await Navigator.of(context).push<Result<Profile>>(
       MaterialPageRoute(
         builder: (BuildContext context) => ProfileView(
           document: widget.profile,
           profile: widget.profile,
-          deleteDocument: widget.onDeleteProfile,
+          //deleteDocument: widget.onDeleteProfile,
         ),
       ),
     );
-
-    if (profile != null) {
-      setState(() => _profileName = profile.name);
+    if (result == null || result.isEmpty) return;
+    switch (result.action) {
+      case DocumentAction.update:
+        setState(() => _profileName = result.document!.name);
+        break;
+      case DocumentAction.delete:
+        widget.onDeleteProfile();
+        break;
+      default :
+        break;
     }
   }
 

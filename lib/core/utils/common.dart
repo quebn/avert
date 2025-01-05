@@ -6,10 +6,6 @@ bool isNew(Document document) {
   return document.id == 0;
 }
 
-T? getResult<T extends Document>(DocumentView<T> view) {
-  return view.edited ? view.document : null;
-}
-
 String getDate(DateTime datetime) {
   return datetime.toString().split(" ")[0];
 }

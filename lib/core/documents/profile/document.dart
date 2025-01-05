@@ -43,26 +43,27 @@ class Profile implements Document {
   }
 
   @override
-  Future<bool> update() async {
-    if (await valuesNotValid() || isNew(this)) return false;
+  Future<Result<Profile>> update() async {
+    if (await valuesNotValid() || isNew(this)) return Result<Profile>.empty();
     Map<String, Object?> values = {
       "name": name,
     };
     printWarn("update with values of: ${values.toString()} on profile with id of: $id!");
-    int r = await Core.database!.update(tableName, values,
+    bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
       whereArgs: [id],
-    );
-    return r == 1;
+    ) == 1;
+    if (!success) return Result<Profile>.empty();
+    return Result<Profile>.update(this);
   }
 
   @override
-  Future<bool> insert() async {
+  Future<Result<Profile>> insert() async {
     if (!isNew(this)) {
       printInfo("Document is already be in database with id of '$id'");
-      return false;
+      return Result<Profile>.empty();
     }
-    if (await valuesNotValid()) return false;
+    if (await valuesNotValid()) return Result<Profile>.empty();
     int now = DateTime.now().millisecondsSinceEpoch;
     Map<String, Object?> values = {
       "name": name,
@@ -71,16 +72,19 @@ class Profile implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
-    return id != 0;
+    if (id != 0) return Result<Profile>.empty();
+    return Result.insert(this);
   }
 
   @override
-  Future<bool> delete() async {
-    int count = await Core.database!.delete(tableName,
+  Future<Result<Profile>> delete() async {
+    bool success = await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
-    );
+    ) == 1;
 
-    return count == 1;
+    if (!success) return Result<Profile>.empty();
+
+    return Result<Profile>.delete(this);
   }
 }

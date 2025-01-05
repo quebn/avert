@@ -16,7 +16,7 @@ class AccountForm extends StatefulWidget {
 
   final Account document;
   final Profile profile;
-  final Future<bool> Function() onSubmit;
+  final Future<Result<Account>> Function() onSubmit;
 
   @override
   State<StatefulWidget> createState() => _NewState();
@@ -164,69 +164,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     });
   }
 
-  //Future<void> insertDocument() async {
-  //  final bool isValid = formKey.currentState?.validate() ?? false;
-  //  if (!isValid) {
-  //    return;
-  //  }
-  //
-  //  FocusScope.of(context).requestFocus(FocusNode());
-  //
-  //  Account document = widget.document;
-  //  document.name = controllers['name']!.value.text;
-  //
-  //
-  //  bool success =  await document.insert();
-  //
-  //  String msg = "Error writing the document to the database!";
-  //
-  //  if (success) {
-  //    if (widget.onInsert != null) widget.onInsert!();
-  //    msg = "Account '${document.name}' successfully created!";
-  //
-  //    if (mounted) {
-  //      Navigator.of(context).pop();
-  //      Navigator.of(context).push(MaterialPageRoute(
-  //        builder: (BuildContext context) {
-  //          return AccountView(
-  //            document: document,
-  //            profile: widget.profile,
-  //            onUpdate: widget.onUpdate,
-  //            onDelete: widget.onDelete,
-  //          );
-  //        }
-  //      ));
-  //      notify(context, msg);
-  //    }
-  //  }
-  //}
-
-  //void updateDocument() async {
-  //  final bool isValid = formKey.currentState?.validate() ?? false;
-  //  if (!isValid) {
-  //    return;
-  //  }
-  //  FocusScope.of(context).requestFocus(FocusNode());
-  //
-  //  widget.document.name = controllers['name']!.value.text;
-  //
-  //  String msg = "Error writing the document to the database!";
-  //
-  //  // TODO: Maybe this function should return false when no changes are made.
-  //  bool success = await widget.document.update();
-  //
-  //  if (success) {
-  //    if (widget.onUpdate != null) widget.onUpdate!();
-  //    msg = "Successfully changed profile details";
-  //  }
-  //
-  //  if (mounted) notify(context, msg);
-  //
-  //  setState(() {
-  //    isDirty = false;
-  //  });
-  //}
-
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
@@ -240,10 +177,10 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     widget.document.type = _typeSelectController.values.single;
     widget.document.parentID = _parentSelectController.values.singleOrNull?.id ?? 0;
 
-    bool shouldPop = await widget.onSubmit();
+    final Result<Account> result = await widget.onSubmit();
 
-    if (shouldPop && mounted) {
-      Navigator.of(context).pop<Account>(widget.document);
+    if (!result.isEmpty && mounted) {
+      Navigator.of(context).pop<Result<Account>>(result);
     }
   }
 }

@@ -1,9 +1,7 @@
-//import "package:avert/core/documents/company/document.dart";
 import "package:avert/accounting/accounting.dart";
 import "package:avert/core/documents/profile/document.dart";
 import "package:flutter/material.dart";
 import "package:sqflite/sqflite.dart";
-
 
 export "package:avert/core/documents/profile/document.dart";
 export "package:flutter/material.dart";
@@ -32,15 +30,17 @@ enum DocumentAction {
   delete,
 }
 
-// TODO: use this struct as result to be returned in Navigator.of(context) functions.
-class DocumentResult<T extends Document> {
-  const DocumentResult(this.document):action = DocumentAction.none;
-  const DocumentResult.insert(this.document):action = DocumentAction.insert;
-  const DocumentResult.update(this.document):action = DocumentAction.update;
-  const DocumentResult.delete(this.document):action = DocumentAction.delete;
+class Result<T extends Document> {
+  Result(this.document):action = DocumentAction.none;
+  Result.insert(this.document):action = DocumentAction.insert;
+  Result.update(this.document):action = DocumentAction.update;
+  Result.delete(this.document):action = DocumentAction.delete;
+  Result.empty():action = DocumentAction.insert, document = null;
 
-  final T document;
+  T? document;
   final DocumentAction action;
+
+  bool get isEmpty => document == null;
 }
 
 abstract class Document {
@@ -55,16 +55,16 @@ abstract class Document {
   final DateTime createdAt;
 
   // TODO: make insert return a message on success and failure.
-  Future<bool> update();
-  Future<bool> insert();
-  Future<bool> delete();
+  Future<Result<Document>> update();
+  Future<Result<Document>> insert();
+  Future<Result<Document>> delete();
 }
 
 abstract class DocumentView<T extends Document> {
   Future<void> deleteDocument();
   void editDocument();
   late T document;
-  bool edited = false;
+  Result<T> result = Result.empty();
 }
 
 abstract class DocumentForm {

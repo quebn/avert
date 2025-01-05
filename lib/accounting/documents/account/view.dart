@@ -10,12 +10,12 @@ class AccountView extends StatefulWidget {
   const AccountView({super.key,
     required this.document,
     required this.profile,
-    required this.onDelete,
+    //required this.onDelete,
   });
 
   final Profile profile;
   final Account document;
-  final Function() onDelete;
+  //final Function() onDelete;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
@@ -29,7 +29,7 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   late Account document = widget.document;
 
   @override
-  bool edited = false;
+  Result<Account> result = Result.empty();
 
   @override
   void initState() {
@@ -47,8 +47,7 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     printTrack("Building Account Document View");
     return AvertDocumentView<Account>(
-      // IMPORTANT: allow overriding of results
-      result: getResult(this),
+      result: result,
       controller: _controller,
       name: "Account",
       title: document.name,
@@ -59,25 +58,31 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   }
 
   @override
-  void editDocument() {
-    Navigator.push(context, MaterialPageRoute(
+  void editDocument() async {
+    Result<Account>? result = await Navigator.of(context).push<Result<Account>>(MaterialPageRoute(
       builder: (BuildContext context) => AccountForm(
         profile: widget.profile,
         document: document,
         onSubmit: _onEdit,
       ),
     ));
+
+    if (result == null || result.isEmpty) return;
+    if (result.action == DocumentAction.update) {
+      throw UnimplementedError("Should update the View");
+    }
   }
 
-  Future<bool> _onEdit() async  {
-    String msg = "Error writing the document to the database!";
-
-    bool success = true;//await account.update();
-
-    if (success) msg = "Successfully changed account details";
-    if (mounted) notify(context, msg);
-
-    return success;
+  Future<Result<Account>> _onEdit() async  {
+    throw UnimplementedError();
+    //String msg = "Error writing the document to the database!";
+    //
+    //bool success = true;//await account.update();
+    //
+    //if (success) msg = "Successfully changed account details";
+    //if (mounted) notify(context, msg);
+    //
+    //return success;
   }
 
   Future<bool?> _confirmDelete() {
@@ -111,24 +116,20 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   Future<void> deleteDocument() async {
     bool hasChild = await document.hasChild;
     if (hasChild) {
-      if (mounted) notify(context, "Could not delete account: ${document.name} has child accounts");
+      if (mounted) notify(context, "Could not delete: '${document.name}' has child accounts");
       return;
     }
     final bool shouldDelete = await _confirmDelete() ?? false;
 
-    printError("print if success: $shouldDelete");
     if (shouldDelete) {
-      final bool success = await document.delete();
+      final Result<Account> result = await document.delete();
 
-      if (success) {
-        printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");
-
-        if (mounted) Navigator.of(context).pop<Account>(null);
-
-        widget.onDelete();
-      } else {
-        if (mounted) notify(context, "Could not delete account: ${document.name} deletion failed!");
+      if (result.isEmpty) {
+        if (mounted) notify(context, "Could not delete: '${document.name}' can't be deteled in database!");
+        return;
       }
+      printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");
+      if (mounted) Navigator.of(context).pop<Result<Account>>(result);
     }
   }
 }

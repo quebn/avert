@@ -41,7 +41,7 @@ class _TileState extends State<AccountTile> {
         builder: (context) => AccountView(
           document: widget.document,
           profile: widget.profile,
-          onDelete: widget.onDelete,
+          //onDelete: widget.onDelete,
         ),
       )
     );

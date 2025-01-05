@@ -27,7 +27,7 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
   final FTabs? tabview;
   final ImageProvider<Object>? image;
   final Function()? editDocument, deleteDocument, onImagePress;
-  final T? result;
+  final Result<T>? result;
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +87,11 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
       ]
     );
 
-    return PopScope<T>(
+    return PopScope<Result<T>>(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        Navigator.of(context).pop<T>(result);
+        Navigator.of(context).pop<Result<T>>(result);
       },
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
@@ -106,7 +106,7 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   child: FIcon(FAssets.icons.chevronLeft),
                 ),
-                onPress: () => Navigator.of(context).maybePop(),
+                onPress: () => Navigator.of(context).maybePop<Result<T>>(result),
               ),
             ],
             suffixActions: [
@@ -179,7 +179,7 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: FIcon(FAssets.icons.chevronLeft),
               ),
-              onPress: () => Navigator.of(context).maybePop<T>(),
+              onPress: () => Navigator.of(context).maybePop<Result<T>>(Result(null)),
             ),
           ],
           style: theme.headerStyle.nestedStyle,
@@ -197,7 +197,7 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
             if (didPop) return;
             final bool shouldPop = await confirm(context) ?? false;
             if (shouldPop && context.mounted) {
-              Navigator.of(context).pop<T>(null);
+              Navigator.of(context).pop<Result<T>>(Result.empty());
             }
           },
           child: FCard(

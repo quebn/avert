@@ -9,11 +9,11 @@ class ProfileView extends StatefulWidget {
   const ProfileView({super.key,
     required this.document,
     required this.profile,
-    required this.deleteDocument,
+    //required this.deleteDocument,
   });
 
   final Profile document, profile;
-  final Function() deleteDocument;
+  //final Function() deleteDocument;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
@@ -23,10 +23,10 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   late final FPopoverController _controller;
 
   @override
-  bool edited = false;
+  late Profile document = widget.document;
 
   @override
-  late Profile document = widget.document;
+  Result<Profile> result = Result<Profile>(null);
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     printTrack("Building Profile Document View");
     return AvertDocumentView<Profile>(
-      result: getResult(this),
+      result: result,
       controller: _controller,
       name: "Profile",
       title: document.name,
@@ -59,44 +59,44 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   Future<void> deleteDocument() async {
     final bool shouldDelete = await _confirmDelete() ?? false;
 
-    printError("print if success: $shouldDelete");
     if (shouldDelete) {
-      final bool success = await document.delete();
+      result = await document.delete();
 
-      if (success) {
-        printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
-        if (mounted) Navigator.of(context).pop<Profile>(null);
-        await widget.deleteDocument();
-      }
+      if (result.isEmpty) return;
+
+      printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
+      if (mounted) Navigator.of(context).pop<Result<Profile>>(result);
     }
   }
 
   @override
   void editDocument() async {
-    Profile? p = await Navigator.of(context).push<Profile>(
+    result = await Navigator.of(context).push<Result<Profile>>(
       MaterialPageRoute(
         builder: (BuildContext context) => ProfileForm(
           document: document,
           onSubmit: _onEdit,
         ),
       )
-    );
+    ) ?? Result.empty();
 
-    edited = p != null;
-    if (edited) {
-      setState(() => document = p!);
+    if (result.isEmpty) return;
+    if (result.action == DocumentAction.update) {
+      setState(() => document = result.document!);
     }
   }
 
-  Future<bool> _onEdit() async {
+  Future<Result<Profile>> _onEdit() async {
     // NOTE: add checks here.
     String msg = "Error writing the document to the database!";
 
-    bool success = await document.update();
-    if (success) msg = "Successfully changed profile details";
+    final Result<Profile> result = await document.update();
+
+    if (!result.isEmpty) msg = "Successfully changed profile details";
+
     if (mounted) notify(context, msg);
 
-    return success;
+    return result;
   }
 
   Future<bool?> _confirmDelete() {

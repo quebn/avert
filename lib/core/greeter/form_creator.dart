@@ -89,8 +89,8 @@ class _FormState extends State<CreateProfileForm> {
       });
       return;
     }
-    bool success = await p.insert();
-    if (mounted && success) {
+    Result<Profile> result = await p.insert();
+    if (result.action == DocumentAction.insert) {
       widget.onCreate(p);
     }
   }
