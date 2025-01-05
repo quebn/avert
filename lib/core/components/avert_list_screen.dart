@@ -12,7 +12,7 @@ class AvertListScreen<T extends Document> extends StatefulWidget {
 
   final Widget title;
   final List<T> initialList;
-  final Widget Function(ObjectKey, BuildContext, T, Function()) tileBuilder;
+  final Widget Function(ObjectKey, BuildContext, T, Function(T)) tileBuilder;
   final Function()? createDocument;
   final Widget Function(BuildContext) formBuilder;
 
@@ -35,7 +35,7 @@ class _ListScreenState<T extends Document> extends State<AvertListScreen<T>> {
     FThemeData theme = FTheme.of(context);
     return Scaffold(
       floatingActionButton: FButton.icon(
-        onPress: createNewDocument,
+        onPress: _createDocument,
         style: theme.buttonStyles.primary.copyWith(
           enabledBoxDecoration: theme.buttonStyles.primary.enabledBoxDecoration.copyWith(
             borderRadius: BorderRadius.circular(33),
@@ -69,25 +69,37 @@ class _ListScreenState<T extends Document> extends State<AvertListScreen<T>> {
           itemCount: list.length,
           itemBuilder: (context, index) {
             T document = list[index];
-            return widget.tileBuilder( ObjectKey(document), context, document, () => _removeDocument(index));
+            return widget.tileBuilder(ObjectKey(document), context, document, _removeDocument);
           },
         ),
       ),
     );
   }
 
-  void createNewDocument() async {
-    T? document = await Navigator.of(context).push<T>(
+  void _createDocument() async {
+    final Result<T> result = await Navigator.of(context).push<Result<T>>(
       MaterialPageRoute(
         builder: (context) => widget.formBuilder(context),
       )
-    );
-    if (document != null) {
-      setState(() => list.add(document));
+    ) ?? Result<T>.empty();
+    if (result.isEmpty) return;
+    switch(result.action) {
+      case DocumentAction.insert:
+      case DocumentAction.update:
+        _addDocument(result.document!);
+        break;
+      default:
+        break;
     }
   }
 
-  void _removeDocument(int index) {
-    setState(() => list.removeAt(index));
+  void _addDocument(T document) {
+    if (list.contains(document)) return;
+    setState(() => list.add(document));
+  }
+
+  void _removeDocument(T document) {
+    if (!list.contains(document)) return;
+    setState(() => list.remove(document));
   }
 }

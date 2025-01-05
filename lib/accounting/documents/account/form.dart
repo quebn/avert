@@ -178,8 +178,8 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     widget.document.parentID = _parentSelectController.values.singleOrNull?.id ?? 0;
 
     final Result<Account> result = await widget.onSubmit();
-
     if (!result.isEmpty && mounted) {
+      // TODO: try to replace this with a DocumentView builder and use pushReplace() instead of pop().
       Navigator.of(context).pop<Result<Account>>(result);
     }
   }

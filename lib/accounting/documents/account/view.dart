@@ -10,12 +10,10 @@ class AccountView extends StatefulWidget {
   const AccountView({super.key,
     required this.document,
     required this.profile,
-    //required this.onDelete,
   });
 
   final Profile profile;
   final Account document;
-  //final Function() onDelete;
 
   @override
   State<StatefulWidget> createState() => _ViewState();

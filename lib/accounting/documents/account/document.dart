@@ -291,11 +291,12 @@ class Account implements Document {
           builder: (context) => AvertListScreen<Account>(
             title: Text("Accounts"),
             initialList: accounts,
-            tileBuilder: (key ,context, account, deleteDocument) => AccountTile(
+            tileBuilder: (key ,context, account, removeDocument) => AccountTile(
               key: key,
               document: account,
               profile: profile,
-              onDelete: () => deleteDocument(),
+              removeDocument: removeDocument,
+              //onDelete: () => deleteDocument(),
             ),
             formBuilder: (context) {
               Account d = Account(profile: profile);

@@ -8,12 +8,12 @@ class AccountTile extends StatefulWidget {
   const AccountTile({super.key,
     required this.document,
     required this.profile,
-    required this.onDelete,
+    required this.removeDocument,
   });
 
   final Account document;
   final Profile profile;
-  final Function() onDelete;
+  final Function(Account) removeDocument;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -36,20 +36,26 @@ class _TileState extends State<AccountTile> {
   }
 
   void _viewProfile() async {
-    Account? document = await Navigator.of(context).push<Account>(
+    final Result<Account> result = await Navigator.of(context).push<Result<Account>>(
       MaterialPageRoute(
         builder: (context) => AccountView(
           document: widget.document,
           profile: widget.profile,
-          //onDelete: widget.onDelete,
         ),
       )
-    );
+    ) ?? Result.empty();
 
-    if (document != null) {
-      if (_name != document.name) {
-        setState(() => _name = document.name);
-      }
+    if (result.isEmpty) return;
+
+    switch (result.action) {
+      case DocumentAction.update:
+        setState(() => _name = result.document!.name);
+        break;
+      case DocumentAction.delete:
+        widget.removeDocument(result.document!);
+        break;
+      default:
+        break;
     }
   }
 }
