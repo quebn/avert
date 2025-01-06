@@ -46,7 +46,6 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
         ],
       )
     );
-    printInfo(title);
 
     Widget contentHeading = Row(
       children: [

@@ -210,11 +210,10 @@ class Account implements Document {
 
   @override
   Future<Result<Account>> insert() async {
-    if (!isNew(this)) {
+    if (!isNew(this) || await valuesNotValid()) {
       printInfo("Document is already be in database with id of '$id'");
       return Result<Account>.empty();
     }
-    if (await valuesNotValid()) return Result<Account>.empty();
 
     int now = DateTime.now().millisecondsSinceEpoch;
 
@@ -231,15 +230,32 @@ class Account implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
-    if (id == 0) return Result<Account>.empty();
 
-    return Result<Account>.insert(this);
+    return id == 0 ? Result<Account>.empty() : Result<Account>.insert(this);
   }
 
   @override
-  Future<Result<Account>> update() {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<Result<Account>> update() async {
+    if (await valuesNotValid() || isNew(this) || await hasChild) {
+      return Result<Account>.empty();
+    }
+
+    Map<String, Object?> values = {
+      "name": name,
+      "root": root.index,
+      "type": type.toString(),
+      "parent_id": parentID,
+      "is_group": isGroup ? 1 : 0,
+    };
+
+    printWarn("update with values of: ${values.toString()} on profile with id of: $id!");
+
+    bool success = await Core.database!.update(tableName, values,
+      where: "id = ?",
+      whereArgs: [id],
+    ) == 1;
+
+    return success ? Result<Account>.update(this) : Result<Account>.empty();
   }
 
   Future<bool> valuesNotValid() async {
@@ -306,14 +322,16 @@ class Account implements Document {
             if(!context.mounted) return;
             Result<Account> viewResult = await viewAccount(context, createResult.document!);
 
-            if (viewResult.isEmpty) return;
+            if (!viewResult.isEmpty) {
+              if (createResult.isEmpty || createResult.action != DocumentAction.insert) return;
+              addDocument(createResult.document!);
+              return;
+            }
 
-            switch(viewResult.action) {
-              case DocumentAction.delete:
-                break;
-              default:
-                addDocument(viewResult.document!);
-                break;
+            if (viewResult.action == DocumentAction.update) {
+              addDocument(viewResult.document!);
+            } else {
+              printImplement("SHOULD NOT REACH");
             }
           }
         ),
