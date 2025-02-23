@@ -24,7 +24,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   late final FRadioSelectGroupController<Profile> _selectController;
   late final FTabController _tabController;
 
-  Profile get selectedProfile => _selectController.values.single;
+  Profile get selectedProfile => _selectController.value.single;
 
   @override
   void initState() {
@@ -113,7 +113,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   }
 
   void _onProfileCreate(Profile profile) {
-    _selectController.select(profile, true);
+    _selectController.update(profile, selected: true);
     setState( () {
       widget.profiles.add(profile);
       _tabController.index = 0;

@@ -5,7 +5,6 @@ import "package:forui/forui.dart";
 import "documents/account/document.dart";
 
 class Accounting implements Module {
-
   @override
   Widget get icon => FIcon(FAssets.icons.handCoins);
 

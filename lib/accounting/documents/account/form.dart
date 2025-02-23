@@ -171,9 +171,9 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     FocusScope.of(context).requestFocus(FocusNode());
 
     widget.document.name = controllers['name']!.value.text;
-    widget.document.root = _rootSelectController.values.single;
-    widget.document.type = _typeSelectController.values.single;
-    widget.document.parentID = _parentSelectController.values.singleOrNull?.id ?? 0;
+    widget.document.root = _rootSelectController.value.single;
+    widget.document.type = _typeSelectController.value.single;
+    widget.document.parentID = _parentSelectController.value.singleOrNull?.id ?? 0;
 
     final Result<Account> result = await widget.onSubmit(widget.document);
 

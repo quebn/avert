@@ -62,7 +62,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
       enabled: enabled,
       builder: (state) => _builder(context, state),
       validator: _validate,
-      initialValue: controller.values.firstOrNull,
+      initialValue: controller.value.firstOrNull,
       forceErrorText: forceErrorText,
     );
   }
@@ -150,7 +150,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
             Size.fromHeight(MediaQuery.of(context).size.height / 2)
           ),
           child: SingleChildScrollView(
-              child: FSelectTileGroup<T>(
+            child: FSelectTileGroup<T>(
               divider: FTileDivider.full,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -160,7 +160,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
                 printInfo("Triggered");
                 return null;
               },
-              controller: controller,
+              groupController: controller,
               children: selections,
             ),
           ),

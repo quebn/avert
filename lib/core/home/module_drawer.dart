@@ -34,7 +34,7 @@ class HomeModuleDrawer extends StatelessWidget {
                   enabledBackgroundColor: theme.colorScheme.secondary
                 ),
               ),
-              controller: FRadioSelectGroupController(value: currentModule),
+              groupController: FRadioSelectGroupController(value: currentModule),
               divider: FTileDivider.full,
               label: const Text("Modules"),
               children: drawerModuleTiles,
@@ -55,7 +55,7 @@ class HomeModuleDrawer extends StatelessWidget {
           value: m,
           prefixIcon: m.icon,
           title: Text(m.name),
-          onChange: (selected) => onModuleSelect(selected, m),
+          onFocusChange: (selected) => onModuleSelect(selected, m),
           checkedIcon: SizedBox(),
         ),
       );
