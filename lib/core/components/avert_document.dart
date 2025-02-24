@@ -116,8 +116,11 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
               FPopoverMenu(
                 popoverController: controller,
                 menu: actionsGroups,
-                child: FIcon(FAssets.icons.ellipsisVertical,
-                  size: 28,
+                child: FHeaderAction(
+                  icon: FIcon(FAssets.icons.ellipsisVertical,
+                    size: 28,
+                  ),
+                  onPress: controller.toggle,
                 ),
               ),
             ],
