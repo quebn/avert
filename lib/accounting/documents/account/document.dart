@@ -331,6 +331,8 @@ class Account implements Document {
             if (viewResult.action == DocumentAction.update) {
               addDocument(viewResult.document!);
             } else {
+              printInfo(viewResult.action.toString());
+              // IMPORTANT: reached when creating a group account.
               printImplement("SHOULD NOT REACH");
             }
           }

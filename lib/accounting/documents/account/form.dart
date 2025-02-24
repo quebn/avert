@@ -81,30 +81,31 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           spacing: 8,
           children: [
             AvertSelect<AccountRoot>(
-              controller: _rootSelectController,
+              // controller: _rootSelectController,
+              initialValue: _rootSelectController.value.firstOrNull,
               options: AccountRoot.values.toList(),
               flex: 1,
               label: "Root Type",
               prefix: FIcon(FAssets.icons.folderRoot),
               valueBuilder: (context, root) => Text(root.toString()),
               tileSelectBuilder: (context, value) {
-                return FSelectTile<AccountRoot>.suffix(
+                return ListTile(
                   title: Text(value.toString()),
-                  value: value
+                  onTap: () => Navigator.pop(context, value),
                 );
               },
             ),
             AvertSelect<AccountType>(
-              controller: _typeSelectController,
+              initialValue: _typeSelectController.value.firstOrNull,
               options: AccountType.values.toList(),
               flex: 1,
               label: "Account Type",
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
               tileSelectBuilder: (context, value) {
-                return FSelectTile<AccountType>.suffix(
+                return ListTile(
                   title: Text(value.displayName),
-                  value: value
+                  onTap: () => Navigator.pop(context, value),
                 );
               },
             )
@@ -116,16 +117,15 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           children: [
             AvertSelect<Account>.queryOptions(
               flex: 1,
-              controller: _parentSelectController,
+              // controller: _parentSelectController,
               optionsQuery: null, // TODO: create query for this
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, type) => Text(type?.name ?? "No Account Available"),
               tileSelectBuilder: (context, value) {
-                return FSelectTile<Account>.suffix(
+                return ListTile(
                   title: Text(value.name),
                   subtitle: Text(value.root.toString()) ,
-                  value: value
                 );
               },
             ),

@@ -1,4 +1,5 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
 class AvertSelect<T extends Object> extends StatelessWidget {
@@ -6,8 +7,8 @@ class AvertSelect<T extends Object> extends StatelessWidget {
     required this.label,
     required this.valueBuilder,
     required this.tileSelectBuilder,
-    required this.controller,
     required this.options,
+    this.initialValue,
     this.description,
     this.error,
     this.prefix,
@@ -25,8 +26,8 @@ class AvertSelect<T extends Object> extends StatelessWidget {
     required this.label,
     required this.valueBuilder,
     required this.tileSelectBuilder,
-    required this.controller,
     required this.optionsQuery,
+    this.initialValue,
     this.description,
     this.error,
     this.prefix,
@@ -42,12 +43,12 @@ class AvertSelect<T extends Object> extends StatelessWidget {
 
   final String label;
   final Widget Function(BuildContext, T?) valueBuilder;
-  final FSelectTile<T> Function(BuildContext, T) tileSelectBuilder;
+  final Widget Function(BuildContext, T) tileSelectBuilder;
+  final T? initialValue;
   final List<T> options;
   final Widget? prefix, suffix, description, error;
   final bool enabled, required;
   final List<Widget> dialogActions;
-  final FRadioSelectGroupController<T> controller;
   final int flex;
   final Future<List<T>> Function()? optionsQuery;
   final void Function(T?)? onSaved;
@@ -62,7 +63,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
       enabled: enabled,
       builder: (state) => _builder(context, state),
       validator: _validate,
-      initialValue: controller.value.firstOrNull,
+      initialValue: initialValue,
       forceErrorText: forceErrorText,
     );
   }
@@ -123,63 +124,41 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   }
 
   Future<void> _select(BuildContext context, FormFieldState<T> state) async {
-    List<FSelectTile<T>> selections = [];
-    if (optionsQuery == null) {
-      _buildSelections(context, selections, options);
-    } else {
-      await _buildselectionsFromQuery(context, selections);
+    List<T> choices = options;
+    if (optionsQuery != null) {
+      choices = await optionsQuery!();
+      if (!context.mounted) return;
     }
-    if (context.mounted) {
-      T? value = await _openSelectionDialog(context, selections);
-      if (value == null) return;
-      state.didChange(value);
+    if (choices.isEmpty) {
+      notify(context, "$label: No available selections!");
+      return;
     }
+    T? value = await _openSelectionDialog(context, choices);
+    printInfo("After close of $label");
+    if (value == null) return;
+    state.didChange(value);
   }
 
-  Future<T?> _openSelectionDialog(BuildContext context, List<FSelectTile<T>> selections) {
-    printWarn("showing selection dialog");
+  Future<T?> _openSelectionDialog(BuildContext context, List<T> selections) {
     return showAdaptiveDialog<T>(
       context: context,
-      builder: (BuildContext context) => FDialog(
-        direction: Axis.vertical,
-        title: Text(label),
-        actions: dialogActions,
-        body: Container(
-          // INFO: set set selection window max height to half of the screen
-          constraints: BoxConstraints.loose(
-            Size.fromHeight(MediaQuery.of(context).size.height / 2)
-          ),
-          child: SingleChildScrollView(
-            child: FSelectTileGroup<T>(
-              divider: FTileDivider.full,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) {
-                T? selected = value?.single;
-                if (selected == null) return;
-                Navigator.of(context).pop(selected);
-                printInfo("Triggered");
-                return null;
-              },
-              groupController: controller,
-              children: selections,
+      builder: (BuildContext context) => FDialog.raw(
+        builder: (context, style) => FCard.raw(
+          child: Container(
+            padding: EdgeInsets.all(8),
+            child: Card(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: selections.length,
+                itemBuilder: (context, index) {
+                  return tileSelectBuilder(context, selections[index]);
+                },
+              ),
             ),
           ),
         ),
       ),
     );
-  }
-
-  void _buildSelections(BuildContext context, List<FSelectTile<T>> selectionList, List<T> optionsList) {
-    if (optionsList.isEmpty) return;
-
-    for (T item in optionsList) {
-      selectionList.add(tileSelectBuilder(context, item));
-    }
-  }
-
-  Future<void> _buildselectionsFromQuery(BuildContext context, List<FSelectTile<T>> selectionList) async {
-    List<T> results = await optionsQuery!();
-    if (context.mounted) _buildSelections(context, selectionList, results);
   }
 }
 
