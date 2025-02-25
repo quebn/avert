@@ -17,6 +17,7 @@ class SelectProfileForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     printTrack("Building SelectProfileForm");
+    FThemeData theme = FTheme.of(context);
     final String valueText = profiles.isEmpty? "No Profiles Found" :  "No Profile Selected";
     final List<Widget> widgets = [
       const SizedBox(height: 20),
@@ -25,9 +26,12 @@ class SelectProfileForm extends StatelessWidget {
         prefix: FIcon(FAssets.icons.user),
         initialValue: controller.value.firstOrNull,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
-        tileSelectBuilder: (context, value) => ListTile(
-          title: Text(value.name),
-          onTap: () => Navigator.pop(context, value),
+        tileSelectBuilder: (context, value) => FTile(
+          prefixIcon: FIcon(FAssets.icons.userRound),
+          title: Text(value.name, style: theme.typography.base),
+          // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
+          enabled: value == controller.value.firstOrNull,
+          onPress: () => Navigator.pop(context, value),
       ),
       options: profiles,
     ),

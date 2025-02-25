@@ -61,6 +61,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
   @override
   Widget build(BuildContext context) {
     printTrack("Building AccountDocumentForm");
+    final FThemeData theme = FTheme.of(context);
     return AvertDocumentForm<Account>(
       formKey: formKey,
       title: Text("${isNew(widget.document) ? "New" : "Edit"} Account",),
@@ -88,12 +89,13 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               label: "Root Type",
               prefix: FIcon(FAssets.icons.folderRoot),
               valueBuilder: (context, root) => Text(root.toString()),
-              tileSelectBuilder: (context, value) {
-                return ListTile(
-                  title: Text(value.toString()),
-                  onTap: () => Navigator.pop(context, value),
-                );
-              },
+              tileSelectBuilder: (context, value) => FTile(
+                prefixIcon: FIcon(FAssets.icons.folderRoot),
+                title: Text(value.name, style: theme.typography.base),
+                // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
+                enabled: value == _rootSelectController.value.firstOrNull,
+                onPress: () => Navigator.pop(context, value),
+              ),
             ),
             AvertSelect<AccountType>(
               initialValue: _typeSelectController.value.firstOrNull,
@@ -102,12 +104,13 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               label: "Account Type",
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
-              tileSelectBuilder: (context, value) {
-                return ListTile(
-                  title: Text(value.displayName),
-                  onTap: () => Navigator.pop(context, value),
-                );
-              },
+              tileSelectBuilder: (context, value) => FTile(
+                prefixIcon: FIcon(FAssets.icons.fileType),
+                title: Text(value.name, style: theme.typography.base),
+                // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
+                enabled: value == _typeSelectController.value.firstOrNull,
+                onPress: () => Navigator.pop(context, value),
+              ),
             )
           ]
         ),
@@ -117,17 +120,17 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           children: [
             AvertSelect<Account>.queryOptions(
               flex: 1,
-              // controller: _parentSelectController,
               optionsQuery: null, // TODO: create query for this
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, type) => Text(type?.name ?? "No Account Available"),
-              tileSelectBuilder: (context, value) {
-                return ListTile(
-                  title: Text(value.name),
-                  subtitle: Text(value.root.toString()) ,
-                );
-              },
+              tileSelectBuilder: (context, value) => FTile(
+                prefixIcon: FIcon(FAssets.icons.fileType),
+                title: Text(value.name, style: theme.typography.base),
+                // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
+                enabled: value == _parentSelectController.value.firstOrNull,
+                onPress: () => Navigator.pop(context, value),
+              ),
             ),
             AvertToggle(
               label: "is Group",

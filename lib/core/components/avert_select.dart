@@ -134,25 +134,36 @@ class AvertSelect<T extends Object> extends StatelessWidget {
       return;
     }
     T? value = await _openSelectionDialog(context, choices);
-    printInfo("After close of $label");
     if (value == null) return;
     state.didChange(value);
   }
 
   Future<T?> _openSelectionDialog(BuildContext context, List<T> selections) {
+    final FThemeData theme = FTheme.of(context);
     return showAdaptiveDialog<T>(
       context: context,
       builder: (BuildContext context) => FDialog.raw(
         builder: (context, style) => FCard.raw(
           child: Container(
-            padding: EdgeInsets.all(8),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Card(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: selections.length,
-                itemBuilder: (context, index) {
-                  return tileSelectBuilder(context, selections[index]);
-                },
+              color: theme.colorScheme.background,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Select $label",
+                    style: theme.typography.lg.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(height: 8),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: selections.length,
+                    itemBuilder: (context, index) {
+                      return tileSelectBuilder(context, selections[index]);
+                    },
+                  ),
+                ]
               ),
             ),
           ),
@@ -160,8 +171,4 @@ class AvertSelect<T extends Object> extends StatelessWidget {
       ),
     );
   }
-}
-
-foo() {
-  TextFormField();
 }
