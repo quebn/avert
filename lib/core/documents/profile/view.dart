@@ -1,3 +1,4 @@
+import "package:avert/accounting/documents/account/document.dart";
 import "package:avert/core/components/avert_document.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
@@ -9,11 +10,9 @@ class ProfileView extends StatefulWidget {
   const ProfileView({super.key,
     required this.document,
     required this.profile,
-    //required this.deleteDocument,
   });
 
   final Profile document, profile;
-  //final Function() deleteDocument;
 
   @override
   State<StatefulWidget> createState() => _ViewState();
@@ -55,13 +54,13 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   Future<void> deleteDocument() async {
     final bool shouldDelete = await _confirmDelete() ?? false;
 
-    if (shouldDelete) {
-      final bool success = await document.delete();
+    if (!shouldDelete) return;
 
-      if (!success) return;
-
+    final bool success = await document.delete();
+    if (success && mounted) {
+      Account.deleteAll(document);
       printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
-      if (mounted) Navigator.of(context).pop();
+      Navigator.of(context).pop();
     }
   }
 
@@ -75,23 +74,15 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
         ),
       )
     );
-
-    if (document.action == DocAction.none) return;
-    if (document.action == DocAction.update) {
-      setState(() => document = document);
-    }
+    if (document.action == DocAction.update) setState(() => document = widget.document);
   }
 
   Future<bool> _onEdit() async {
     // NOTE: add checks here.
     String msg = "Error writing the document to the database!";
-
     final bool success = await document.update();
-
-    if (!success) msg = "Successfully changed profile details";
-
+    if (success) msg = "Successfully changed profile details";
     if (mounted) notify(context, msg);
-
     return success;
   }
 
@@ -106,16 +97,12 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
           FButton(
             label: const Text("No"),
             style: FButtonStyle.outline,
-            onPress: () {
-              Navigator.of(context).pop(false);
-            },
+            onPress: () => Navigator.of(context).pop(false),
           ),
           FButton(
             style: FButtonStyle.destructive,
             label: const Text("Yes"),
-            onPress: () {
-              Navigator.of(context).pop(true);
-            },
+            onPress: () => Navigator.of(context).pop(true),
           ),
         ],
       ),

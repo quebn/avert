@@ -280,6 +280,14 @@ class Account implements Document {
     return values.isNotEmpty;
   }
 
+  static Future<bool> deleteAll(Profile profile) async {
+    final count = await Core.database!.delete(tableName,
+      where: "profile_id = ?",
+      whereArgs: [profile.id],
+    );
+    return count > 0;
+  }
+
   static Future<List<Account>> list(Profile profile) async {
     List<Account> list = [];
     List<Map<String, Object?>> values = await Core.database!.query(tableName,

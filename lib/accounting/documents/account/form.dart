@@ -124,7 +124,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
                 enabled: value == _parentSelectController.value.firstOrNull,
                 onPress: () => Navigator.pop(context, value),
               ),
@@ -132,9 +131,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
             AvertToggle(
               label: "is Group",
               initialValue: widget.document.isGroup,
-              onChange: (value) {
-                widget.document.isGroup = value;
-              },
+              onChange: (value) => widget.document.isGroup = value,
             ),
           ]
         ),
@@ -153,13 +150,8 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
   @override
   void onValueChange(bool Function() isDirtyCallback) {
     final bool isReallyDirty = isDirtyCallback();
-    if (isReallyDirty == isDirty) {
-      return;
-    }
-    printTrack("Setting state of is dirty = $isReallyDirty");
-    setState(() {
-      isDirty = isReallyDirty;
-    });
+    if (isReallyDirty == isDirty) return;
+    setState(() => isDirty = isReallyDirty );
   }
 
   @override
