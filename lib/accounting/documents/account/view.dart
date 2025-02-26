@@ -25,9 +25,6 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   late Account document = widget.document;
 
   @override
-  Result<Account> result = Result.empty();
-
-  @override
   void initState() {
     super.initState();
     _controller = FPopoverController(vsync: this);
@@ -43,7 +40,6 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     printTrack("Building Account Document View");
     return AvertDocumentView<Account>(
-      result: result,
       controller: _controller,
       name: "Account",
       title: document.name,
@@ -55,20 +51,20 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
 
   @override
   void editDocument() async {
-    Result<Account>? result = await Navigator.of(context).push<Result<Account>>(MaterialPageRoute(
+   await Navigator.of(context).push(MaterialPageRoute(
       builder: (BuildContext context) => AccountForm(
         document: document,
         onSubmit: _onEdit,
       ),
     ));
 
-    if (result == null || result.isEmpty) return;
-    if (result.action == DocumentAction.update) {
+    if (document.action == DocAction.none) return;
+    if (document.action == DocAction.update) {
       throw UnimplementedError("Should update the View");
     }
   }
 
-  Future<Result<Account>> _onEdit(Account document) async  {
+  Future<bool> _onEdit(Account document) async  {
     throw UnimplementedError();
     //String msg = "Error writing the document to the database!";
     //
@@ -117,14 +113,14 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
     final bool shouldDelete = await _confirmDelete() ?? false;
 
     if (shouldDelete) {
-      final Result<Account> result = await document.delete();
+      final bool success = await document.delete();
 
-      if (result.isEmpty) {
+      if (!success) {
         if (mounted) notify(context, "Could not delete: '${document.name}' can't be deteled in database!");
         return;
       }
       printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");
-      if (mounted) Navigator.of(context).pop<Result<Account>>(result);
+      if (mounted) Navigator.of(context).pop();
     }
   }
 }

@@ -26,9 +26,6 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   late Profile document = widget.document;
 
   @override
-  Result<Profile> result = Result<Profile>(null);
-
-  @override
   void initState() {
     super.initState();
     _controller = FPopoverController(vsync: this);
@@ -44,7 +41,6 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     printTrack("Building Profile Document View");
     return AvertDocumentView<Profile>(
-      result: result,
       controller: _controller,
       name: "Profile",
       title: document.name,
@@ -60,43 +56,43 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
     final bool shouldDelete = await _confirmDelete() ?? false;
 
     if (shouldDelete) {
-      result = await document.delete();
+      final bool success = await document.delete();
 
-      if (result.isEmpty) return;
+      if (!success) return;
 
       printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
-      if (mounted) Navigator.of(context).pop<Result<Profile>>(result);
+      if (mounted) Navigator.of(context).pop();
     }
   }
 
   @override
   void editDocument() async {
-    result = await Navigator.of(context).push<Result<Profile>>(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) => ProfileForm(
           document: document,
           onSubmit: _onEdit,
         ),
       )
-    ) ?? Result.empty();
+    );
 
-    if (result.isEmpty) return;
-    if (result.action == DocumentAction.update) {
-      setState(() => document = result.document!);
+    if (document.action == DocAction.none) return;
+    if (document.action == DocAction.update) {
+      setState(() => document = document);
     }
   }
 
-  Future<Result<Profile>> _onEdit() async {
+  Future<bool> _onEdit() async {
     // NOTE: add checks here.
     String msg = "Error writing the document to the database!";
 
-    final Result<Profile> result = await document.update();
+    final bool success = await document.update();
 
-    if (!result.isEmpty) msg = "Successfully changed profile details";
+    if (!success) msg = "Successfully changed profile details";
 
     if (mounted) notify(context, msg);
 
-    return result;
+    return success;
   }
 
   Future<bool?> _confirmDelete() {

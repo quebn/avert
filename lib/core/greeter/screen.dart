@@ -84,8 +84,8 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
 
     Widget content = FScaffold(
       header: SizedBox(height: kToolbarHeight,),
-      content:  Container(
-        margin: EdgeInsets.symmetric(horizontal: 16),
+      content: SingleChildScrollView(
+        // margin: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
             FHeader(
@@ -103,7 +103,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
             ),
           ],
         ),
-      )
+      ),
     );
     return Scaffold(
       backgroundColor: theme.colorScheme.background,

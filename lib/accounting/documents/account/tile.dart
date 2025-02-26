@@ -1,8 +1,9 @@
-import "package:avert/accounting/utils/common.dart";
+// import "package:avert/accounting/utils/common.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
 import "document.dart";
+import "view.dart";
 
 class AccountTile extends StatefulWidget {
   const AccountTile({super.key,
@@ -32,28 +33,34 @@ class _TileState extends State<AccountTile> {
       leading: FIcon(_icon),
       subtitle: Text(_root, style: theme.typography.sm),
       title: Text(_name, style: theme.typography.base),
-      onTap: widget.document.isGroup ? _viewChildren : _viewAccount,
+      onTap: _viewAccount,
     );
   }
 
-  void _viewChildren() async {
-    // TODO: Implement method
-    throw UnimplementedError("expand list of childrens");
-  }
+  // TODO: Implement method
+  // void _viewChildren() async {
+  //   throw UnimplementedError("expand list of childrens");
+  // }
 
   void _viewAccount() async {
-    final Result<Account> result = await viewAccount(context, widget.document);
-    if (result.isEmpty) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AccountView(
+          document: widget.document,
+        ),
+      )
+    );
 
-    switch (result.action) {
-      case DocumentAction.update:
-        setState(() => _name = result.document!.name);
-        break;
-      case DocumentAction.delete:
-        widget.removeDocument(result.document!);
-        break;
-      default:
-        break;
+    if (widget.document.action == DocAction.none) return;
+
+    switch (widget.document.action) {
+      case DocAction.update: {
+        setState(() => _name = widget.document.name);
+      } break;
+      case DocAction.delete: {
+        widget.removeDocument(widget.document);
+      } break;
+      default: break;
     }
   }
 }

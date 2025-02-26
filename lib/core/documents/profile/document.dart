@@ -6,6 +6,7 @@ class Profile implements Document {
     this.id = 0,
     this.name = "",
     int createdAt = 0,
+    this.action = DocAction.none,
   }): createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Profile.map({
@@ -27,6 +28,9 @@ class Profile implements Document {
   @override
   final DateTime createdAt;
 
+  @override
+  DocAction action;
+
   static String get tableName => "profiles";
 
   static String get tableQuery => """
@@ -43,8 +47,8 @@ class Profile implements Document {
   }
 
   @override
-  Future<Result<Profile>> update() async {
-    if (await valuesNotValid() || isNew(this)) return Result<Profile>.empty();
+  Future<bool> update() async {
+    if (await valuesNotValid() || isNew(this)) return false;
     Map<String, Object?> values = {
       "name": name,
     };
@@ -53,17 +57,17 @@ class Profile implements Document {
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
-    if (!success) return Result<Profile>.empty();
-    return Result<Profile>.update(this);
+    if (success) action = DocAction.update;
+    return success;
   }
 
   @override
-  Future<Result<Profile>> insert() async {
+  Future<bool> insert() async {
     if (!isNew(this)) {
       printInfo("Document is already be in database with id of '$id'");
-      return Result<Profile>.empty();
+      return false;
     }
-    if (await valuesNotValid()) return Result<Profile>.empty();
+    if (await valuesNotValid()) return false;
     int now = DateTime.now().millisecondsSinceEpoch;
     Map<String, Object?> values = {
       "name": name,
@@ -72,19 +76,18 @@ class Profile implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
-    if (id != 0) return Result<Profile>.empty();
-    return Result.insert(this);
+    final bool success = id > 0;
+    if (success) action = DocAction.insert;
+    return success;
   }
 
   @override
-  Future<Result<Profile>> delete() async {
+  Future<bool> delete() async {
     bool success = await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
-
-    if (!success) return Result<Profile>.empty();
-
-    return Result<Profile>.delete(this);
+    if (success) action = DocAction.delete;
+    return success;
   }
 }

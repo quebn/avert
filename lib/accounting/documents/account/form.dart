@@ -14,7 +14,7 @@ class AccountForm extends StatefulWidget {
   });
 
   final Account document;
-  final Future<Result<Account>> Function(Account) onSubmit;
+  final Future<bool> Function(Account) onSubmit;
 
   @override
   State<StatefulWidget> createState() => _NewState();
@@ -82,7 +82,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           spacing: 8,
           children: [
             AvertSelect<AccountRoot>(
-              // controller: _rootSelectController,
               initialValue: _rootSelectController.value.firstOrNull,
               options: AccountRoot.values.toList(),
               flex: 1,
@@ -92,7 +91,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.folderRoot),
                 title: Text(value.name, style: theme.typography.base),
-                // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
                 enabled: value == _rootSelectController.value.firstOrNull,
                 onPress: () => Navigator.pop(context, value),
               ),
@@ -107,7 +105,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
                 enabled: value == _typeSelectController.value.firstOrNull,
                 onPress: () => Navigator.pop(context, value),
               ),
@@ -178,10 +175,10 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     widget.document.type = _typeSelectController.value.single;
     widget.document.parentID = _parentSelectController.value.singleOrNull?.id ?? 0;
 
-    final Result<Account> result = await widget.onSubmit(widget.document);
+    final bool success = await widget.onSubmit(widget.document);
 
-    if (!result.isEmpty && mounted) {
-       Navigator.of(context).pop<Result<Account>>(result);
+    if (success && mounted) {
+       Navigator.of(context).pop<Account>(widget.document);
     }
   }
 }

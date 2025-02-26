@@ -1,4 +1,3 @@
-import "package:avert/accounting/utils/common.dart";
 import "package:avert/core/components/avert_list_screen.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/database.dart";
@@ -6,6 +5,7 @@ import "package:avert/core/utils/ui.dart";
 
 import "form.dart";
 import "tile.dart";
+import "view.dart";
 
 enum AccountRoot {
   asset,
@@ -52,6 +52,7 @@ class Account implements Document {
     this.type = AccountType.none,
     this.isGroup = false,
     int createdAt = 0,
+    this.action = DocAction.none,
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), children = null;
 
   Account.group({
@@ -64,6 +65,7 @@ class Account implements Document {
     this.type = AccountType.none,
     this.children = const [],
     int createdAt = 0,
+    this.action = DocAction.none,
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt) {
     if (children!.isEmpty) return;
     for (Account child in children!) {
@@ -177,6 +179,9 @@ class Account implements Document {
   @override
   final DateTime createdAt;
 
+  @override
+  DocAction action;
+
   final Profile profile;
   final List<Account>? children;
 
@@ -199,20 +204,20 @@ class Account implements Document {
   ) """;
 
   @override
-  Future<Result<Account>> delete() async {
+  Future<bool> delete() async {
     final bool success =  await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
-    if (success) return Result<Account>.delete(this);
-    return Result<Account>.empty();
+    if (success) action = DocAction.delete;
+    return success;
   }
 
   @override
-  Future<Result<Account>> insert() async {
+  Future<bool> insert() async {
     if (!isNew(this) || await valuesNotValid()) {
       printInfo("Document is already be in database with id of '$id'");
-      return Result<Account>.empty();
+      return false;
     }
 
     int now = DateTime.now().millisecondsSinceEpoch;
@@ -230,14 +235,15 @@ class Account implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
-
-    return id == 0 ? Result<Account>.empty() : Result<Account>.insert(this);
+    final success = id > 0;
+    if (success) action = DocAction.insert;
+    return success;
   }
 
   @override
-  Future<Result<Account>> update() async {
+  Future<bool> update() async {
     if (await valuesNotValid() || isNew(this) || await hasChild) {
-      return Result<Account>.empty();
+      return false;
     }
 
     Map<String, Object?> values = {
@@ -254,8 +260,9 @@ class Account implements Document {
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
+    if (success) action = DocAction.update;
 
-    return success ? Result<Account>.update(this) : Result<Account>.empty();
+    return success;
   }
 
   Future<bool> valuesNotValid() async {
@@ -316,24 +323,20 @@ class Account implements Document {
             //onDelete: () => deleteDocument(),
           ),
           createDocument: (addDocument) async {
-            Result<Account> createResult =  await _createAccount(context, profile);
-            if (createResult.isEmpty || createResult.action != DocumentAction.insert) return;
+            final Account? account = await _createAccount(context, profile);
+            if (account == null || account.action != DocAction.insert) return;
 
             if(!context.mounted) return;
-            Result<Account> viewResult = await viewAccount(context, createResult.document!);
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AccountView(
+                  document: account,
+                ),
+              )
+            );
 
-            if (!viewResult.isEmpty) {
-              if (createResult.isEmpty || createResult.action != DocumentAction.insert) return;
-              addDocument(createResult.document!);
-              return;
-            }
-
-            if (viewResult.action == DocumentAction.update) {
-              addDocument(viewResult.document!);
-            } else {
-              printInfo(viewResult.action.toString());
-              // IMPORTANT: reached when creating a group account.
-              printImplement("SHOULD NOT REACH");
+            if (account.action == DocAction.insert || account.action == DocAction.update) {
+              addDocument(account);
             }
           }
         ),
@@ -342,21 +345,23 @@ class Account implements Document {
   }
 }
 
-Future<Result<Account>> _createAccount(BuildContext context, Profile profile) async {
-  return await Navigator.of(context).push<Result<Account>>(
+Future<Account?> _createAccount(BuildContext context, Profile profile) async {
+  return await Navigator.of(context).push<Account>(
     MaterialPageRoute(
-      builder: (context) => AccountForm(
-        document: Account(profile),
-        onSubmit: (d) async {
-          String msg = "Error inserting the document to the database!";
-          Result<Account> result = await d.insert();
+      builder: (context) {
+        final Account document = Account(profile);
+        return AccountForm(
+          document: document,
+          onSubmit: (d) async {
+            String msg = "Error inserting the document to the database!";
+            final bool success = await d.insert();
 
-          if (!result.isEmpty) msg = "Account '${d.name}' created!";
-          if (context.mounted) notify(context, msg);
-
-          return result;
-        },
-      ),
+            if (success) msg = "Account '${d.name}' created!";
+            if (context.mounted) notify(context, msg);
+            return success;
+          },
+        );
+      },
     )
-  ) ?? Result.empty();
+  );
 }

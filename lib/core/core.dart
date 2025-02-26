@@ -23,25 +23,12 @@ abstract class Module {
   Widget settings(BuildContext context);
 }
 
-enum DocumentAction {
+enum DocAction {
   none,
   insert,
   update,
   delete,
-}
-
-class Result<T extends Document> {
-  Result(this.document):action = DocumentAction.none;
-  Result.insert(this.document):action = DocumentAction.insert;
-  Result.update(this.document):action = DocumentAction.update;
-  Result.delete(this.document):action = DocumentAction.delete;
-  Result.empty():action = DocumentAction.insert, document = null;
-
-  T? document;
-  final DocumentAction action;
-  // TODO: add message String
-
-  bool get isEmpty => document == null;
+  invalid,
 }
 
 abstract class Document {
@@ -49,23 +36,23 @@ abstract class Document {
     required this.id,
     required this.name,
     required this.createdAt,
-  });
+  }): action = DocAction.none;
 
   int id;
   String name;
   final DateTime createdAt;
+  DocAction action;
 
   // TODO: make insert return a message on success and failure.
-  Future<Result<Document>> update();
-  Future<Result<Document>> insert();
-  Future<Result<Document>> delete();
+  Future<bool> update();
+  Future<bool> insert();
+  Future<bool> delete();
 }
 
 abstract class DocumentView<T extends Document> {
   Future<void> deleteDocument();
   void editDocument();
   late T document;
-  Result<T> result = Result.empty();
 }
 
 abstract class DocumentForm {

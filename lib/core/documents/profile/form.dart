@@ -10,7 +10,7 @@ class ProfileForm extends StatefulWidget {
   });
 
   final Profile document;
-  final Future<Result<Profile>?> Function() onSubmit;
+  final Future<bool> Function() onSubmit;
 
   @override
   State<StatefulWidget> createState() => _NewState();
@@ -101,10 +101,10 @@ class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin i
 
     widget.document.name = controllers['name']!.value.text;
 
-    Result<Profile>? result = await widget.onSubmit();
+    final bool success = await widget.onSubmit();
 
-    if (result != null && mounted) {
-      Navigator.of(context).pop<Result<Profile>>(result);
+    if (success && mounted) {
+      Navigator.of(context).pop();
     }
   }
 }
