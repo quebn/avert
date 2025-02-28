@@ -91,7 +91,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.folderRoot),
                 title: Text(value.name, style: theme.typography.base),
-                enabled: value == _rootSelectController.value.firstOrNull,
                 onPress: () => Navigator.pop(context, value),
               ),
             ),
@@ -105,7 +104,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                enabled: value == _typeSelectController.value.firstOrNull,
                 onPress: () => Navigator.pop(context, value),
               ),
             )
@@ -117,14 +115,21 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           children: [
             AvertSelect<Account>.queryOptions(
               flex: 1,
-              optionsQuery: null, // TODO: create query for this
+              optionsQuery: () async {
+                printInfo("Querying Parent Accounts");
+                return await Account.fetchParents(
+                  widget.document.profile,
+                  _rootSelectController.value.singleOrNull,
+                  _typeSelectController.value.singleOrNull,
+                );
+              },
+              enabled: true,
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
-              valueBuilder: (context, type) => Text(type?.name ?? "No Account Available"),
+              valueBuilder: (context, account) => Text(account?.name ?? "No Account Available"),
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                enabled: value == _parentSelectController.value.firstOrNull,
                 onPress: () => Navigator.pop(context, value),
               ),
             ),

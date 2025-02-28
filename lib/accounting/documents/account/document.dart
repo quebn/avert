@@ -288,7 +288,7 @@ class Account implements Document {
     return count > 0;
   }
 
-  static Future<List<Account>> list(Profile profile) async {
+  static Future<List<Account>> fetchAll(Profile profile) async {
     List<Account> list = [];
     List<Map<String, Object?>> values = await Core.database!.query(tableName,
       where: "profile_id = ?",
@@ -313,8 +313,43 @@ class Account implements Document {
     return list;
   }
 
+  static Future<List<Account>> fetchParents(Profile profile, AccountRoot? root, AccountType? type) async {
+    List<Account> list = [];
+    String where = "profile_id = ? and is_group = ?";
+    List<Object> whereArgs = [profile.id, 1];
+    if (root != null) {
+      where = "$where and root = ?";
+      whereArgs.add(root.toString());
+    }
+    if (type != null) {
+      where = "$where and type = ?";
+      whereArgs.add(type.toString());
+    }
+    List<Map<String, Object?>> values = await Core.database!.query(tableName,
+      where: where,
+      whereArgs: whereArgs,
+    );
+
+    if (values.isEmpty) return list;
+
+    for (Map<String, Object?> value in values ) {
+      printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
+      list.add(Account.map(
+        profile: profile,
+        id: value["id"]!,
+        name: value["name"]!,
+        createdAt: value["createdAt"]!,
+        root: value["root"]!,
+        type: value["type"]!,
+        parentID: value["parent_id"]!,
+        isGroup: value["is_group"]!,
+      ));
+    }
+    return list;
+  }
+
   static void listScreen(BuildContext context, Profile profile) async {
-    final List<Account> accounts = await list(profile);
+    final List<Account> accounts = await fetchAll(profile);
 
     if (!context.mounted) return;
 

@@ -140,28 +140,42 @@ class AvertSelect<T extends Object> extends StatelessWidget {
 
   Future<T?> _openSelectionDialog(BuildContext context, List<T> selections) {
     final FThemeData theme = FTheme.of(context);
+    FDialogStyle dialogStyle = theme.dialogStyle.copyWith(
+      decoration: theme.dialogStyle.decoration.copyWith(
+        border: Border.all(color: theme.colorScheme.border, width: 2)
+      ),
+    );
+
     return showAdaptiveDialog<T>(
       context: context,
       builder: (BuildContext context) => FDialog.raw(
-        builder: (context, style) => FCard.raw(
+        style: dialogStyle,
+        builder: (context, style) => ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width/1.2,
+            maxHeight: MediaQuery.sizeOf(context).height/2
+          ),
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Card(
               color: theme.colorScheme.background,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
                     "Select $label",
                     style: theme.typography.lg.copyWith(fontWeight: FontWeight.w700),
                   ),
                   SizedBox(height: 8),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: selections.length,
-                    itemBuilder: (context, index) {
-                      return tileSelectBuilder(context, selections[index]);
-                    },
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: selections.length,
+                      itemBuilder: (context, index) {
+                        return tileSelectBuilder(context, selections[index]);
+                      },
+                    ),
                   ),
                 ]
               ),

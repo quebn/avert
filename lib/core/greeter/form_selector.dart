@@ -30,7 +30,6 @@ class SelectProfileForm extends StatelessWidget {
           prefixIcon: FIcon(FAssets.icons.userRound),
           title: Text(value.name, style: theme.typography.base),
           // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
-          enabled: value == controller.value.firstOrNull,
           onPress: () => Navigator.pop(context, value),
       ),
       options: profiles,
