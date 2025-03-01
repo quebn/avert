@@ -22,6 +22,8 @@ class AccountForm extends StatefulWidget {
 
 class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin implements DocumentForm {
 
+  List<Account> parents = [];
+
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late final FRadioSelectGroupController<AccountRoot> _rootSelectController;
@@ -45,6 +47,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     _rootSelectController = FRadioSelectGroupController<AccountRoot>(value: AccountRoot.asset);
     _typeSelectController = FRadioSelectGroupController<AccountType>(value: AccountType.none);
     _parentSelectController = FRadioSelectGroupController<Account>();
+    updateParentsOptions();
   }
 
   @override
@@ -88,6 +91,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               label: "Root Type",
               prefix: FIcon(FAssets.icons.folderRoot),
               valueBuilder: (context, root) => Text(root.toString()),
+              controller: _rootSelectController,
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.folderRoot),
                 title: Text(value.name, style: theme.typography.base),
@@ -101,10 +105,13 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               label: "Account Type",
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
+              controller: _typeSelectController,
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                onPress: () => Navigator.pop(context, value),
+                onPress: () {
+                  Navigator.pop(context, value);
+                },
               ),
             )
           ]
@@ -113,20 +120,14 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
         Row(
           spacing: 8,
           children: [
-            AvertSelect<Account>.queryOptions(
+            AvertSelect<Account>(
               flex: 1,
-              optionsQuery: () async {
-                printInfo("Querying Parent Accounts");
-                return await Account.fetchParents(
-                  widget.document.profile,
-                  _rootSelectController.value.singleOrNull,
-                  _typeSelectController.value.singleOrNull,
-                );
-              },
+              options: parents,
               enabled: true,
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, account) => Text(account?.name ?? "No Account Available"),
+              controller: _parentSelectController,
               tileSelectBuilder: (context, value) => FTile(
                 prefixIcon: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
@@ -174,8 +175,19 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
 
     final bool success = await widget.onSubmit(widget.document);
 
-    if (success && mounted) {
-       Navigator.of(context).pop<Account>(widget.document);
-    }
+    if (success && mounted) Navigator.of(context).pop();
+
+  }
+
+  void updateParentsOptions() {
+    Account.fetchParents(
+      widget.document.profile,
+      _rootSelectController.value.firstOrNull,
+      _typeSelectController.value.firstOrNull,
+    ).then((accounts) {
+      if (accounts.isNotEmpty) {
+        setState(() => parents = accounts);
+      }
+    });
   }
 }

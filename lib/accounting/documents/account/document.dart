@@ -319,7 +319,7 @@ class Account implements Document {
     List<Object> whereArgs = [profile.id, 1];
     if (root != null) {
       where = "$where and root = ?";
-      whereArgs.add(root.toString());
+      whereArgs.add(root.index);
     }
     if (type != null) {
       where = "$where and type = ?";
@@ -344,6 +344,7 @@ class Account implements Document {
         parentID: value["parent_id"]!,
         isGroup: value["is_group"]!,
       ));
+      // printInfo("fetch with value of: ${value.toString()}");
     }
     return list;
   }

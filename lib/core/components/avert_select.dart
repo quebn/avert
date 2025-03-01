@@ -2,12 +2,14 @@ import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
+// TODO: use StatefulWidget in the future and use controller listeners to update the state.
 class AvertSelect<T extends Object> extends StatelessWidget {
   const AvertSelect({super.key,
     required this.label,
     required this.valueBuilder,
     required this.tileSelectBuilder,
     required this.options,
+    required this.controller,
     this.initialValue,
     this.description,
     this.error,
@@ -20,26 +22,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
     this.validator,
     this.onSaved,
     this.forceErrorText,
-  }): optionsQuery = null;
-
-  const AvertSelect.queryOptions({super.key,
-    required this.label,
-    required this.valueBuilder,
-    required this.tileSelectBuilder,
-    required this.optionsQuery,
-    this.initialValue,
-    this.description,
-    this.error,
-    this.prefix,
-    this.suffix,
-    this.enabled = true,
-    this.dialogActions = const [],
-    this.flex = 0,
-    this.required = false,
-    this.validator,
-    this.onSaved,
-    this.forceErrorText,
-  }): options = const [];
+  });
 
   final String label;
   final Widget Function(BuildContext, T?) valueBuilder;
@@ -50,10 +33,10 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   final bool enabled, required;
   final List<Widget> dialogActions;
   final int flex;
-  final Future<List<T>> Function()? optionsQuery;
   final void Function(T?)? onSaved;
   final String? Function(T?)? validator;
   final String? forceErrorText;
+  final FRadioSelectGroupController<T> controller;
 
   @override
   Widget build(BuildContext context) {
@@ -124,17 +107,13 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   }
 
   Future<void> _select(BuildContext context, FormFieldState<T> state) async {
-    List<T> choices = options;
-    if (optionsQuery != null) {
-      choices = await optionsQuery!();
-      if (!context.mounted) return;
-    }
-    if (choices.isEmpty) {
+    if (options.isEmpty) {
       notify(context, "$label: No available selections!");
       return;
     }
-    T? value = await _openSelectionDialog(context, choices);
+    T? value = await _openSelectionDialog(context, options);
     if (value == null) return;
+    controller.update(value, selected: true);
     state.didChange(value);
   }
 
