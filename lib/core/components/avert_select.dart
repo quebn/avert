@@ -26,7 +26,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
 
   final String label;
   final Widget Function(BuildContext, T?) valueBuilder;
-  final Widget Function(BuildContext, T) tileSelectBuilder;
+  final AvertSelectTile Function(BuildContext, T) tileSelectBuilder;
   final T? initialValue;
   final List<T> options;
   final Widget? prefix, suffix, description, error;
@@ -125,6 +125,22 @@ class AvertSelect<T extends Object> extends StatelessWidget {
       ),
     );
 
+    final List<Widget> dialogContent = [
+      Text("Select $label",
+        style: theme.typography.lg.copyWith(fontWeight: FontWeight.w700),
+      ),
+      SizedBox(height: 8),
+      Flexible(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: selections.length,
+          itemBuilder: (context, index) {
+            return tileSelectBuilder(context, selections[index]);
+          },
+        ),
+      )
+    ];
+
     return showAdaptiveDialog<T>(
       context: context,
       builder: (BuildContext context) => FDialog.raw(
@@ -141,27 +157,42 @@ class AvertSelect<T extends Object> extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    "Select $label",
-                    style: theme.typography.lg.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(height: 8),
-                  Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: selections.length,
-                      itemBuilder: (context, index) {
-                        return tileSelectBuilder(context, selections[index]);
-                      },
-                    ),
-                  ),
-                ]
+                children: dialogContent,
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class AvertSelectTile<T extends Object> extends StatelessWidget {
+  const AvertSelectTile({
+    super.key,
+    required this.title,
+    required this.onPress,
+    this.prefixIcon,
+    this.style,
+  });
+
+  final Widget? prefixIcon;
+  final VoidCallback? onPress;
+  final Widget title;
+  final FTileStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    FThemeData theme = FTheme.of(context);
+    FTileStyle themeTileStyle = theme.tileGroupStyle.tileStyle;
+    return FTile(
+      style: style ?? themeTileStyle.copyWith(
+        borderRadius: BorderRadius.all(Radius.zero),
+        border: Border.all(width: 0)
+      ),
+      prefixIcon: prefixIcon,
+      title: title,
+      onPress: onPress,
     );
   }
 }

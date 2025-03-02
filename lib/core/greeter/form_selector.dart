@@ -22,16 +22,16 @@ class SelectProfileForm extends StatelessWidget {
     final List<Widget> widgets = [
       const SizedBox(height: 20),
       AvertSelect<Profile>(
+        controller: controller,
         label: "Profile",
         prefix: FIcon(FAssets.icons.user),
         initialValue: controller.value.firstOrNull,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
-        tileSelectBuilder: (context, value) => FTile(
+        tileSelectBuilder: (context, value) => AvertSelectTile(
           prefixIcon: FIcon(FAssets.icons.userRound),
           title: Text(value.name, style: theme.typography.base),
-          // style: theme.tileGroupStyle.tileStyle.copyWith(border: Border.all(width: 0)),
           onPress: () => Navigator.pop(context, value),
-      ),
+        ),
       options: profiles,
     ),
       const SizedBox(height: 20),
