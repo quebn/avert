@@ -100,9 +100,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   }
 
   String? _validate(T? value) {
-    if (required && value == null) {
-      return "$label is required!";
-    }
+    if (required && value == null) return "$label is required!";
     return validator == null ? null : validator!(value);
   }
 
@@ -171,14 +169,20 @@ class AvertSelectTile<T extends Object> extends StatelessWidget {
   const AvertSelectTile({
     super.key,
     required this.title,
-    required this.onPress,
-    this.prefixIcon,
+    required this.value,
+    this.onPress,
+    this.subtitle,
+    this.prefix,
+    this.suffix,
     this.style,
   });
 
-  final Widget? prefixIcon;
+  final T value;
   final VoidCallback? onPress;
   final Widget title;
+  final Widget? subtitle;
+  final Widget? prefix;
+  final Widget? suffix;
   final FTileStyle? style;
 
   @override
@@ -190,9 +194,14 @@ class AvertSelectTile<T extends Object> extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.zero),
         border: Border.all(width: 0)
       ),
-      prefixIcon: prefixIcon,
+      prefixIcon: prefix,
+      suffixIcon: suffix,
       title: title,
-      onPress: onPress,
+      subtitle: subtitle,
+      onPress: () {
+        if (onPress != null) onPress!();
+        Navigator.pop(context, value);
+      }
     );
   }
 }

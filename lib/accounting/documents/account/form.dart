@@ -44,8 +44,19 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
   @override
   void initState() {
     super.initState();
-    _rootSelectController = FRadioSelectGroupController<AccountRoot>(value: AccountRoot.asset);
-    _typeSelectController = FRadioSelectGroupController<AccountType>(value: AccountType.none);
+    // TODO: add onUpdate callbacks to _rootSelectController and _typeSelectController.
+    _rootSelectController = FRadioSelectGroupController<AccountRoot>(
+      value: AccountRoot.asset,
+      onUpdate: (result) {
+        printInfo("Root Selector Change: ${result.$2}");
+      },
+    );
+    _typeSelectController = FRadioSelectGroupController<AccountType>(
+      value: AccountType.none,
+      onUpdate: (result) {
+        printInfo("Type Selector Change: ${result.$2}");
+      },
+    );
     _parentSelectController = FRadioSelectGroupController<Account>();
     updateParentsOptions();
   }
@@ -76,7 +87,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           required: true,
           forceErrMsg: errMsg,
           initialValue: widget.document.name,
-          onChange: (value) => onValueChange((){
+          onChange: (value) => onValueChange(() {
             return value != widget.document.name;
           }),
         ),
@@ -92,10 +103,10 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               prefix: FIcon(FAssets.icons.folderRoot),
               valueBuilder: (context, root) => Text(root.toString()),
               controller: _rootSelectController,
-              tileSelectBuilder: (context, value) => AvertSelectTile(
-                prefixIcon: FIcon(FAssets.icons.folderRoot),
+              tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
+                value: value,
+                prefix: FIcon(FAssets.icons.folderRoot),
                 title: Text(value.name, style: theme.typography.base),
-                onPress: () => Navigator.pop(context, value),
               ),
             ),
             AvertSelect<AccountType>(
@@ -106,12 +117,10 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
               controller: _typeSelectController,
-              tileSelectBuilder: (context, value) => AvertSelectTile(
-                prefixIcon: FIcon(FAssets.icons.fileType),
+              tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
+                value: value,
+                prefix: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                onPress: () {
-                  Navigator.pop(context, value);
-                },
               ),
             )
           ]
@@ -128,10 +137,11 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               prefix: FIcon(FAssets.icons.fileType),
               valueBuilder: (context, account) => Text(account?.name ?? "No Account Available"),
               controller: _parentSelectController,
-              tileSelectBuilder: (context, value) => AvertSelectTile(
-                prefixIcon: FIcon(FAssets.icons.fileType),
+              tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
+                value: value,
+                prefix: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),
-                onPress: () => Navigator.pop(context, value),
+                subtitle: Text(value.type.toString(), style: theme.typography.sm),
               ),
             ),
             AvertToggle(
@@ -141,7 +151,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
             ),
           ]
         ),
-        // TODO: add table
+        // TODO: add table (table for what?)
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null : IconButton.filled(
@@ -163,9 +173,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
     widget.document.name = controllers['name']!.value.text;
@@ -174,9 +182,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     widget.document.parentID = _parentSelectController.value.singleOrNull?.id ?? 0;
 
     final bool success = await widget.onSubmit(widget.document);
-
     if (success && mounted) Navigator.of(context).pop();
-
   }
 
   void updateParentsOptions() {
