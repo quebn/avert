@@ -47,6 +47,9 @@ abstract class Document {
   Future<bool> update();
   Future<bool> insert();
   Future<bool> delete();
+
+  @override
+  String toString() => name;
 }
 
 abstract class DocumentView<T extends Document> {

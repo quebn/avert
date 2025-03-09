@@ -2,15 +2,13 @@ import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
 
-// TODO: use StatefulWidget in the future and use controller listeners to update the state.
-class AvertSelect<T extends Object> extends StatelessWidget {
+class AvertSelect<T extends Object> extends StatefulWidget {
   const AvertSelect({super.key,
     required this.label,
     required this.valueBuilder,
     required this.tileSelectBuilder,
     required this.options,
     required this.controller,
-    this.initialValue,
     this.description,
     this.error,
     this.prefix,
@@ -27,7 +25,6 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   final String label;
   final Widget Function(BuildContext, T?) valueBuilder;
   final AvertSelectTile Function(BuildContext, T) tileSelectBuilder;
-  final T? initialValue;
   final List<T> options;
   final Widget? prefix, suffix, description, error;
   final bool enabled, required;
@@ -36,22 +33,49 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   final void Function(T?)? onSaved;
   final String? Function(T?)? validator;
   final String? forceErrorText;
-  final FRadioSelectGroupController<T> controller;
+  final AvertSelectController<T> controller;
+
+  @override
+  State<StatefulWidget> createState() => _SelectState<T>();
+}
+
+class _SelectState<T extends Object> extends State<AvertSelect<T>> {
+  FormFieldState<T>? _state;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addValueListener(_updateState);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.controller.removeValueListener(_updateState);
+  }
+
+  void _updateState() {
+    printSuccess("Updating state on label: ${widget.label}");
+    _state?.didChange(widget.controller.value);
+  }
 
   @override
   Widget build(BuildContext context) {
+    printTrack("Building Select ${widget.label}");
     return FormField<T>(
-      key: key,
-      onSaved: onSaved,
-      enabled: enabled,
-      builder: (state) => _builder(context, state),
+      key: widget.key,
+      onSaved: widget.onSaved,
+      enabled: widget.enabled,
+      builder: _builder,
       validator: _validate,
-      initialValue: initialValue,
-      forceErrorText: forceErrorText,
+      initialValue: widget.controller.value,
+      forceErrorText: widget.forceErrorText,
     );
   }
 
-  Widget _builder(BuildContext context, FormFieldState<T> state) {
+  Widget _builder(FormFieldState<T> state) {
+    _state = state;
+    printAssert(state.value == widget.controller.value,"Select state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
     final FButtonCustomStyle style = theme.buttonStyles.outline;
     final FButtonCustomStyle errstyle = theme.buttonStyles.outline.copyWith(
@@ -66,15 +90,15 @@ class AvertSelect<T extends Object> extends StatelessWidget {
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle;
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
     return Flexible(
-      flex: flex,
+      flex: widget.flex,
       child: FLabel(
         error: state.hasError ? Text(state.errorText!) : null,
         axis: Axis.vertical,
         label: RichText(
           text: TextSpan(
             style: state.hasError ? errorTextStyle : enabledTextStyle,
-            text: label,
-            children:  required ? const [
+            text: widget.label,
+            children:  widget.required ? const [
               TextSpan(
                 text: " *",
                 style: TextStyle(
@@ -85,14 +109,14 @@ class AvertSelect<T extends Object> extends StatelessWidget {
             ] : null,
           ),
         ),
-        description: description,
+        description: widget.description,
         child: FButton(
           style: state.hasError ? errstyle : style,
-          onPress: options.isNotEmpty ? () async => _select(context, state) : null,
-          suffix: suffix,
-          prefix: prefix,
+          onPress: widget.enabled && widget.options.isNotEmpty ? () async => _select(context) : null,
+          suffix: widget.suffix,
+          prefix: widget.prefix,
           label: Expanded(
-            child: valueBuilder(context, state.value),
+            child: widget.valueBuilder(context, state.value),
           )
         ),
       ),
@@ -100,20 +124,20 @@ class AvertSelect<T extends Object> extends StatelessWidget {
   }
 
   String? _validate(T? value) {
-    if (required && value == null) return "$label is required!";
-    return validator == null ? null : validator!(value);
+    if (widget.required && value == null) return "${widget.label} is required!";
+    return widget.validator == null ? null : widget.validator!(value);
   }
 
-  Future<void> _select(BuildContext context, FormFieldState<T> state) async {
-    if (options.isEmpty) {
-      notify(context, "$label: No available selections!");
+  Future<void> _select(BuildContext context) async {
+    if (widget.options.isEmpty) {
+      notify(context, "${widget.label}: No available selections!");
       return;
     }
-    T? value = await _openSelectionDialog(context, options);
+    T? value = await _openSelectionDialog(context, widget.options);
     if (value == null) return;
-    controller.update(value, selected: true);
-    state.didChange(value);
+    widget.controller.update(value);//, selected: true);
   }
+
 
   Future<T?> _openSelectionDialog(BuildContext context, List<T> selections) {
     final FThemeData theme = FTheme.of(context);
@@ -124,7 +148,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
     );
 
     final List<Widget> dialogContent = [
-      Text("Select $label",
+      Text("Select ${widget.label}",
         style: theme.typography.lg.copyWith(fontWeight: FontWeight.w700),
       ),
       SizedBox(height: 8),
@@ -133,7 +157,7 @@ class AvertSelect<T extends Object> extends StatelessWidget {
           shrinkWrap: true,
           itemCount: selections.length,
           itemBuilder: (context, index) {
-            return tileSelectBuilder(context, selections[index]);
+            return widget.tileSelectBuilder(context, selections[index]);
           },
         ),
       )
@@ -203,5 +227,39 @@ class AvertSelectTile<T extends Object> extends StatelessWidget {
         Navigator.pop(context, value);
       }
     );
+  }
+}
+
+class AvertSelectController<T extends Object> {
+  AvertSelectController({
+    T? value,
+    this.onUpdate,
+  }):_value = value;
+
+  T? _value;
+  Function(T?, bool)? onUpdate;
+  final List<Function> _listeners = [];
+
+  T? get value => this._value;
+
+  bool update(T? value) {
+    if (_value == value) {
+      onUpdate?.call(_value, false);
+      return false;
+    }
+    _value = value;
+    onUpdate?.call(_value, true);
+    for (Function listener in _listeners) {
+      listener.call();
+    }
+    return true;
+  }
+
+  void addValueListener(Function valueListener) {
+    _listeners.add(valueListener);
+  }
+
+  void removeValueListener(Function valueListener) {
+    _listeners.remove(valueListener);
   }
 }

@@ -11,7 +11,7 @@ class SelectProfileForm extends StatelessWidget {
   });
 
   final List<Profile> profiles;
-  final FRadioSelectGroupController<Profile> controller;
+  final AvertSelectController<Profile> controller;
   final Function()? onEnter;
 
   @override
@@ -25,7 +25,6 @@ class SelectProfileForm extends StatelessWidget {
         controller: controller,
         label: "Profile",
         prefix: FIcon(FAssets.icons.user),
-        initialValue: controller.value.firstOrNull,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
         tileSelectBuilder: (context, value) => AvertSelectTile(
           value: value,

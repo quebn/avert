@@ -26,9 +26,9 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  late final FRadioSelectGroupController<AccountRoot> _rootSelectController;
-  late final FRadioSelectGroupController<AccountType> _typeSelectController;
-  late final FRadioSelectGroupController<Account> _parentSelectController;
+  late final AvertSelectController<AccountRoot> _rootSelectController;
+  late final AvertSelectController<AccountType> _typeSelectController;
+  late final AvertSelectController<Account> _parentSelectController;
 
   @override
   final Map<String, TextEditingController> controllers = {
@@ -44,21 +44,20 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
   @override
   void initState() {
     super.initState();
-    // TODO: add onUpdate callbacks to _rootSelectController and _typeSelectController.
-    _rootSelectController = FRadioSelectGroupController<AccountRoot>(
+    _rootSelectController = AvertSelectController<AccountRoot>(
       value: AccountRoot.asset,
-      onUpdate: (result) {
-        printInfo("Root Selector Change: ${result.$2}");
+      onUpdate: (value, didChange) {
+        if (didChange) _updateParentsOptions();
       },
     );
-    _typeSelectController = FRadioSelectGroupController<AccountType>(
+    _typeSelectController = AvertSelectController<AccountType>(
       value: AccountType.none,
-      onUpdate: (result) {
-        printInfo("Type Selector Change: ${result.$2}");
+      onUpdate: (value, didChange) {
+        if (didChange) _updateParentsOptions();
       },
     );
-    _parentSelectController = FRadioSelectGroupController<Account>();
-    updateParentsOptions();
+    _parentSelectController = AvertSelectController<Account>();
+    _updateParentsOptions();
   }
 
   @override
@@ -67,9 +66,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
-    _rootSelectController.dispose();
-    _typeSelectController.dispose();
-    _parentSelectController.dispose();
   }
 
   @override
@@ -96,7 +92,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           spacing: 8,
           children: [
             AvertSelect<AccountRoot>(
-              initialValue: _rootSelectController.value.firstOrNull,
               options: AccountRoot.values.toList(),
               flex: 1,
               label: "Root Type",
@@ -110,7 +105,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               ),
             ),
             AvertSelect<AccountType>(
-              initialValue: _typeSelectController.value.firstOrNull,
               options: AccountType.values.toList(),
               flex: 1,
               label: "Account Type",
@@ -132,10 +126,10 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
             AvertSelect<Account>(
               flex: 1,
               options: parents,
-              enabled: true,
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
-              valueBuilder: (context, account) => Text(account?.name ?? "No Account Available"),
+              valueBuilder: (context, account) => Text(account?.name ?? "None"),
+              validator: _parentValidator,
               controller: _parentSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
                 value: value,
@@ -177,23 +171,35 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     FocusScope.of(context).requestFocus(FocusNode());
 
     widget.document.name = controllers['name']!.value.text;
-    widget.document.root = _rootSelectController.value.single;
-    widget.document.type = _typeSelectController.value.single;
-    widget.document.parentID = _parentSelectController.value.singleOrNull?.id ?? 0;
+    widget.document.root = _rootSelectController.value!;//.first;
+    widget.document.type = _typeSelectController.value!;//.first;
+    widget.document.parentID = _parentSelectController.value?.id ?? 0;
 
     final bool success = await widget.onSubmit(widget.document);
     if (success && mounted) Navigator.of(context).pop();
   }
 
-  void updateParentsOptions() {
+  void _updateParentsOptions() {
     Account.fetchParents(
       widget.document.profile,
-      _rootSelectController.value.firstOrNull,
-      _typeSelectController.value.firstOrNull,
+      _rootSelectController.value,//.firstOrNull,
+      _typeSelectController.value,//.firstOrNull,
     ).then((accounts) {
-      if (accounts.isNotEmpty) {
-        setState(() => parents = accounts);
-      }
+      setState(() {
+        _parentSelectController.update(null);
+        parents = accounts;
+      });
+      printAssert(_parentSelectController.value == null, "Failed to clear!");
     });
+  }
+
+  String? _parentValidator(Account? value) {
+    if (value == null) return null;
+    final AccountType type = _typeSelectController.value!;
+    final AccountRoot root = _rootSelectController.value!;
+    if (value.root != root && value.type != type) {
+      return "Parent '${value.name}' is not valid! root should be '${root.toString()}' and type should be '${type.displayName}'";
+    }
+    return null;
   }
 }
