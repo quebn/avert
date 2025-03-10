@@ -1,4 +1,4 @@
-import "package:avert/core/components/avert_select.dart";
+import "package:avert/core/components/select.dart";
 import "package:avert/core/core.dart";
 
 import "package:forui/forui.dart";

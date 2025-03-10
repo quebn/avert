@@ -1,5 +1,5 @@
 import "package:avert/accounting/documents/account/document.dart";
-import "package:avert/core/components/avert_document.dart";
+import "package:avert/core/components/document.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";

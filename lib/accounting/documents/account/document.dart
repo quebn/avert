@@ -1,4 +1,4 @@
-import "package:avert/core/components/avert_list_screen.dart";
+import "package:avert/core/components/list_screen.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/database.dart";
 import "package:avert/core/utils/ui.dart";

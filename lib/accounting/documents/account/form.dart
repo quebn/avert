@@ -1,7 +1,7 @@
-import "package:avert/core/components/avert_document.dart";
-import "package:avert/core/components/avert_input.dart";
-import "package:avert/core/components/avert_select.dart";
-import "package:avert/core/components/avert_toggle.dart";
+import "package:avert/core/components/document.dart";
+import "package:avert/core/components/input.dart";
+import "package:avert/core/components/select.dart";
+import "package:avert/core/components/toggle.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
@@ -145,14 +145,13 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
                 subtitle: Text(value.type.toString(), style: theme.typography.sm),
               ),
             ),
-          AvertToggle(
-            label: "is Group",
-            initialValue: document.isGroup,
-            onChange: (value) => document.isGroup = value,
-          ),
-        ]
+            AvertToggle(
+              label: "is Group",
+              initialValue: document.isGroup,
+              onChange: (value) => document.isGroup = value,
+            ),
+          ]
         ),
-        // TODO: add table (table for what?)
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null : IconButton.filled(

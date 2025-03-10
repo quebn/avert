@@ -1,4 +1,4 @@
-import "package:avert/core/components/avert_document.dart";
+import "package:avert/core/components/document.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/utils/ui.dart";
 import "package:forui/forui.dart";
@@ -6,8 +6,14 @@ import "package:forui/forui.dart";
 import "document.dart";
 import "form.dart";
 
+// TODO: display ff.
+// [ ] type
+// [ ] root
+// [ ] parent
+// [ ] children as table (or list).
+
 class AccountView extends StatefulWidget {
-  const AccountView({super.key,
+  const AccountView({ super.key,
     required this.document,
   });
 
@@ -15,7 +21,6 @@ class AccountView extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _ViewState();
-
 }
 
 class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin implements DocumentView<Account>  {
