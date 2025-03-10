@@ -31,6 +31,7 @@ class SelectProfileForm extends StatelessWidget {
           value: value,
           prefix: FIcon(FAssets.icons.userRound),
           title: Text(value.name, style: theme.typography.base),
+          selected: controller.value == value,
         ),
       options: profiles,
     ),

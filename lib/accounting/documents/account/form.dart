@@ -101,6 +101,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               valueBuilder: (context, root) => Text(root.toString()),
               controller: _rootSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
+                selected: _rootSelectController.value == value,
                 value: value,
                 prefix: FIcon(FAssets.icons.folderRoot),
                 title: Text(value.toString(), style: theme.typography.base),
@@ -115,6 +116,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
               controller: _typeSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
+                selected: _typeSelectController.value == value,
                 value: value,
                 prefix: FIcon(FAssets.icons.fileType),
                 title: Text(value.displayName, style: theme.typography.base),
@@ -139,6 +141,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               validator: _parentValidator,
               controller: _parentSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
+                selected: _parentSelectController.value == value,
                 value: value,
                 prefix: FIcon(FAssets.icons.fileType),
                 title: Text(value.name, style: theme.typography.base),

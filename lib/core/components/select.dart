@@ -162,6 +162,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
         ),
       ),
       Container(
+        margin: EdgeInsets.only(top: 8),
         child: (widget.required) ? null : FButton(
           style: FButtonStyle.destructive,
           onPress: () {
@@ -208,7 +209,9 @@ class AvertSelectTile<T extends Object> extends StatelessWidget {
     this.subtitle,
     this.prefix,
     this.suffix,
-    this.style,
+    this.tileStyle,
+    this.selectedStyle,
+    this.selected = false,
   });
 
   final T value;
@@ -217,17 +220,21 @@ class AvertSelectTile<T extends Object> extends StatelessWidget {
   final Widget? subtitle;
   final Widget? prefix;
   final Widget? suffix;
-  final FTileStyle? style;
+  final FTileStyle? tileStyle;
+  final FTileStyle? selectedStyle;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
-    FThemeData theme = FTheme.of(context);
-    FTileStyle themeTileStyle = theme.tileGroupStyle.tileStyle;
+    final FThemeData theme = FTheme.of(context);
+    final FTileStyle styleNormal = tileStyle ?? theme.tileGroupStyle.tileStyle.copyWith(
+      border: Border.all(width: 0),
+    );
+    final FTileStyle styleSelected = selectedStyle ?? theme.tileGroupStyle.tileStyle.copyWith(
+      enabledBackgroundColor: theme.tileGroupStyle.tileStyle.enabledHoveredBackgroundColor
+    );
     return FTile(
-      style: style ?? themeTileStyle.copyWith(
-        borderRadius: BorderRadius.all(Radius.zero),
-        border: Border.all(width: 0)
-      ),
+      style: selected ? styleSelected : styleNormal,
       prefixIcon: prefix,
       suffixIcon: suffix,
       title: title,
