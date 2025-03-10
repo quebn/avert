@@ -21,7 +21,7 @@ class AccountForm extends StatefulWidget {
 }
 
 class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin implements DocumentForm {
-
+  Account get document => widget.document;
   List<Account> parents = [];
 
   @override
@@ -75,7 +75,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     final TextStyle selectValueStyle = theme.textFieldStyle.disabledStyle.labelTextStyle;
     return AvertDocumentForm<Account>(
       formKey: formKey,
-      title: Text("${isNew(widget.document) ? "New" : "Edit"} Account",),
+      title: Text("${isNew(document) ? "New" : "Edit"} Account",),
       contents: [
         AvertInput.text(
           label: "Name",
@@ -83,9 +83,9 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
           controller: controllers['name']!,
           required: true,
           forceErrMsg: errMsg,
-          initialValue: widget.document.name,
+          initialValue: document.name,
           onChange: (value) => onValueChange(() {
-            return value != widget.document.name;
+            return value != document.name;
           }),
         ),
         SizedBox(height: 8),
@@ -103,7 +103,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
                 value: value,
                 prefix: FIcon(FAssets.icons.folderRoot),
-                title: Text(value.name, style: theme.typography.base),
+                title: Text(value.toString(), style: theme.typography.base),
               ),
             ),
             AvertSelect<AccountType>(
@@ -117,7 +117,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
                 value: value,
                 prefix: FIcon(FAssets.icons.fileType),
-                title: Text(value.name, style: theme.typography.base),
+                title: Text(value.displayName, style: theme.typography.base),
               ),
             )
           ]
@@ -131,7 +131,6 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               options: parents,
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
-              // TODO: make none have some sort of style.
               valueBuilder: (context, account) {
                 return (account != null)
                 ? Text(account.name)
@@ -148,8 +147,8 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
             ),
           AvertToggle(
             label: "is Group",
-            initialValue: widget.document.isGroup,
-            onChange: (value) => widget.document.isGroup = value,
+            initialValue: document.isGroup,
+            onChange: (value) => document.isGroup = value,
           ),
         ]
         ),
@@ -178,20 +177,20 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
-    widget.document.name = controllers['name']!.value.text;
-    widget.document.root = _rootSelectController.value!;//.first;
-    widget.document.type = _typeSelectController.value!;//.first;
-    widget.document.parentID = _parentSelectController.value?.id ?? 0;
+    document.name = controllers['name']!.value.text;
+    document.root = _rootSelectController.value!;
+    document.type = _typeSelectController.value!;
+    document.parentID = _parentSelectController.value?.id ?? 0;
 
-    final bool success = await widget.onSubmit(widget.document);
-    if (success && mounted) Navigator.of(context).pop();
+    final bool success = await widget.onSubmit(document);
+    if (success && mounted) Navigator.of(context).pop<Account>(document);
   }
 
   void _updateParentsOptions() {
     Account.fetchParents(
-      widget.document.profile,
-      _rootSelectController.value,//.firstOrNull,
-      _typeSelectController.value,//.firstOrNull,
+      document.profile,
+      _rootSelectController.value,
+      _typeSelectController.value,
     ).then((accounts) {
       setState(() {
         _parentSelectController.update(null);

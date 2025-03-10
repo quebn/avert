@@ -126,7 +126,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
 
   String? _validate(T? value) {
     if (widget.required && value == null) return "${widget.label} is required!";
-    return widget.validator == null ? null : widget.validator!(value);
+    return widget.validator?.call(value);
   }
 
   Future<void> _select(BuildContext context) async {

@@ -223,6 +223,6 @@ class _InputState extends State<AvertInput> {
     if (widget.required && (value == null || value.isEmpty)) {
       return "${widget.label} is required!";
     }
-    return widget.validator == null ? null : widget.validator!(value);
+    return widget.validator?.call(value);
   }
 }

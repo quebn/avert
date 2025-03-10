@@ -37,7 +37,7 @@ class AvertToggle extends StatelessWidget {
       value: state.value!,
       onChange: (value) {
         state.didChange(value);
-        if (onChange != null) onChange!(value);
+        onChange?.call(value);
       },
     );
   }
