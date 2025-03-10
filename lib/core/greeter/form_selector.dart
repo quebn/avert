@@ -25,6 +25,7 @@ class SelectProfileForm extends StatelessWidget {
         controller: controller,
         label: "Profile",
         prefix: FIcon(FAssets.icons.user),
+        required: true,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
         tileSelectBuilder: (context, value) => AvertSelectTile(
           value: value,

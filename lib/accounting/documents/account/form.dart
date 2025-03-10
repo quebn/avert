@@ -72,6 +72,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
   Widget build(BuildContext context) {
     printTrack("Building AccountDocumentForm");
     final FThemeData theme = FTheme.of(context);
+    final TextStyle selectValueStyle = theme.textFieldStyle.disabledStyle.labelTextStyle;
     return AvertDocumentForm<Account>(
       formKey: formKey,
       title: Text("${isNew(widget.document) ? "New" : "Edit"} Account",),
@@ -96,6 +97,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               flex: 1,
               label: "Root Type",
               prefix: FIcon(FAssets.icons.folderRoot),
+              required: true,
               valueBuilder: (context, root) => Text(root.toString()),
               controller: _rootSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
@@ -109,6 +111,7 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               flex: 1,
               label: "Account Type",
               prefix: FIcon(FAssets.icons.fileType),
+              required: true,
               valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
               controller: _typeSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
@@ -128,7 +131,12 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
               options: parents,
               label: "Parent",
               prefix: FIcon(FAssets.icons.fileType),
-              valueBuilder: (context, account) => Text(account?.name ?? "None"),
+              // TODO: make none have some sort of style.
+              valueBuilder: (context, account) {
+                return (account != null)
+                ? Text(account.name)
+                : Text("None", style: selectValueStyle);
+              },
               validator: _parentValidator,
               controller: _parentSelectController,
               tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
@@ -138,12 +146,12 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
                 subtitle: Text(value.type.toString(), style: theme.typography.sm),
               ),
             ),
-            AvertToggle(
-              label: "is Group",
-              initialValue: widget.document.isGroup,
-              onChange: (value) => widget.document.isGroup = value,
-            ),
-          ]
+          AvertToggle(
+            label: "is Group",
+            initialValue: widget.document.isGroup,
+            onChange: (value) => widget.document.isGroup = value,
+          ),
+        ]
         ),
         // TODO: add table (table for what?)
       ],

@@ -14,7 +14,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
     this.prefix,
     this.suffix,
     this.enabled = true,
-    this.dialogActions = const [],
+    // this.dialogActions = const [],
     this.flex = 0,
     this.required = false,
     this.validator,
@@ -28,7 +28,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
   final List<T> options;
   final Widget? prefix, suffix, description, error;
   final bool enabled, required;
-  final List<Widget> dialogActions;
+  // final List<Widget> dialogActions;
   final int flex;
   final void Function(T?)? onSaved;
   final String? Function(T?)? validator;
@@ -41,6 +41,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
 
 class _SelectState<T extends Object> extends State<AvertSelect<T>> {
   FormFieldState<T>? _state;
+  List<T> get options => widget.options;
 
   @override
   void initState() {
@@ -55,7 +56,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
   }
 
   void _updateState() {
-    printSuccess("Updating state on label: ${widget.label}");
+    // printSuccess("Updating state on label: ${widget.label}");
     _state?.didChange(widget.controller.value);
   }
 
@@ -112,7 +113,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
         description: widget.description,
         child: FButton(
           style: state.hasError ? errstyle : style,
-          onPress: widget.enabled && widget.options.isNotEmpty ? () async => _select(context) : null,
+          onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
           suffix: widget.suffix,
           prefix: widget.prefix,
           label: Expanded(
@@ -129,17 +130,16 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
   }
 
   Future<void> _select(BuildContext context) async {
-    if (widget.options.isEmpty) {
+    if (options.isEmpty) {
       notify(context, "${widget.label}: No available selections!");
       return;
     }
-    T? value = await _openSelectionDialog(context, widget.options);
-    if (value == null) return;
-    widget.controller.update(value);//, selected: true);
+    T? value = await _openSelectionDialog(context);
+    if (value != null) widget.controller.update(value);
   }
 
 
-  Future<T?> _openSelectionDialog(BuildContext context, List<T> selections) {
+  Future<T?> _openSelectionDialog(BuildContext context) {
     final FThemeData theme = FTheme.of(context);
     FDialogStyle dialogStyle = theme.dialogStyle.copyWith(
       decoration: theme.dialogStyle.decoration.copyWith(
@@ -155,12 +155,22 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
       Flexible(
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: selections.length,
+          itemCount: options.length,
           itemBuilder: (context, index) {
-            return widget.tileSelectBuilder(context, selections[index]);
+            return widget.tileSelectBuilder(context, options[index]);
           },
         ),
-      )
+      ),
+      Container(
+        child: (widget.required) ? null : FButton(
+          style: FButtonStyle.destructive,
+          onPress: () {
+            widget.controller.update(null);
+            Navigator.of(context).pop<T?>(null);
+          },
+          label: const Text("Deselect"),
+        ),
+      ),
     ];
 
     return showAdaptiveDialog<T>(
@@ -223,8 +233,8 @@ class AvertSelectTile<T extends Object> extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       onPress: () {
-        if (onPress != null) onPress!();
-        Navigator.pop(context, value);
+        onPress?.call();
+        Navigator.of(context).pop<T?>(value);
       }
     );
   }
