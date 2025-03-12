@@ -1,6 +1,7 @@
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
+// IMPORTANT: add sorting mechanism
 class AvertListScreen<T extends Document> extends StatefulWidget {
   const AvertListScreen({super.key,
     required this.initialList,
@@ -73,19 +74,6 @@ class _ListScreenState<T extends Document> extends State<AvertListScreen<T>> {
       ),
     );
   }
-
-  //void _createDocument() async {
-  //  final Result<T> result = await Navigator.of(context).push<Result<T>>(
-  //    MaterialPageRoute(
-  //      builder: (context) => widget.formBuilder(context),
-  //    )
-  //  ) ?? Result<T>.empty();
-  //  if (result.isEmpty) return;
-  //  printImplement("should add document to list");
-  //  //throw UnimplementedError("should add document to list");
-  //  // TODO: this should only expect a document if there is document returned add, else dont,
-  //
-  //}
 
   void _addDocument(T document) {
     if (list.contains(document)) return;

@@ -38,15 +38,43 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
+    final FThemeData theme = FTheme.of(context);
+    final FCardContentStyle contentStyle = theme.cardStyle.contentStyle;
     printTrack("Building Profile Document View");
+    final List<Widget> header = [
+      Text(document.name, style: contentStyle.titleTextStyle),
+      Text("", style: contentStyle.subtitleTextStyle),
+    ];
     return AvertDocumentView<Profile>(
       controller: _controller,
       name: "Profile",
-      title: document.name,
-      subtitle: document != widget.profile ? "Current Profile" : "Profile",
+      header: header,
+      // title: document.name,
+      // subtitle: document != widget.profile ? "Current Profile" : "Profile",
       editDocument: editDocument,
       deleteDocument: deleteDocument,
       content: Container(),
+      prefix: FButton.raw(
+        onPress: null, // TODO: implement later
+        child: Container(
+          alignment: Alignment.center,
+          height: 150,
+          width: 150,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            color: theme.avatarStyle.backgroundColor,
+            // TODO: implement later
+            // image: image != null ? DecorationImage(
+              //   image: image!,
+              //   fit: BoxFit.cover,
+              // ) : null,
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Text(getAcronym(document.name),
+            style: theme.typography.xl6
+          ),
+        ),
+      ),
     );
   }
 
@@ -108,5 +136,4 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
       ),
     );
   }
-
 }

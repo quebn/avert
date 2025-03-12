@@ -3,29 +3,31 @@ import "package:forui/forui.dart";
 import "package:avert/core/utils/ui.dart";
 
 class AvertDocumentView<T extends Document> extends StatelessWidget {
-  const AvertDocumentView({super.key,
+  const AvertDocumentView({
+    super.key,
     required this.name,
-    required this.title,
+    required this.header,
     required this.controller,
     required this.deleteDocument,
-    this.image,
-    this.subtitle,
+    this.prefix,
+    this.enablePrefix = false,
     this.menuActions,
     this.leading,
     this.content,
     this.tabview,
     this.editDocument,
-    this.onImagePress,
+    // this.onImagePress,
   });
 
-  final String name, title;
-  final String? subtitle;
-  final Widget?  leading, content;
+  final String name;
+  final Widget? leading, content;
+  final List<Widget> header;
+  final Widget? prefix;
+  final bool enablePrefix;
   final List<FTileGroupMixin<FTileMixin>>? menuActions;
   final FPopoverController controller;
   final FTabs? tabview;
-  final ImageProvider<Object>? image;
-  final Function()? editDocument, deleteDocument, onImagePress;
+  final Function()? editDocument, deleteDocument;
 
   @override
   Widget build(BuildContext context) {
@@ -44,46 +46,40 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
         ],
       )
     );
-
-    Widget contentHeading = Row(
-      children: [
-        FButton.raw(
-          onPress: onImagePress,
-          child: Container(
-            alignment: Alignment.center,
-            height: 150,
-            width: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-              color: theme.avatarStyle.backgroundColor,
-              image: image != null ? DecorationImage(
-                image: image!,
-                fit: BoxFit.cover,
-              ) : null,
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Text(getAcronym(title),
-              style: theme.typography.xl6
-            ),
+    final Widget prfx = prefix ?? FButton.raw(
+      onPress: null, // TODO: implement later
+      child: Container(
+        alignment: Alignment.center,
+        height: 150,
+        width: 150,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          color: theme.avatarStyle.backgroundColor,
+          // TODO: implement later
+          // image: image != null ? DecorationImage(
+            //   image: image!,
+            //   fit: BoxFit.cover,
+            // ) : null,
           ),
+          clipBehavior: Clip.hardEdge,
+          child: Text(getAcronym(name),
+          style: theme.typography.xl6
         ),
+      ),
+    );
+
+    final Widget contentHeading = Row(
+      children: [
+        SizedBox(child: enablePrefix || prefix != null ? prfx : null),
         Padding(
           padding: EdgeInsets.only(left: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                style: theme.cardStyle.contentStyle.titleTextStyle
-              ),
-              Text(subtitle ?? "" ,
-                style: theme.cardStyle.contentStyle.subtitleTextStyle
-              ),
-            ],
+            children: header,
           ),
         ),
       ]
     );
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -116,28 +112,28 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
                 menu: actionsGroups,
                 child: FHeaderAction(
                   icon: FIcon(FAssets.icons.ellipsisVertical,
-                    size: 28,
-                  ),
-                  onPress: controller.toggle,
+                  size: 28,
                 ),
+                onPress: controller.toggle,
               ),
-            ],
-          ),
-          content:Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 16, left: 16),
-                child:contentHeading,
-              ),
-              Container(child: content),
-              FDivider(),
-              Container(child: tabview),
-            ]
-          ),
+            ),
+          ],
+        ),
+        content:Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 16, left: 16),
+              child:contentHeading,
+            ),
+            Container(child: content),
+            FDivider(),
+            Container(child: tabview),
+          ]
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

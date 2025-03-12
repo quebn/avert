@@ -43,11 +43,25 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
+    final FThemeData theme = FTheme.of(context);
+    final FCardContentStyle contentStyle = theme.cardStyle.contentStyle;
+
+    final SvgAsset icon = document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
+
+    final List<Widget> header = [
+      Row( children:[
+        FIcon(icon),
+        SizedBox(width: 8),
+        Text(document.name, style: contentStyle.titleTextStyle),
+      ]),
+      Row( children: [
+      ]),
+    ];
     printTrack("Building Account Document View");
     return AvertDocumentView<Account>(
       controller: _controller,
       name: "Account",
-      title: document.name,
+      header: header,
       editDocument: editDocument,
       deleteDocument: deleteDocument,
       content: Container(),
@@ -71,11 +85,10 @@ class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin 
 
   Future<bool> _onEdit(Account document) async  {
     throw UnimplementedError();
-    //String msg = "Error writing the document to the database!";
+    // String msg = "Error writing the document to the database!";
     //
-    //bool success = true;//await account.update();
-    //
-    //if (success) msg = "Successfully changed account details";
+    // bool success = true;//await account.update();
+    // if (success) msg = "Successfully changed account details";
     //if (mounted) notify(context, msg);
     //
     //return success;

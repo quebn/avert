@@ -288,7 +288,7 @@ class Account implements Document {
     return count > 0;
   }
 
-  static Future<List<Account>> fetchAll(Profile profile) async {
+  static Future<List<Account>> fetchAll(Profile profile, {bool sorted = false}) async {
     List<Account> list = [];
     List<Map<String, Object?>> values = await Core.database!.query(tableName,
       where: "profile_id = ?",
