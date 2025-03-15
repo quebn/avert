@@ -1,4 +1,3 @@
-// import "package:avert/accounting/utils/common.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
@@ -27,8 +26,8 @@ class _TileState extends State<AccountTile> {
 
   @override
   Widget build(BuildContext context) {
-    final FThemeData theme = FTheme.of(context);
     printTrack("build account tile with name of :${widget.document.name}");
+    final FThemeData theme = FTheme.of(context);
     return ListTile(
       leading: FIcon(_icon),
       subtitle: Text(_root, style: theme.typography.sm),
@@ -36,11 +35,6 @@ class _TileState extends State<AccountTile> {
       onTap: _viewAccount,
     );
   }
-
-  // TODO: Implement method
-  // void _viewChildren() async {
-  //   throw UnimplementedError("expand list of childrens");
-  // }
 
   void _viewAccount() async {
     await Navigator.of(context).push(

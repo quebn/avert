@@ -49,13 +49,11 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
       controller: _controller,
       name: "Profile",
       header: header,
-      // title: document.name,
-      // subtitle: document != widget.profile ? "Current Profile" : "Profile",
       editDocument: editDocument,
       deleteDocument: deleteDocument,
       content: Container(),
       prefix: FButton.raw(
-        onPress: null, // TODO: implement later
+        onPress: null,
         child: Container(
           alignment: Alignment.center,
           height: 150,
@@ -63,16 +61,9 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(8)),
             color: theme.avatarStyle.backgroundColor,
-            // TODO: implement later
-            // image: image != null ? DecorationImage(
-              //   image: image!,
-              //   fit: BoxFit.cover,
-              // ) : null,
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Text(getAcronym(document.name),
-            style: theme.typography.xl6
           ),
+          clipBehavior: Clip.hardEdge,
+          child: Text(getAcronym(document.name), style: theme.typography.xl6),
         ),
       ),
     );
@@ -106,7 +97,6 @@ class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin 
   }
 
   Future<bool> _onEdit() async {
-    // NOTE: add checks here.
     String msg = "Error writing the document to the database!";
     final bool success = await document.update();
     if (success) msg = "Successfully changed profile details";

@@ -53,26 +53,7 @@ class Account implements Document {
     this.isGroup = false,
     int createdAt = 0,
     this.action = DocAction.none,
-  }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), children = null;
-
-  Account.group({
-    required this.profile,
-    required this.root,
-    this.id = 0,
-    this.name = "",
-    this.parentID = 0,
-    this.isGroup = true,
-    this.type = AccountType.none,
-    this.children = const [],
-    int createdAt = 0,
-    this.action = DocAction.none,
-  }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt) {
-    if (children!.isEmpty) return;
-    for (Account child in children!) {
-      assert(child.root == root, "Account Root Error: ${child.name}'s root is not the same as parent: $name");
-      child.parentID = id;
-    }
-  }
+  }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.asset({
     required Profile profile,
@@ -149,7 +130,6 @@ class Account implements Document {
     root: AccountRoot.expense
   );
 
-  // TODO: implement
   Account.map({
     required Profile profile,
     required Object parentID,
@@ -183,14 +163,12 @@ class Account implements Document {
   DocAction action;
 
   final Profile profile;
-  final List<Account>? children;
 
   AccountRoot root;
   AccountType type;
   bool isGroup;
   int parentID;
 
-  // TODO: implement getTableQuery
   static String get tableName => "accounts";
   static String get tableQuery => """ CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
@@ -293,6 +271,33 @@ class Account implements Document {
     List<Map<String, Object?>> values = await Core.database!.query(tableName,
       where: "profile_id = ?",
       whereArgs: [profile.id],
+    );
+
+    if (values.isEmpty) return list;
+
+    for (Map<String, Object?> value in values ) {
+      printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
+      list.add(Account.map(
+        profile: profile,
+        id: value["id"]!,
+        name: value["name"]!,
+        createdAt: value["createdAt"]!,
+        root: value["root"]!,
+        type: value["type"]!,
+        parentID: value["parent_id"]!,
+        isGroup: value["is_group"]!,
+      ));
+    }
+    return list;
+  }
+
+  Future<List<Account>> fetchChildren() async {
+    List<Account> list = [];
+    String where = "profile_id = ? and parent_id = ?";
+    List<Object> whereArgs = [profile.id, id];
+    List<Map<String, Object?>> values = await Core.database!.query(tableName,
+      where: where,
+      whereArgs: whereArgs,
     );
 
     if (values.isEmpty) return list;

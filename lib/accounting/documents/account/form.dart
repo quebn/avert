@@ -151,7 +151,11 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
             AvertToggle(
               label: "is Group",
               initialValue: document.isGroup,
-              onChange: (value) => document.isGroup = value,
+              onChange: (value) {
+                if (!isNew(document)) {
+                }
+                document.isGroup = value;
+              },
             ),
           ]
         ),

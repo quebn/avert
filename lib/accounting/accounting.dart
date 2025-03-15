@@ -1,4 +1,4 @@
-import "package:avert/accounting/documents/account/default.dart";
+// import "package:avert/accounting/documents/account/default.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
@@ -70,11 +70,11 @@ class Accounting implements Module {
     );
   }
 
-  void createCOA(Profile profile) {
-    chartOfAccounts.add(createAssets(profile));
-    chartOfAccounts.add(createLiabilities(profile));
-    chartOfAccounts.add(createEquity(profile));
-    chartOfAccounts.add(createIncome(profile));
-    chartOfAccounts.add(createExpenses(profile));
-  }
+  // void createCOA(Profile profile) {
+  //   chartOfAccounts.add(createAssets(profile));
+  //   chartOfAccounts.add(createLiabilities(profile));
+  //   chartOfAccounts.add(createEquity(profile));
+  //   chartOfAccounts.add(createIncome(profile));
+  //   chartOfAccounts.add(createExpenses(profile));
+  // }
 }

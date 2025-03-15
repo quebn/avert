@@ -14,7 +14,6 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
     this.menuActions,
     this.leading,
     this.content,
-    this.tabview,
     this.editDocument,
     // this.onImagePress,
   });
@@ -26,7 +25,6 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
   final bool enablePrefix;
   final List<FTileGroupMixin<FTileMixin>>? menuActions;
   final FPopoverController controller;
-  final FTabs? tabview;
   final Function()? editDocument, deleteDocument;
 
   @override
@@ -126,9 +124,8 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
               padding: EdgeInsets.only(top: 16, left: 16),
               child:contentHeading,
             ),
-            Container(child: content),
             FDivider(),
-            Container(child: tabview),
+            Container(child: content),
           ]
         ),
       ),
@@ -146,7 +143,6 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     this.formKey,
     this.actions,
     this.isDirty = true,
-    this.tabview,
     this.resizeToAvoidBottomInset = false,
   });
 
@@ -157,7 +153,6 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
   final Widget? leading;
   final List<Widget>? actions;
   final bool isDirty;
-  final FTabs? tabview;
   final bool resizeToAvoidBottomInset;
 
   @override
@@ -207,7 +202,6 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
                   children: contents,
                 ),
                 Container(
-                  child: tabview,
                 ),
               ]
             ),
