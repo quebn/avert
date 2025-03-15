@@ -78,8 +78,8 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
     _state = state;
     printAssert(state.value == widget.controller.value,"Select state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
-    final FButtonCustomStyle style = theme.buttonStyles.outline;
-    final FButtonCustomStyle errstyle = theme.buttonStyles.outline.copyWith(
+    final FButtonStyle style = theme.buttonStyles.outline;
+    final FButtonStyle errstyle = theme.buttonStyles.outline.copyWith(
       contentStyle: theme.buttonStyles.outline.contentStyle.copyWith(
         enabledIconColor: theme.colorScheme.destructive,
       ),

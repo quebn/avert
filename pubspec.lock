@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: args
-      sha256: bf9f5caeea8d8fe6721a9c358dd8a5c1947b27f1cfaa18b39c301273594919e6
+      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.0"
   async:
     dependency: transitive
     description:
@@ -129,18 +129,18 @@ packages:
     dependency: "direct main"
     description:
       name: forui
-      sha256: "3ebbf39d57f0667afc47cbab86b0afe679bba2173a51afc21855053663dc5062"
+      sha256: bcdfc071ee317c8efdee5015866ad10bdabaa98ef6aaada0c285be0d1c491051
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.1+1"
+    version: "0.10.0+1"
   forui_assets:
     dependency: "direct main"
     description:
       name: forui_assets
-      sha256: df0f24b47ff0c3e16811bb4ad597b426b8e1a62fcf2fea7d95923ef4d6e8aa2c
+      sha256: fa1a13b8e1fcd73bd6a142cb8861043ee6442b1459a373518394b75bc933ead3
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.1"
+    version: "0.10.0"
   google_fonts:
     dependency: transitive
     description:
@@ -620,4 +620,4 @@ packages:
     version: "6.5.0"
 sdks:
   dart: ">=3.7.0 <4.0.0"
-  flutter: ">=3.27.0"
+  flutter: ">=3.29.0"
