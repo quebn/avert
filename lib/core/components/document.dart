@@ -1,32 +1,31 @@
-import "package:avert/core/utils/common.dart";
-import "package:flutter/material.dart";
+import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 import "package:avert/core/utils/ui.dart";
 
-class AvertDocumentView extends StatelessWidget {
-  const AvertDocumentView({super.key,
+class AvertDocumentView<T extends Document> extends StatelessWidget {
+  const AvertDocumentView({
+    super.key,
     required this.name,
-    required this.title,
+    required this.header,
     required this.controller,
-    this.image,
-    this.subtitle,
+    required this.deleteDocument,
+    this.prefix,
+    this.enablePrefix = false,
     this.menuActions,
     this.leading,
     this.content,
-    this.tabview,
-    this.onEdit,
-    this.onDelete,
-    this.onImagePress,
+    this.editDocument,
+    // this.onImagePress,
   });
 
-  final String name, title;
-  final String? subtitle;
-  final Widget?  leading, content;
+  final String name;
+  final Widget? leading, content;
+  final List<Widget> header;
+  final Widget? prefix;
+  final bool enablePrefix;
   final List<FTileGroupMixin<FTileMixin>>? menuActions;
   final FPopoverController controller;
-  final FTabs? tabview;
-  final ImageProvider<Object>? image;
-  final Function()? onEdit, onDelete, onImagePress;
+  final Function()? editDocument, deleteDocument;
 
   @override
   Widget build(BuildContext context) {
@@ -37,80 +36,83 @@ class AvertDocumentView extends StatelessWidget {
       FTileGroup(
         children: [
           FTile(
-            enabled: onDelete != null,
+            enabled: deleteDocument != null,
             prefixIcon: FIcon(FAssets.icons.trash2),
             title: Text("Delete $name"),
-            onPress: onDelete,
+            onPress: deleteDocument,
           ),
         ],
       )
     );
-
-    Widget contentHeading = Row(
-      children: [
-        FButton.raw(
-          onPress: onImagePress,
-          child: Container(
-            alignment: Alignment.center,
-            height: 150,
-            width: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-              color: theme.avatarStyle.backgroundColor,
-              image: image != null ? DecorationImage(
-                image: image!,
-                fit: BoxFit.cover,
-              ) : null,
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Text(getAcronym(title),
-              style: theme.typography.xl6
-            ),
+    final Widget prfx = prefix ?? FButton.raw(
+      onPress: null, // TODO: implement later
+      child: Container(
+        alignment: Alignment.center,
+        height: 150,
+        width: 150,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          color: theme.avatarStyle.backgroundColor,
+          // TODO: implement later
+          // image: image != null ? DecorationImage(
+            //   image: image!,
+            //   fit: BoxFit.cover,
+            // ) : null,
           ),
+          clipBehavior: Clip.hardEdge,
+          child: Text(getAcronym(name),
+          style: theme.typography.xl6
         ),
+      ),
+    );
+
+    final Widget contentHeading = Row(
+      children: [
+        SizedBox(child: enablePrefix || prefix != null ? prfx : null),
         Padding(
           padding: EdgeInsets.only(left: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                style: theme.cardStyle.contentStyle.titleTextStyle
-              ),
-              Text(subtitle ?? "" ,
-                style: theme.cardStyle.contentStyle.subtitleTextStyle
-              ),
-            ],
+            children: header,
           ),
         ),
       ]
     );
-
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      resizeToAvoidBottomInset: false,
-      body: FScaffold(
-        header: FHeader.nested(
-          title: Text(name),
-          style: theme.headerStyle.nestedStyle,
-          prefixActions:[
-            leading ?? FHeaderAction(
-              icon: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: FIcon(FAssets.icons.chevronLeft),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        Navigator.of(context).pop();
+      },
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.background,
+        resizeToAvoidBottomInset: false,
+        body: FScaffold(
+          header: FHeader.nested(
+            title: Text(name),
+            style: theme.headerStyle.nestedStyle,
+            prefixActions:[
+              leading ?? FHeaderAction(
+                icon: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: FIcon(FAssets.icons.chevronLeft),
+                ),
+                onPress: () => Navigator.of(context).maybePop(),
               ),
-              onPress: () => Navigator.of(context).maybePop(),
-            ),
-          ],
-          suffixActions: [
-            FHeaderAction(
-              icon: FIcon(FAssets.icons.filePenLine),
-              onPress: onEdit,
-            ),
-            FPopoverMenu.tappable(
-              controller: controller,
-              menu: actionsGroups,
-              child: FIcon(FAssets.icons.ellipsisVertical,
-                size: 28,
+            ],
+            suffixActions: [
+              FHeaderAction(
+                icon: FIcon(FAssets.icons.filePenLine),
+                onPress: editDocument,
+              ),
+              FPopoverMenu(
+                popoverController: controller,
+                menu: actionsGroups,
+                child: FHeaderAction(
+                  icon: FIcon(FAssets.icons.ellipsisVertical,
+                  size: 28,
+                ),
+                onPress: controller.toggle,
               ),
             ),
           ],
@@ -122,17 +124,17 @@ class AvertDocumentView extends StatelessWidget {
               padding: EdgeInsets.only(top: 16, left: 16),
               child:contentHeading,
             ),
-            Container(child: content),
             FDivider(),
-            Container(child: tabview),
+            Container(child: content),
           ]
         ),
       ),
-    );
+    ),
+  );
   }
 }
 
-class AvertDocumentForm extends StatelessWidget {
+class AvertDocumentForm<T extends Document> extends StatelessWidget {
   const AvertDocumentForm({super.key,
     required this.title,
     required this.contents,
@@ -141,7 +143,6 @@ class AvertDocumentForm extends StatelessWidget {
     this.formKey,
     this.actions,
     this.isDirty = true,
-    this.tabview,
     this.resizeToAvoidBottomInset = false,
   });
 
@@ -152,7 +153,6 @@ class AvertDocumentForm extends StatelessWidget {
   final Widget? leading;
   final List<Widget>? actions;
   final bool isDirty;
-  final FTabs? tabview;
   final bool resizeToAvoidBottomInset;
 
   @override
@@ -184,7 +184,7 @@ class AvertDocumentForm extends StatelessWidget {
         content: Form(
           key: formKey,
           canPop: !isDirty,
-          onPopInvokedWithResult: (bool didPop, Object? value) async {
+          onPopInvokedWithResult: (didPop, _) async {
             if (didPop) return;
             final bool shouldPop = await confirm(context) ?? false;
             if (shouldPop && context.mounted) {
@@ -202,7 +202,6 @@ class AvertDocumentForm extends StatelessWidget {
                   children: contents,
                 ),
                 Container(
-                  child: tabview,
                 ),
               ]
             ),

@@ -6,19 +6,19 @@ class HomeProfileDrawer extends StatefulWidget {
   const HomeProfileDrawer({super.key,
     required this.profile,
     required this.onLogout,
-    required this.onUserDelete,
+    required this.onDeleteProfile,
   });
 
   final Profile profile;
   final void Function() onLogout;
-  final void Function() onUserDelete;
+  final void Function() onDeleteProfile;
 
   @override
   State<StatefulWidget> createState() => _ProfileDrawerState();
 }
 
 class _ProfileDrawerState extends State<HomeProfileDrawer> {
-  late String profileName = widget.profile.name;
+  late String _profileName = widget.profile.name;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
         child: Column(
           children: [
             SizedBox(height: 24),
-            profile(context),
+            _profile(context),
             FTileGroup(
               style: theme.tileGroupStyle.copyWith(
                 tileStyle: theme.tileGroupStyle.tileStyle.copyWith(
@@ -53,7 +53,7 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
               divider: FTileDivider.full,
               children: [
                 FTile(
-                  onPress: viewProfile,
+                  onPress: _viewProfile,
                   prefixIcon: FIcon(FAssets.icons.circleUserRound),
                   title: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 4),
@@ -80,27 +80,36 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
                 ]
               ),
             ),
-
           ]
         )
       )
     );
   }
 
-  void viewProfile() {
-    Navigator.of(context).push(
+  void _viewProfile() async {
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) => ProfileView(
           document: widget.profile,
           profile: widget.profile,
-          onUpdate: null,
-          onDelete: widget.onUserDelete,
+          //deleteDocument: widget.onDeleteProfile,
         ),
       ),
     );
+    if (widget.profile.action == DocAction.none) return;
+    switch (widget.profile.action) {
+      case DocAction.update:
+        setState(() => _profileName = widget.profile.name);
+        break;
+      case DocAction.delete:
+        widget.onDeleteProfile();
+        break;
+      default :
+        break;
+    }
   }
 
-  Widget profile(BuildContext context) => SizedBox(
+  Widget _profile(BuildContext context) => SizedBox(
     child: Column(
       children: [
         Container(
@@ -120,11 +129,8 @@ class _ProfileDrawerState extends State<HomeProfileDrawer> {
             size: 80,
           ),
         ),
-        //FAvatar.raw(
-        //  child: Text(getAcronym(username)),
-        //),
         Text(
-          profileName,
+          _profileName,
           style: FTheme.of(context).typography.lg.copyWith(
             color: FTheme.of(context).colorScheme.foreground,
             fontWeight: FontWeight.w600,

@@ -1,4 +1,4 @@
-import "package:avert/core/components/avert_select.dart";
+import "package:avert/core/components/select.dart";
 import "package:avert/core/core.dart";
 
 import "package:forui/forui.dart";
@@ -11,26 +11,30 @@ class SelectProfileForm extends StatelessWidget {
   });
 
   final List<Profile> profiles;
-  final FRadioSelectGroupController<Profile> controller;
+  final AvertSelectController<Profile> controller;
   final Function()? onEnter;
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building SelectProfileForm");
+    FThemeData theme = FTheme.of(context);
     final String valueText = profiles.isEmpty? "No Profiles Found" :  "No Profile Selected";
     final List<Widget> widgets = [
       const SizedBox(height: 20),
       AvertSelect<Profile>(
-        label: const Text("Profile"),
-        prefix: FIcon(FAssets.icons.user),
         controller: controller,
+        label: "Profile",
+        prefix: FIcon(FAssets.icons.user),
+        required: true,
         valueBuilder: (BuildContext context, Profile? selectedValue) => Text(selectedValue?.name ?? valueText),
-        tileSelectBuilder: (context, value, current) => FSelectTile<Profile>(
-          title: Text(value.name),
+        tileSelectBuilder: (context, value) => AvertSelectTile(
           value: value,
+          prefix: FIcon(FAssets.icons.userRound),
+          title: Text(value.name, style: theme.typography.base),
+          selected: controller.value == value,
         ),
-        options: profiles,
-      ),
+      options: profiles,
+    ),
       const SizedBox(height: 20),
       FButton(
         onPress: onEnter,

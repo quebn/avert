@@ -1,5 +1,6 @@
 import "package:avert/core/core.dart";
-import "package:avert/core/components/avert_input.dart";
+import "package:avert/core/components/input.dart";
+import "package:avert/core/utils/database.dart";
 import "package:forui/forui.dart";
 
 class CreateProfileForm extends StatefulWidget {
@@ -82,14 +83,14 @@ class _FormState extends State<CreateProfileForm> {
 
     Profile p = Profile(name: controllers['name']!.value.text,);
 
-    if (await p.exists()) {
+    if (await exists(p, Profile.tableName)) {
       setState(() {
          userErrMsg = "Profile Name: '${p.name}' already exists!";
       });
       return;
     }
-    bool success = await p.insert();
-    if (mounted && success) {
+    final bool success = await p.insert();
+    if (success && p.action == DocAction.insert) {
       widget.onCreate(p);
     }
   }

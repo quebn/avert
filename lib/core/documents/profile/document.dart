@@ -1,10 +1,12 @@
 import "package:avert/core/core.dart";
+import "package:avert/core/utils/database.dart";
 
 class Profile implements Document {
   Profile({
     this.id = 0,
     this.name = "",
     int createdAt = 0,
+    this.action = DocAction.none,
   }): createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Profile.map({
@@ -26,6 +28,9 @@ class Profile implements Document {
   @override
   final DateTime createdAt;
 
+  @override
+  DocAction action;
+
   static String get tableName => "profiles";
 
   static String get tableQuery => """
@@ -37,17 +42,8 @@ class Profile implements Document {
   """;
 
   Future<bool> valuesNotValid() async {
-    bool hasDuplicates = await exists();
+    bool hasDuplicates = await exists(this, tableName);
     return name.isEmpty || hasDuplicates;
-  }
-
-  Future<bool> exists() async {
-    List<Map<String, Object?>> values = await Core.database!.query(tableName,
-      columns: ["id"],
-      where: "name = ?",
-      whereArgs: [name],
-    );
-    return values.isNotEmpty;
   }
 
   @override
@@ -57,11 +53,12 @@ class Profile implements Document {
       "name": name,
     };
     printWarn("update with values of: ${values.toString()} on profile with id of: $id!");
-    int r = await Core.database!.update(tableName, values,
+    bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
       whereArgs: [id],
-    );
-    return r == 1;
+    ) == 1;
+    if (success) action = DocAction.update;
+    return success;
   }
 
   @override
@@ -79,19 +76,18 @@ class Profile implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
-    return id != 0;
+    final bool success = id > 0;
+    if (success) action = DocAction.insert;
+    return success;
   }
 
   @override
   Future<bool> delete() async {
-    int result =  await Core.database!.delete(tableName,
+    bool success = await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
-    );
-    return result == id;
+    ) == 1;
+    if (success) action = DocAction.delete;
+    return success;
   }
-}
-
-abstract class ProfileTabView {
-  Widget getProfileTabView(BuildContext context);
 }

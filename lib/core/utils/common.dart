@@ -42,8 +42,16 @@ Digest hashString(String string) {
 
 String getAcronym(String name) {
   List<String> letters = [];
-  for (String word in name.split(" ")) {
+
+  List<String> words = name.split(" ");
+
+  for (String word in words) {
+    if (word.isEmpty) continue;
     letters.add(word[0]);
   }
   return letters.join();
+}
+
+String titleCase(String string) {
+  return "${string[0].toUpperCase()}${string.substring(1)}";
 }

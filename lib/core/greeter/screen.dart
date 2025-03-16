@@ -1,3 +1,4 @@
+import "package:avert/core/components/select.dart";
 import "package:avert/core/core.dart";
 import "package:avert/core/home/screen.dart";
 import "package:avert/core/utils/ui.dart";
@@ -21,16 +22,16 @@ class GreeterScreen extends StatefulWidget {
 }
 
 class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
-  late final FRadioSelectGroupController<Profile> _selectController;
+  late final AvertSelectController<Profile> _selectController;
   late final FTabController _tabController;
 
-  Profile get selectedProfile => _selectController.values.single;
+  Profile get selectedProfile => _selectController.value!;
 
   @override
   void initState() {
     super.initState();
     _tabController = FTabController(length: 2, vsync: this, initialIndex: 0);
-    _selectController = FRadioSelectGroupController<Profile>(
+    _selectController = AvertSelectController<Profile>(
       value: widget.initialProfile ?? widget.profiles.firstOrNull
     );
   }
@@ -39,7 +40,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   void dispose() {
     super.dispose();
     _tabController.dispose();
-    _selectController.dispose();
+    // _selectController.dispose();
   }
 
   @override
@@ -84,8 +85,8 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
 
     Widget content = FScaffold(
       header: SizedBox(height: kToolbarHeight,),
-      content:  Container(
-        margin: EdgeInsets.symmetric(horizontal: 16),
+      content: SingleChildScrollView(
+        // margin: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
             FHeader(
@@ -98,13 +99,12 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
             ),
             FDivider(),
             FTabs(
-              initialIndex: 0,
               controller: _tabController,
               tabs: tabs,
             ),
           ],
         ),
-      )
+      ),
     );
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -114,10 +114,10 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   }
 
   void _onProfileCreate(Profile profile) {
-    _selectController.select(profile, true);
+    _selectController.update(profile);//, selected: true);
     setState( () {
-      _tabController.index = 0;
       widget.profiles.add(profile);
+      _tabController.index = 0;
     });
     notify(context, "Profile '${profile.name}' has been successfully created!");
   }

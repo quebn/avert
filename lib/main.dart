@@ -1,6 +1,5 @@
 import "package:avert/core/core.dart";
 import "package:avert/core/greeter/screen.dart";
-import "package:avert/core/utils/ui.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:forui/theme.dart";
 import "dart:io";

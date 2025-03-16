@@ -139,7 +139,6 @@ class _InputState extends State<AvertInput> {
     return content;
   }
 
-  // TODO: turn this into richtext.
   Widget get _label => RichText(
     text: TextSpan(
       text:widget.label,
@@ -159,7 +158,7 @@ class _InputState extends State<AvertInput> {
   Widget get _textField => FTextField(
     description: widget.description,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
-    label: Text(widget.label, style: widget.labelStyle), // TODO: turn this into richtext.
+    label: _label,
     hint: widget.hint,
     autofocus: widget.autofocus,
     readOnly: widget.readOnly,
@@ -168,7 +167,7 @@ class _InputState extends State<AvertInput> {
     onChange: widget.onChange,
     enabled: widget.enabled,
     maxLines: 1,
-    autovalidateMode: widget.autovalidateMode,
+    autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     keyboardType: TextInputType.text,
     forceErrorText: widget.forceErrMsg,
   );
@@ -182,7 +181,7 @@ class _InputState extends State<AvertInput> {
     inputFormatters: [
       FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
     ],
-    autovalidateMode: widget.autovalidateMode,
+    autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     autofocus: widget.autofocus,
     validator: _validate,
     controller: widget.controller,
@@ -202,9 +201,9 @@ class _InputState extends State<AvertInput> {
     controller: widget.controller,
     enabled: widget.enabled,
     forceErrorText: widget.forceErrMsg,
-    autovalidateMode: widget.autovalidateMode,
+    autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     keyboardType: TextInputType.visiblePassword,
-    suffix: _showButton(),
+    suffixBuilder: (context, state, widget) => _showButton(),
   );
 
   Widget _showButton() => IconButton(
@@ -224,6 +223,6 @@ class _InputState extends State<AvertInput> {
     if (widget.required && (value == null || value.isEmpty)) {
       return "${widget.label} is required!";
     }
-    return widget.validator == null ? null : widget.validator!(value);
+    return widget.validator?.call(value);
   }
 }
