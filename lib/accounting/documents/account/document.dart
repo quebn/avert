@@ -232,7 +232,7 @@ class Account implements Document {
       "is_group": isGroup ? 1 : 0,
     };
 
-    printWarn("update with values of: ${values.toString()} on profile with id of: $id!");
+    printWarn("update with values of: ${values.toString()} on account with id of: $id!");
 
     bool success = await Core.database!.update(tableName, values,
       where: "id = ?",

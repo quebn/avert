@@ -1,4 +1,5 @@
 // import "package:avert/accounting/documents/account/default.dart";
+import "package:avert/accounting/documents/journal_entry/document.dart";
 import "package:avert/core/core.dart";
 import "package:forui/forui.dart";
 
@@ -46,6 +47,11 @@ class Accounting implements Module {
             onPress: () => Account.listScreen(context, profile),
             title: const Text("Accounts"),
             prefixIcon: FIcon(FAssets.icons.fileChartColumn),
+          ),
+          FTile(
+            onPress: () => JournalEntry.listScreen(context, profile),
+            title: const Text("Journal Entries"),
+            prefixIcon: FIcon(FAssets.icons.file),
           ),
         ],
       ),
