@@ -1,0 +1,20 @@
+import "package:avert/docs/core.dart";
+import "package:flutter/widgets.dart";
+
+abstract class DocumentForm {
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final Map<String, TextEditingController> controllers = {};
+
+  bool isDirty = false;
+  String? errMsg;
+
+  void onValueChange(bool Function() isDirtyCallback);
+  void submitDocument();
+}
+
+abstract class DocumentView<T extends Document> {
+  Future<void> deleteDocument();
+  void editDocument();
+  late T document;
+}

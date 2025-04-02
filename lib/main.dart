@@ -1,11 +1,17 @@
-import "package:avert/core/core.dart";
-import "package:avert/core/greeter/screen.dart";
+import "package:avert/ui/module.dart";
+import "package:avert/docs/profile.dart";
+
+import "package:avert/ui/greeter.dart";
+
+import "package:avert/utils/logger.dart";
+import "package:avert/utils/database.dart";
+
+import "package:flutter/material.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:forui/theme.dart";
-import "dart:io";
+import "package:sqflite/sqflite.dart";
 
-import "accounting/utils/database.dart";
-import "core/utils/database.dart";
+import "dart:io";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,13 +23,9 @@ void main() async {
       profiles = await fetchAllProfile(database: db);
     }
   );
-  printWarn("After opening of Database Path:${Core.database!.path}");
-  runApp(App(
-    title: "Avert",
-    profiles: profiles,
-  ));
+  printInfo("Database Path:${Core.database!.path}");
+  runApp(App(title: "Avert", profiles: profiles));
 }
-
 
 class App extends StatelessWidget {
   const App({super.key,
