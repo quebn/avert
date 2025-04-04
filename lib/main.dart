@@ -16,7 +16,8 @@ import "dart:io";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   List<Profile> profiles = [];
-  Core.database = await openDatabase("avert.db",
+  Core.database = await openDatabase(
+    "avert.db",
     version: 1,
     onCreate: _onCreate,
     onOpen: (db) async {

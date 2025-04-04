@@ -3,6 +3,7 @@ import "package:avert/docs/core.dart";
 import "package:avert/docs/profile.dart";
 
 import "package:avert/ui/components/document.dart";
+import "package:avert/ui/components/dt_picker.dart";
 import "package:avert/ui/components/input.dart";
 import "package:avert/ui/core.dart";
 
@@ -26,9 +27,10 @@ class JournalEntryForm extends StatefulWidget {
   State<StatefulWidget> createState() => _FormState();
 }
 
-class _FormState extends State<JournalEntryForm> implements DocumentForm {
+class _FormState extends State<JournalEntryForm> with SingleTickerProviderStateMixin implements DocumentForm {
 
   JournalEntry get document => widget.document;
+  late final FDateFieldController dtController;
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -45,8 +47,15 @@ class _FormState extends State<JournalEntryForm> implements DocumentForm {
   bool isDirty = false;
 
   @override
+  void initState() {
+    super.initState();
+    dtController = FDateFieldController(vsync: this, initialDate: document.postedAt);
+  }
+
+  @override
   void dispose() {
     super.dispose();
+    dtController.dispose();
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -68,7 +77,12 @@ class _FormState extends State<JournalEntryForm> implements DocumentForm {
             return value != document.name;
           }),
         ),
+        AvertDTPicker(
+          controller: dtController,
+          label: "Posting Date",
+        ),
         // TODO: date time picker
+        // Time Picker for Posting Time.
         // TODO: list
       ],
     );
@@ -88,6 +102,7 @@ class _FormState extends State<JournalEntryForm> implements DocumentForm {
     FocusScope.of(context).requestFocus(FocusNode());
 
     document.name = controllers['name']!.value.text;
+    document.postedAt = dtController.value;
     // TODO: date
     // TODO: entries
 

@@ -14,8 +14,8 @@ class JournalEntry implements Document {
     this.action = DocAction.none,
     int createdAt = 0,
     this.entries = const [],
-    this.postedAt,
-  }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
+    DateTime? postedAt,
+  }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), postedAt = postedAt ?? DateTime.now();
 
   @override
   DocAction action;
