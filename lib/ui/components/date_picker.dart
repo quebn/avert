@@ -2,8 +2,8 @@ import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
 
-class AvertDTPicker extends StatefulWidget {
-  const AvertDTPicker({super.key,
+class AvertDatePicker extends StatefulWidget {
+  const AvertDatePicker({super.key,
     required this.label,
     required this.controller,
     this.description,
@@ -12,7 +12,6 @@ class AvertDTPicker extends StatefulWidget {
     this.suffix,
     this.enabled = true,
     this.validator,
-    this.flex = 0,
     this.required = false,
     this.forceErrorText,
   });
@@ -21,7 +20,6 @@ class AvertDTPicker extends StatefulWidget {
   final Widget? prefix, suffix, description, error;
   final bool enabled, required;
   final Function()? validator;
-  final int flex;
   final String? forceErrorText;
   final FDateFieldController controller;
 
@@ -29,7 +27,7 @@ class AvertDTPicker extends StatefulWidget {
   State<StatefulWidget> createState() => _SelectState();
 }
 
-class _SelectState extends State<AvertDTPicker> {
+class _SelectState extends State<AvertDatePicker> {
 
   @override
   void initState() {

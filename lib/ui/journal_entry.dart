@@ -3,8 +3,9 @@ import "package:avert/docs/core.dart";
 import "package:avert/docs/profile.dart";
 
 import "package:avert/ui/components/document.dart";
-import "package:avert/ui/components/dt_picker.dart";
+import "package:avert/ui/components/date_picker.dart";
 import "package:avert/ui/components/input.dart";
+import "package:avert/ui/components/time_picker.dart";
 import "package:avert/ui/core.dart";
 
 import "package:avert/utils/common.dart";
@@ -27,10 +28,11 @@ class JournalEntryForm extends StatefulWidget {
   State<StatefulWidget> createState() => _FormState();
 }
 
-class _FormState extends State<JournalEntryForm> with SingleTickerProviderStateMixin implements DocumentForm {
+class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin implements DocumentForm {
 
   JournalEntry get document => widget.document;
-  late final FDateFieldController dtController;
+  late final FDateFieldController dateController;
+  late final FTimeFieldController timeController;
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -49,13 +51,15 @@ class _FormState extends State<JournalEntryForm> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    dtController = FDateFieldController(vsync: this, initialDate: document.postedAt);
+    final DateTime c = document.postedAt ?? DateTime.now();
+    dateController = FDateFieldController(vsync: this, initialDate: c);
+    timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
   }
 
   @override
   void dispose() {
     super.dispose();
-    dtController.dispose();
+    dateController.dispose();
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -67,6 +71,7 @@ class _FormState extends State<JournalEntryForm> with SingleTickerProviderStateM
       title: Text("${isNew(document) ? "New" : "Edit"} Journal Entry",),
       contents: [
         AvertInput.text(
+          yMargin: 8,
           label: "Name",
           hint: "Ex. Payment of Supplies",
           controller: controllers['name']!,
@@ -77,12 +82,25 @@ class _FormState extends State<JournalEntryForm> with SingleTickerProviderStateM
             return value != document.name;
           }),
         ),
-        AvertDTPicker(
-          controller: dtController,
-          label: "Posting Date",
+        Row(
+          spacing: 8,
+          children: [
+            Flexible(
+              flex: 1,
+              child: AvertDatePicker(
+                controller: dateController,
+                label: "Posting Date",
+              ),
+            ),
+            Expanded(
+              child: AvertTimePicker(
+                controller: timeController,
+                label: "Posting Time",
+              ),
+            ),
+            // Time Picker for Posting Time.
+          ],
         ),
-        // TODO: date time picker
-        // Time Picker for Posting Time.
         // TODO: list
       ],
     );
@@ -101,8 +119,9 @@ class _FormState extends State<JournalEntryForm> with SingleTickerProviderStateM
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
+    // DateTime postingDate = DateTime();
     document.name = controllers['name']!.value.text;
-    document.postedAt = dtController.value;
+    document.postedAt = dateController.value;
     // TODO: date
     // TODO: entries
 
@@ -136,8 +155,6 @@ class _TileState extends State<JournalEntryTile> {
     printTrack("build account tile with name of :${widget.document.name}");
     final FThemeData theme = FTheme.of(context);
     return ListTile(
-      // leading: FIcon(_icon),
-      // subtitle: Text(_root, style: theme.typography.sm),
       title: Text(_name, style: theme.typography.base),
       onTap: _viewAccount,
     );
