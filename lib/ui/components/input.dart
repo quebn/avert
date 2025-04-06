@@ -6,6 +6,7 @@ enum AvertInputType {
   text,
   alphanumeric,
   password,
+  multiline,
 }
 
 class AvertInput extends StatefulWidget {
@@ -28,6 +29,8 @@ class AvertInput extends StatefulWidget {
     this.description,
     this.autovalidateMode,
     this.forceErrMsg,
+    this.minLines = 1,
+    this.maxLines = 1,
   });
 
   const AvertInput.text({super.key,
@@ -48,6 +51,8 @@ class AvertInput extends StatefulWidget {
     this.description,
     this.autovalidateMode,
     this.forceErrMsg,
+    this.minLines = 1,
+    this.maxLines = 1,
   }): inputType = AvertInputType.text;
 
   const AvertInput.alphanumeric({super.key,
@@ -68,6 +73,8 @@ class AvertInput extends StatefulWidget {
     this.description,
     this.autovalidateMode,
     this.forceErrMsg,
+    this.minLines = 1,
+    this.maxLines = 1,
   }) : inputType = AvertInputType.alphanumeric;
 
   const AvertInput.password({super.key,
@@ -87,7 +94,30 @@ class AvertInput extends StatefulWidget {
     this.description,
     this.autovalidateMode,
     this.forceErrMsg,
-  }) : inputType = AvertInputType.password, required = true;
+  }) : inputType = AvertInputType.password, required = true, minLines = 1, maxLines = 1;
+
+  const AvertInput.multiline({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.hint,
+    this.required = false,
+    this.validator,
+    this.onChange,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.enabled = true,
+    this.xMargin = 0,
+    this.yMargin = 0,
+    this.labelStyle,
+    this.initialValue,
+    this.textInputAction,
+    this.description,
+    this.autovalidateMode,
+    this.forceErrMsg,
+    this.minLines = 3,
+    this.maxLines = 3,
+  }): inputType = AvertInputType.multiline;
 
   final String label;
   final String? hint, initialValue, forceErrMsg;
@@ -101,6 +131,7 @@ class AvertInput extends StatefulWidget {
   final Widget? description;
   final TextInputAction? textInputAction;
   final AutovalidateMode? autovalidateMode;
+  final int? minLines, maxLines;
 
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -122,15 +153,18 @@ class _InputState extends State<AvertInput> {
   Widget build(BuildContext context) {
     Widget textFormField;
     switch(widget.inputType) {
-      case AvertInputType.alphanumeric:
+      case AvertInputType.alphanumeric: {
         textFormField = _alphanumericField;
-        break;
-      case AvertInputType.password:
+      } break;
+      case AvertInputType.password: {
         textFormField = _passwordField;
-        break;
-      default:
+      } break;
+      case AvertInputType.multiline: {
+        textFormField = _multilineField;
+      } break;
+      default: {
         textFormField = _textField;
-        break;
+      } break;
     }
     Widget content =  Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.xMargin, vertical: widget.yMargin),
@@ -156,6 +190,7 @@ class _InputState extends State<AvertInput> {
   );
 
   Widget get _textField => FTextField(
+    minLines: widget.minLines,
     description: widget.description,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
     label: _label,
@@ -173,6 +208,7 @@ class _InputState extends State<AvertInput> {
   );
 
   Widget get _alphanumericField => FTextField(
+    minLines: widget.minLines,
     label: _label,
     description: widget.description,
     readOnly: widget.readOnly,
@@ -193,6 +229,7 @@ class _InputState extends State<AvertInput> {
   );
 
   Widget get _passwordField => FTextField.password(
+    minLines: widget.minLines,
     label: _label,
     readOnly: widget.readOnly,
     obscureText: shouldObscure,
@@ -205,6 +242,23 @@ class _InputState extends State<AvertInput> {
     keyboardType: TextInputType.visiblePassword,
     suffixBuilder: (context, state, widget) => _showButton(),
   );
+
+  Widget get _multilineField => FTextField.multiline(
+    minLines: widget.minLines,
+    maxLines: widget.maxLines,
+    description: widget.description,
+    label: _label,
+    hint: widget.hint,
+    autofocus: widget.autofocus,
+    readOnly: widget.readOnly,
+    validator: _validate,
+    controller: widget.controller,
+    onChange: widget.onChange,
+    enabled: widget.enabled,
+    autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
+    forceErrorText: widget.forceErrMsg,
+  );
+
 
   Widget _showButton() => IconButton(
     //padding: EdgeInsets.all(0),

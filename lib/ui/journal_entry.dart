@@ -40,6 +40,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
+    'note': TextEditingController(),
   };
 
   @override
@@ -69,6 +70,12 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   Widget build(BuildContext context) {
     return AvertDocumentForm(
       title: Text("${isNew(document) ? "New" : "Edit"} Journal Entry",),
+      isDirty: isDirty,
+      floatingActionButton: !isDirty ? null : IconButton.filled(
+        onPressed: submitDocument,
+        iconSize: 48,
+        icon: Icon(Icons.save_rounded)
+      ),
       contents: [
         AvertInput.text(
           yMargin: 8,
@@ -88,20 +95,26 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             Flexible(
               flex: 1,
               child: AvertDatePicker(
+                required: true,
                 controller: dateController,
                 label: "Posting Date",
               ),
             ),
             Expanded(
               child: AvertTimePicker(
+                required: true,
                 controller: timeController,
                 label: "Posting Time",
               ),
             ),
-            // Time Picker for Posting Time.
           ],
         ),
-        // TODO: list
+        AvertInput.multiline(
+          yMargin: 8,
+          label: "Notes",
+          controller: controllers['note']!,
+          hint: "Purpose of transaction...",
+        ),
       ],
     );
   }
@@ -119,10 +132,12 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
-    // DateTime postingDate = DateTime();
     document.name = controllers['name']!.value.text;
-    document.postedAt = dateController.value;
-    // TODO: date
+    document.postedAt = dateController.value!.copyWith(
+      hour: timeController.value!.hour,
+      minute: timeController.value!.minute,
+    );
+    document.note = controllers['note']!.value.text;
     // TODO: entries
 
     final bool success = await widget.onSubmit(document);

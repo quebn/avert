@@ -1,12 +1,12 @@
-import 'package:avert/docs/core.dart';
-import 'package:avert/ui/module.dart';
+import "package:avert/docs/core.dart";
+import "package:avert/ui/module.dart";
 
-import 'package:avert/utils/common.dart';
-import 'package:avert/utils/database.dart';
-import 'package:avert/utils/logger.dart';
+import "package:avert/utils/common.dart";
+import "package:avert/utils/database.dart";
+import "package:avert/utils/logger.dart";
 
-import 'account.dart';
-import 'journal_entry.dart';
+import "account.dart";
+import "journal_entry.dart";
 
 class AccountingEntry implements Document {
   AccountingEntry({
@@ -17,6 +17,7 @@ class AccountingEntry implements Document {
     required this.debit,
     required this.credit,
     required this.journalEntry,
+    required this.description,
     this.action = DocAction.none,
   });
 
@@ -32,6 +33,7 @@ class AccountingEntry implements Document {
   Account account;
   double debit, credit;
   JournalEntry journalEntry;
+  String description;
 
   @override
   final DateTime createdAt;
@@ -43,6 +45,7 @@ class AccountingEntry implements Document {
     createdAt INTEGER NOT NULL,
     account_id INTEGER,
     journal_entry_id INTEGER,
+    description TEXT,
     debit INTEGER,
     credit INTEGER
   ) """;
@@ -68,6 +71,7 @@ class AccountingEntry implements Document {
       "name": name,
       "account_id": account.id,
       "createdAt": now,
+      "description": description,
       "debit": debit,
       "credit": credit,
     };
@@ -88,6 +92,7 @@ class AccountingEntry implements Document {
     Map<String, Object?> values = {
       "name": name,
       "account_id": account.id,
+      "description": description,
       "debit": debit,
       "credit": credit,
     };

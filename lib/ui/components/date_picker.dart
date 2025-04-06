@@ -13,6 +13,7 @@ class AvertDatePicker extends StatefulWidget {
     this.enabled = true,
     this.validator,
     this.required = false,
+    this.labelStyle,
     this.forceErrorText,
   });
 
@@ -20,6 +21,7 @@ class AvertDatePicker extends StatefulWidget {
   final Widget? prefix, suffix, description, error;
   final bool enabled, required;
   final Function()? validator;
+  final TextStyle? labelStyle;
   final String? forceErrorText;
   final FDateFieldController controller;
 
@@ -42,12 +44,28 @@ class _SelectState extends State<AvertDatePicker> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building Date Picker ${widget.label}");
+    final Widget label = RichText(
+      text: TextSpan(
+        text:widget.label,
+        style: widget.labelStyle,
+        children:  widget.required ? const [
+          TextSpan(
+            text: " *",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            )
+          ),
+        ] : null,
+      ),
+    );
+
     return FDateField.calendar(
       key: widget.key,
       controller: widget.controller,
       autoHide: true,
       clearable: true,
-      label: Text(widget.label),
+      label: label,
       description: widget.description,
       enabled: widget.enabled,
       autovalidateMode: AutovalidateMode.onUserInteraction,

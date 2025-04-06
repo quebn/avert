@@ -160,23 +160,25 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FThemeData theme = FTheme.of(context);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body: FScaffold(
-        header: FHeader.nested(
-          suffixActions: actions ?? [],
-          prefixActions: [
-            leading ?? FHeaderAction(
-              icon: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: FIcon(FAssets.icons.chevronLeft),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.background,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        body: FScaffold(
+          header: FHeader.nested(
+            suffixActions: actions ?? [],
+            prefixActions: [
+              leading ?? FHeaderAction(
+                icon: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: FIcon(FAssets.icons.chevronLeft),
+                ),
+                onPress: () => Navigator.of(context).maybePop(),
               ),
-              onPress: () => Navigator.of(context).maybePop(),
-            ),
-          ],
-          style: theme.headerStyle.nestedStyle,
-          title: const Text("Avert",
+            ],
+            style: theme.headerStyle.nestedStyle,
+            title: const Text("Avert",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 20,
@@ -211,6 +213,7 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
         ),
       ),
       floatingActionButton: floatingActionButton,
+    )
     );
   }
 }

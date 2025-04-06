@@ -15,6 +15,7 @@ class JournalEntry implements Document {
     int createdAt = 0,
     this.entries = const [],
     DateTime? postedAt,
+    this.note = "",
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), postedAt = postedAt ?? DateTime.now();
 
   @override
@@ -32,6 +33,7 @@ class JournalEntry implements Document {
   DateTime? postedAt;
   List<AccountingEntry> entries;
   Profile profile;
+  String note;
 
   static String get tableName => "journal_entries";
   static String get tableQuery => """ CREATE TABLE $tableName(
@@ -39,7 +41,8 @@ class JournalEntry implements Document {
     name TEXT NOT NULL,
     createdAt INTEGER NOT NULL,
     profile_id INTEGER NOT NULL,
-    postedAt INTEGER
+    postedAt INTEGER,
+    note TEXT
   ) """;
 
   @override
@@ -67,6 +70,7 @@ class JournalEntry implements Document {
     Map<String, Object?> values = {
       "name": name,
       "profile_id": profile.id,
+      "note": note,
       "createdAt": now,
       "postedAt": postedAt?.millisecondsSinceEpoch ?? 0,
     };
@@ -86,6 +90,7 @@ class JournalEntry implements Document {
 
     Map<String, Object?> values = {
       "name": name,
+      "note": note,
       "postedAt": postedAt?.millisecondsSinceEpoch ?? 0,
     };
 

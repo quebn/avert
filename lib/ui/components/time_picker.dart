@@ -14,6 +14,7 @@ class AvertTimePicker extends StatefulWidget {
     this.validator,
     this.flex = 0,
     this.required = false,
+    this.labelStyle,
     this.forceErrorText,
   });
 
@@ -24,6 +25,7 @@ class AvertTimePicker extends StatefulWidget {
   final int flex;
   final String? forceErrorText;
   final FTimeFieldController controller;
+  final TextStyle? labelStyle;
 
   @override
   State<StatefulWidget> createState() => _SelectState();
@@ -44,10 +46,26 @@ class _SelectState extends State<AvertTimePicker> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building Date Picker ${widget.label}");
+    final Widget label = RichText(
+      text: TextSpan(
+        text:widget.label,
+        style: widget.labelStyle,
+        children:  widget.required ? const [
+          TextSpan(
+            text: " *",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            )
+          ),
+        ] : null,
+      ),
+    );
+
     return FTimeField.picker(
       key: widget.key,
       controller: widget.controller,
-      label: Text(widget.label),
+      label: label,
       description: widget.description,
       enabled: widget.enabled,
       autovalidateMode: AutovalidateMode.onUserInteraction,
