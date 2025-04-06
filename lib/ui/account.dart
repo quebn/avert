@@ -100,34 +100,36 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
         Row(
           spacing: 8,
           children: [
-            AvertSelect<AccountRoot>(
-              options: AccountRoot.values.toList(),
-              flex: 1,
-              label: "Root Type",
-              prefix: FIcon(FAssets.icons.folderRoot),
-              required: true,
-              valueBuilder: (context, root) => Text(root.toString()),
-              controller: _rootSelectController,
-              tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
-                selected: _rootSelectController.value == value,
-                value: value,
+            Flexible(
+              child: AvertSelect<AccountRoot>(
+                options: AccountRoot.values.toList(),
+                label: "Root Type",
                 prefix: FIcon(FAssets.icons.folderRoot),
-                title: Text(value.toString(), style: theme.typography.base),
+                required: true,
+                valueBuilder: (context, root) => Text(root.toString()),
+                controller: _rootSelectController,
+                tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
+                  selected: _rootSelectController.value == value,
+                  value: value,
+                  prefix: FIcon(FAssets.icons.folderRoot),
+                  title: Text(value.toString(), style: theme.typography.base),
+                ),
               ),
             ),
-            AvertSelect<AccountType>(
-              options: AccountType.values.toList(),
-              flex: 1,
-              label: "Account Type",
-              prefix: FIcon(FAssets.icons.fileType),
-              required: true,
-              valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
-              controller: _typeSelectController,
-              tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
-                selected: _typeSelectController.value == value,
-                value: value,
+            Flexible(
+              child: AvertSelect<AccountType>(
+                options: AccountType.values.toList(),
+                label: "Account Type",
                 prefix: FIcon(FAssets.icons.fileType),
-                title: Text(value.displayName, style: theme.typography.base),
+                required: true,
+                valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
+                controller: _typeSelectController,
+                tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
+                  selected: _typeSelectController.value == value,
+                  value: value,
+                  prefix: FIcon(FAssets.icons.fileType),
+                  title: Text(value.displayName, style: theme.typography.base),
+                ),
               ),
             )
           ]
@@ -136,24 +138,25 @@ class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin i
         Row(
           spacing: 8,
           children: [
-            AvertSelect<Account>(
-              flex: 1,
-              options: parents,
-              label: "Parent",
-              prefix: FIcon(FAssets.icons.fileType),
-              valueBuilder: (context, account) {
-                return (account != null)
-                ? Text(account.name)
-                : Text("None", style: selectValueStyle);
-              },
-              validator: _parentValidator,
-              controller: _parentSelectController,
-              tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
-                selected: _parentSelectController.value == value,
-                value: value,
+            Flexible(
+              child: AvertSelect<Account>(
+                options: parents,
+                label: "Parent",
                 prefix: FIcon(FAssets.icons.fileType),
-                title: Text(value.name, style: theme.typography.base),
-                subtitle: Text(value.type.toString(), style: theme.typography.sm),
+                valueBuilder: (context, account) {
+                  return (account != null)
+                  ? Text(account.name)
+                  : Text("None", style: selectValueStyle);
+                },
+                validator: _parentValidator,
+                controller: _parentSelectController,
+                tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
+                  selected: _parentSelectController.value == value,
+                  value: value,
+                  prefix: FIcon(FAssets.icons.fileType),
+                  title: Text(value.name, style: theme.typography.base),
+                  subtitle: Text(value.type.toString(), style: theme.typography.sm),
+                ),
               ),
             ),
             AvertToggle(

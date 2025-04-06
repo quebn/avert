@@ -16,7 +16,6 @@ class AvertSelect<T extends Object> extends StatefulWidget {
     this.suffix,
     this.enabled = true,
     // this.dialogActions = const [],
-    this.flex = 0,
     this.required = false,
     this.validator,
     this.onSaved,
@@ -30,7 +29,6 @@ class AvertSelect<T extends Object> extends StatefulWidget {
   final Widget? prefix, suffix, description, error;
   final bool enabled, required;
   // final List<Widget> dialogActions;
-  final int flex;
   final void Function(T?)? onSaved;
   final String? Function(T?)? validator;
   final String? forceErrorText;
@@ -91,36 +89,33 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
 
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle;
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
-    return Flexible(
-      flex: widget.flex,
-      child: FLabel(
-        error: state.hasError ? Text(state.errorText!) : null,
-        axis: Axis.vertical,
-        label: RichText(
-          text: TextSpan(
-            style: state.hasError ? errorTextStyle : enabledTextStyle,
-            text: widget.label,
-            children:  widget.required ? const [
-              TextSpan(
-                text: " *",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                )
-              ),
-            ] : null,
-          ),
+    return FLabel(
+      error: state.hasError ? Text(state.errorText!) : null,
+      axis: Axis.vertical,
+      label: RichText(
+        text: TextSpan(
+          style: state.hasError ? errorTextStyle : enabledTextStyle,
+          text: widget.label,
+          children:  widget.required ? const [
+            TextSpan(
+              text: " *",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              )
+            ),
+          ] : null,
         ),
-        description: widget.description,
-        child: FButton(
-          style: state.hasError ? errstyle : style,
-          onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
-          suffix: widget.suffix,
-          prefix: widget.prefix,
-          label: Expanded(
-            child: widget.valueBuilder(context, state.value),
-          )
-        ),
+      ),
+      description: widget.description,
+      child: FButton(
+        style: state.hasError ? errstyle : style,
+        onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
+        suffix: widget.suffix,
+        prefix: widget.prefix,
+        label: Expanded(
+          child: widget.valueBuilder(context, state.value),
+        )
       ),
     );
   }
