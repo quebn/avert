@@ -2,10 +2,13 @@ import "package:avert/docs/core.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
 
-class AvertTable<T extends Document> extends StatelessWidget {
-  const AvertTable({super.key,
+// NOTE: bikeshed this component to be used later for reports.
+class AvertTable<T extends Document> extends StatefulWidget {
+  const AvertTable({
+    super.key,
     required this.label,
-    this.header,
+    required this.columns,
+    this.rowBuilder,
     this.enabled = true,
     this.required = false,
     this.validator,
@@ -14,63 +17,140 @@ class AvertTable<T extends Document> extends StatelessWidget {
     this.error,
     this.forceErrorText,
     this.restorationId,
-    this.initialValue,
     this.autovalidateMode,
+    this.contents,
   });
 
   final String label;
+  final Map<String,TableColumnWidth> columns;
   final void Function(T?)? onSaved;
   final String? forceErrorText, restorationId;
   final String? Function(T?)? validator;
-  final T? initialValue;
   final bool enabled, required;
   final AutovalidateMode? autovalidateMode;
   final Widget? description, error;
-  final Widget? header;
+  final Widget Function()? rowBuilder;
+  final List<T>? contents;
+  // final Map<int, TableColumnWidth>? columnWidths;
+
+
+  @override
+  State<StatefulWidget> createState() => _TableState<T>();
+}
+
+class _TableState<T extends Document> extends State<AvertTable<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final FThemeData theme = FTheme.of(context);
-    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle;
-    final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
-
     return FormField<T>(
-      builder: (state) {
-        return SizedBox(
-          child: FLabel(
-            error: state.hasError ? Text(state.errorText!) : null,
-            axis: Axis.vertical,
-            label: _label(state.hasError, errorTextStyle, enabledTextStyle),
-            description: description,
-            child: _table(context, state),
-          ),
-        );
-      }
+      enabled: widget.enabled,
+      builder: (state) => builder(context, state),
     );
   }
 
-  Widget _label(bool hasError, TextStyle destruction, TextStyle enabled) {
-    return RichText(
+  Widget builder(BuildContext context, FormFieldState state) {
+    final FThemeData theme = FTheme.of(context);
+    final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
+    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle;
+
+    final Widget widgetLabel = RichText(
       text: TextSpan(
-        style: hasError ? destruction : enabled,
-        text: label,
-        children:  required ? [
-          TextSpan(
-            text: " *",
-            style: destruction
-          ),
+        style: state.hasError ? errorTextStyle : enabledTextStyle,
+        text: widget.label,
+        children:  widget.required ? [
+          TextSpan( text: " *", style: errorTextStyle),
         ] : null,
       ),
     );
-  }
+    final List<TableRow> children = [ _header ];
 
-  Widget _table(BuildContext context, FormFieldState<T> state) {
-    return FCard.raw(
-      child: Column(
-        children: [],
+    final List<Widget> widgetChildren = [
+      Table(
+        border: TableBorder(
+          bottom: BorderSide(),
+          verticalInside: BorderSide(),
+        ),
+        columnWidths: _columnWidths,
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: children
+      ),
+      Container(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: widget.contents == null || widget.contents!.isEmpty ? Text(
+          "No Records Found",
+          style: theme.typography.sm,
+        ) : null,
+      ),
+    ];
+
+    return SizedBox(
+      child: FLabel(
+        error: state.hasError ? Text(state.errorText!) : null,
+        axis: Axis.vertical,
+        label: widgetLabel,
+        description: widget.description,
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 8),
+          child: FCard.raw(
+            child: Column( children: widgetChildren),
+          ),
+        ),
       ),
     );
   }
+
+  TableRow get _header {
+    final FThemeData theme = FTheme.of(context);
+
+    final List<Widget> children = [
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text("x", style: theme.typography.sm.copyWith(
+            fontWeight: FontWeight.bold
+          ), textAlign: TextAlign.center),
+        )
+    ];
+    for (String colName in widget.columns.keys.toList()) {
+      children.add(
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text(colName, style: theme.typography.sm.copyWith(
+            fontWeight: FontWeight.bold
+          ), textAlign: TextAlign.center),
+        )
+      );
+    }
+    return TableRow(children: children);
+  }
+
+  Map<int, TableColumnWidth>? get _columnWidths {
+    final List<TableColumnWidth> colWidths = widget.columns.values.toList();
+    final Map<int, TableColumnWidth> columnWidths = {
+      0: FixedColumnWidth(32),
+    };
+
+    int i = 1;
+    for (TableColumnWidth width in colWidths) {
+      columnWidths[i++] = width;
+    }
+    return columnWidths;
+  }
 }
 
-// AvertTableRow();
+
+// TODO: Impl AvertTableRow
+class AvertTableRow<T extends Document> extends StatefulWidget {
+  const AvertTableRow({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _TableRowState<T>();
+}
+
+class _TableRowState<T extends Document> extends State<AvertTableRow<T>> {
+
+  @override
+  Widget build(BuildContext context) {
+    throw UnimplementedError();
+  }
+}
+
