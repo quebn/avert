@@ -1,4 +1,4 @@
-import "package:avert/docs/core.dart";
+import "package:avert/docs/document.dart";
 import "package:avert/docs/profile.dart";
 import "package:avert/ui/components/input.dart";
 import "package:avert/ui/components/select.dart";

@@ -1,4 +1,4 @@
-import "package:avert/docs/core.dart";
+import "package:avert/docs/document.dart";
 import "package:avert/utils/common.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";

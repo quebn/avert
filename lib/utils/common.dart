@@ -1,5 +1,5 @@
 import "dart:convert";
-import "package:avert/docs/core.dart";
+import "package:avert/docs/document.dart";
 import "package:crypto/crypto.dart";
 
 bool isNew(Document document) {

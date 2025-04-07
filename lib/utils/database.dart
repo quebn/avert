@@ -1,7 +1,7 @@
 import "package:avert/docs/accounting/account.dart";
 import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/accounting/journal_entry.dart";
-import "package:avert/docs/core.dart";
+import "package:avert/docs/document.dart";
 import "package:avert/ui/module.dart";
 import "package:avert/docs/profile.dart";
 import "package:avert/utils/logger.dart";
