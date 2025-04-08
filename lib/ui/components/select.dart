@@ -87,7 +87,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
       )
     );
 
-    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle;
+    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
     return FLabel(
       error: state.hasError ? Text(state.errorText!) : null,

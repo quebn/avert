@@ -1,43 +1,36 @@
 import "package:avert/docs/document.dart";
 import "package:avert/utils/logger.dart";
-import "package:avert/utils/ui.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
 
 // TODO: things to implement
-// - [ ] empty state view.
+// - [x] empty state view.
 // - [ ] non-empty state view.
 // - [ ] 'new item' button.
 class AvertListField<T extends Document> extends StatefulWidget {
   const AvertListField({super.key,
     required this.label,
-    required this.valueBuilder,
-    required this.tileListFieldBuilder,
-    required this.options,
-    required this.controller,
+    required this.tileBuilder,
+    // required this.controller,
+    required this.list,
     this.description,
+    this.onAdd,
     this.error,
-    this.prefix,
-    this.suffix,
     this.enabled = true,
-    // this.dialogActions = const [],
     this.required = false,
     this.validator,
-    this.onSaved,
     this.forceErrorText,
   });
 
   final String label;
-  final Widget Function(BuildContext, T?) valueBuilder;
-  final AvertListFieldTile Function(BuildContext, T) tileListFieldBuilder;
-  final List<T> options;
-  final Widget? prefix, suffix, description, error;
+  final Widget Function(BuildContext, T) tileBuilder;
+  final Widget? description, error;
   final bool enabled, required;
-  // final List<Widget> dialogActions;
-  final void Function(T?)? onSaved;
   final String? Function(T?)? validator;
   final String? forceErrorText;
-  final AvertListFieldController<T> controller;
+  final Function()? onAdd;
+  final List<T> list;
+  // final AvertListFieldController controller;
 
   @override
   State<StatefulWidget> createState() => _ListFieldState<T>();
@@ -45,23 +38,16 @@ class AvertListField<T extends Document> extends StatefulWidget {
 
 class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
   FormFieldState<T>? _state;
-  List<T> get options => widget.options;
+  List<Widget> children = [ ];
 
   @override
   void initState() {
     super.initState();
-    widget.controller.addValueListener(_updateState);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.controller.removeValueListener(_updateState);
-  }
-
-  void _updateState() {
-    // printSuccess("Updating state on label: ${widget.label}");
-    _state?.didChange(widget.controller.value);
   }
 
   @override
@@ -69,31 +55,25 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     printTrack("Building ListField ${widget.label}");
     return FormField<T>(
       key: widget.key,
-      onSaved: widget.onSaved,
       enabled: widget.enabled,
       builder: _builder,
       validator: _validate,
-      initialValue: widget.controller.value,
+      // initialValue: widget.controller.value,
       forceErrorText: widget.forceErrorText,
     );
   }
 
   Widget _builder(FormFieldState<T> state) {
     _state = state;
-    printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
+    // printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
-    final FButtonStyle style = theme.buttonStyles.outline;
-    final FButtonStyle errstyle = theme.buttonStyles.outline.copyWith(
-      contentStyle: theme.buttonStyles.outline.contentStyle.copyWith(
-        enabledIconColor: theme.colorScheme.destructive,
-      ),
-      enabledBoxDecoration: theme.buttonStyles.outline.enabledBoxDecoration.copyWith(
-        border: Border.all(color:theme.colorScheme.destructive),
-      )
-    );
 
-    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle;
+    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
+    // if (widget.list.isEmpty && children.isEmpty) {
+    //   children.add(
+    //   );
+    // }
     return FLabel(
       error: state.hasError ? Text(state.errorText!) : null,
       axis: Axis.vertical,
@@ -105,7 +85,6 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
             TextSpan(
               text: " *",
               style: TextStyle(
-                fontWeight: FontWeight.bold,
                 color: Colors.red,
               )
             ),
@@ -113,91 +92,27 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
         ),
       ),
       description: widget.description,
-      child: FButton(
-        style: state.hasError ? errstyle : style,
-        onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
-        suffix: widget.suffix,
-        prefix: widget.prefix,
-        label: Expanded(
-          child: widget.valueBuilder(context, state.value),
-        )
+      child: FCard.raw(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: widget.list.isNotEmpty ? children : [_emptyMessage(context)],
+        ),
       ),
     );
   }
+
+  Widget _emptyMessage(BuildContext context) => Container(
+    padding: EdgeInsets.all(16),
+    child: Text(
+    "Empty",
+    textAlign: TextAlign.center,
+    style: context.theme.textFieldStyle.enabledStyle.hintTextStyle
+     ),
+  );
 
   String? _validate(T? value) {
     if (widget.required && value == null) return "${widget.label} is required!";
     return widget.validator?.call(value);
-  }
-
-  Future<void> _select(BuildContext context) async {
-    if (options.isEmpty) {
-      notify(context, "${widget.label}: No available selections!");
-      return;
-    }
-    T? value = await _openListFieldionDialog(context);
-    if (value != null) widget.controller.update(value);
-  }
-
-
-  Future<T?> _openListFieldionDialog(BuildContext context) {
-    final FThemeData theme = FTheme.of(context);
-    FDialogStyle dialogStyle = theme.dialogStyle.copyWith(
-      decoration: theme.dialogStyle.decoration.copyWith(
-        border: Border.all(color: theme.colorScheme.border, width: 2)
-      ),
-    );
-
-    final List<Widget> dialogContent = [
-      Text("ListField ${widget.label}",
-        style: theme.typography.lg.copyWith(fontWeight: FontWeight.w700),
-      ),
-      SizedBox(height: 8),
-      Flexible(
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: options.length,
-          itemBuilder: (context, index) {
-            return widget.tileListFieldBuilder(context, options[index]);
-          },
-        ),
-      ),
-      Container(
-        margin: EdgeInsets.only(top: 8),
-        child: (widget.required) ? null : FButton(
-          style: FButtonStyle.destructive,
-          onPress: () {
-            widget.controller.update(null);
-            Navigator.of(context).pop<T?>(null);
-          },
-          label: const Text("Deselect"),
-        ),
-      ),
-    ];
-
-    return showAdaptiveDialog<T>(
-      context: context,
-      builder: (BuildContext context) => FDialog.raw(
-        style: dialogStyle,
-        builder: (context, style) => ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.sizeOf(context).width/1.2,
-            maxHeight: MediaQuery.sizeOf(context).height/2
-          ),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Card(
-              color: theme.colorScheme.background,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: dialogContent,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -250,23 +165,23 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
 
 class AvertListFieldController<T extends Object> {
   AvertListFieldController({
-    T? value,
-    this.onUpdate,
-  }):_value = value;
+    required List<T> values,
+    this.onAdd,
+  }):_values = values;
 
-  T? _value;
-  Function(T?, bool)? onUpdate;
+  final List<T> _values;
+  Function(List<T>)? onAdd;
   final List<Function> _listeners = [];
 
-  T? get value => this._value;
+  List<T> get value => this._values;
 
-  bool update(T? value) {
-    if (_value == value) {
-      onUpdate?.call(_value, false);
+  bool add(T value) {
+    if (_values.contains(value)) {
+      // throw StateError("value already exist in the list");
       return false;
     }
-    _value = value;
-    onUpdate?.call(_value, true);
+    _values.add(value);
+    onAdd?.call(_values);
     for (Function listener in _listeners) {
       listener.call();
     }

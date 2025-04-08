@@ -22,7 +22,7 @@ class AvertToggle extends StatelessWidget {
     return FLabel(
       axis: Axis.vertical,
       label: Text(label,
-        style: textStyle.enabledStyle.labelTextStyle,
+        style: textStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal),
       ),
       description: description,
       child: FormField<bool>(

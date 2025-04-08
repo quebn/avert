@@ -1,3 +1,4 @@
+import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/accounting/journal_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/docs/profile.dart";
@@ -5,8 +6,10 @@ import "package:avert/docs/profile.dart";
 import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/date_picker.dart";
 import "package:avert/ui/components/input.dart";
+import "package:avert/ui/components/list_field.dart";
 import "package:avert/ui/components/time_picker.dart";
 import "package:avert/ui/core.dart";
+import "package:avert/ui/module.dart";
 
 import "package:avert/utils/common.dart";
 import "package:avert/utils/logger.dart";
@@ -115,6 +118,13 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           controller: controllers['note']!,
           hint: "Purpose of transaction...",
         ),
+        AvertListField<AccountingEntry>(
+          label: "Accounting Entries",
+          tileBuilder: (context, val) => ListTile(),
+          required: true,
+          list: [],
+        ),
+        // TODO: implement list_field
       ],
     );
   }
