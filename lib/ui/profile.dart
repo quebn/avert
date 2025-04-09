@@ -25,7 +25,7 @@ class ProfileForm extends StatefulWidget {
   State<StatefulWidget> createState() => _NewState();
 }
 
-class _NewState extends State<ProfileForm> with SingleTickerProviderStateMixin implements DocumentForm {
+class _NewState extends State<ProfileForm> with TickerProviderStateMixin implements DocumentForm {
   late final FTabController _tabController;
 
   @override
@@ -138,7 +138,7 @@ class ProfileView extends StatefulWidget {
   State<StatefulWidget> createState() => _ViewState();
 }
 
-class _ViewState extends State<ProfileView> with SingleTickerProviderStateMixin implements DocumentView<Profile> {
+class _ViewState extends State<ProfileView> with TickerProviderStateMixin implements DocumentView<Profile> {
   late final FPopoverController _controller;
 
   @override

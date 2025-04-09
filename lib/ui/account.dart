@@ -28,7 +28,7 @@ class AccountForm extends StatefulWidget {
   State<StatefulWidget> createState() => _NewState();
 }
 
-class _NewState extends State<AccountForm> with SingleTickerProviderStateMixin implements DocumentForm {
+class _NewState extends State<AccountForm> with TickerProviderStateMixin implements DocumentForm {
   Account get document => widget.document;
   List<Account> parents = [];
 
@@ -294,7 +294,7 @@ class AccountView extends StatefulWidget {
   State<StatefulWidget> createState() => _ViewState();
 }
 
-class _ViewState extends State<AccountView> with SingleTickerProviderStateMixin implements DocumentView<Account>  {
+class _ViewState extends State<AccountView> with TickerProviderStateMixin implements DocumentView<Account>  {
   late final FPopoverController _controller;
   List<Account> children = [];
 
