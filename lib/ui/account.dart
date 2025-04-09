@@ -25,10 +25,10 @@ class AccountForm extends StatefulWidget {
   final Future<bool> Function(Account) onSubmit;
 
   @override
-  State<StatefulWidget> createState() => _NewState();
+  State<StatefulWidget> createState() => _FormState();
 }
 
-class _NewState extends State<AccountForm> with TickerProviderStateMixin implements DocumentForm {
+class _FormState extends State<AccountForm> with TickerProviderStateMixin implements DocumentForm {
   Account get document => widget.document;
   List<Account> parents = [];
 

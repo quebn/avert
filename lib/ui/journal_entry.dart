@@ -122,7 +122,10 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           label: "Accounting Entries",
           tileBuilder: (context, val) => ListTile(),
           required: true,
-          list: [],
+          list: document.entries,
+          onAdd: (entry) {
+            printInfo("${entry.toString()} Added!");
+          },
         ),
         // TODO: implement list_field
       ],

@@ -1,3 +1,4 @@
+import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
@@ -26,9 +27,9 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final Widget Function(BuildContext, T) tileBuilder;
   final Widget? description, error;
   final bool enabled, required;
-  final String? Function(T?)? validator;
+  final String? Function(List<T>?)? validator;
   final String? forceErrorText;
-  final Function()? onAdd;
+  final Function(T)? onAdd;
   final List<T> list;
   // final AvertListFieldController controller;
 
@@ -37,8 +38,8 @@ class AvertListField<T extends Document> extends StatefulWidget {
 }
 
 class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
-  FormFieldState<T>? _state;
-  List<Widget> children = [ ];
+  FormFieldState<List<T>>? _state;
+  List<Widget> children = [];
 
   @override
   void initState() {
@@ -53,7 +54,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
   @override
   Widget build(BuildContext context) {
     printTrack("Building ListField ${widget.label}");
-    return FormField<T>(
+    return FormField<List<T>>(
       key: widget.key,
       enabled: widget.enabled,
       builder: _builder,
@@ -63,13 +64,14 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     );
   }
 
-  Widget _builder(FormFieldState<T> state) {
+  Widget _builder(FormFieldState<List<T>> state) {
     _state = state;
     // printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
 
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
+    final FButtonStyle buttonStyle = theme.buttonStyles.ghost;
     // if (widget.list.isEmpty && children.isEmpty) {
     //   children.add(
     //   );
@@ -77,41 +79,77 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     return FLabel(
       error: state.hasError ? Text(state.errorText!) : null,
       axis: Axis.vertical,
-      label: RichText(
-        text: TextSpan(
-          style: state.hasError ? errorTextStyle : enabledTextStyle,
-          text: widget.label,
-          children:  widget.required ? const [
-            TextSpan(
-              text: " *",
-              style: TextStyle(
-                color: Colors.red,
-              )
+      label: Row(
+        spacing: 12,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: state.hasError ? errorTextStyle : enabledTextStyle,
+              text: widget.label,
+              children:  widget.required ? const [
+                TextSpan(
+                  text: " *",
+                  style: TextStyle(color: Colors.red)
+                ),
+              ] : null,
             ),
-          ] : null,
-        ),
+          ),
+          SizedBox(
+            child: widget.onAdd != null ?  FButton.raw(
+              style: FButtonStyle.ghost,
+              onPress: _addDocument,
+              child: FIcon(FAssets.icons.listPlus),
+            ) : null,
+          ),
+        ]
       ),
       description: widget.description,
       child: FCard.raw(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: widget.list.isNotEmpty ? children : [_emptyMessage(context)],
+          children: [
+            Column(
+              spacing: 8,
+              children: children
+            ),
+            _newItemButton(context)
+          ]
         ),
       ),
     );
   }
 
-  Widget _emptyMessage(BuildContext context) => Container(
-    padding: EdgeInsets.all(16),
-    child: Text(
-    "Empty",
-    textAlign: TextAlign.center,
-    style: context.theme.textFieldStyle.enabledStyle.hintTextStyle
-     ),
+  void _addDocument() async {
+    // TODO: should do the same as what the account list is doing.
+    printInfo("Adding Document to List");
+    final AccountingEntry? entry = await _createAccountingEntry();
+
+    if (entry == null || entry.action != DocAction.insert) return;
+    if (!context.mounted) return;
+    // TODO: should add to the list using builder and setState function();
+    // if (account.action == DocAction.insert || account.action == DocAction.update) {
+    //   addDocument(account);
+    // }
+  }
+
+  Future<AccountingEntry?> _createAccountingEntry() async {
+    throw UnimplementedError();
+  }
+
+  Widget _newItemButton(BuildContext context) => SizedBox(
+    child: FButton(
+      prefix: FIcon(FAssets.icons.plus),
+      style: FButtonStyle.ghost,
+      onPress: _addDocument,
+      label: Text("Add New Item", style: context.theme.buttonStyles.ghost.contentStyle.enabledTextStyle.copyWith(
+        // fontWeight: FontWeight.normal,
+        fontSize: context.theme.typography.sm.fontSize,
+      )),
+    ),
   );
 
-  String? _validate(T? value) {
-    if (widget.required && value == null) return "${widget.label} is required!";
+  String? _validate(List<T>? value) {
+    if (widget.required && (value == null || value.isEmpty)) return "${widget.label} is required!";
     return widget.validator?.call(value);
   }
 }
