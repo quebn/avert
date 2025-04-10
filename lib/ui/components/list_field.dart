@@ -1,4 +1,3 @@
-import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
@@ -14,6 +13,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
     required this.tileBuilder,
     // required this.controller,
     required this.list,
+    required this.dialogContentBuilder,
     this.description,
     this.onAdd,
     this.error,
@@ -31,6 +31,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final String? forceErrorText;
   final Function(T)? onAdd;
   final List<T> list;
+  final Widget Function(BuildContext) dialogContentBuilder;
   // final AvertListFieldController controller;
 
   @override
@@ -71,11 +72,8 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
 
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
-    final FButtonStyle buttonStyle = theme.buttonStyles.ghost;
-    // if (widget.list.isEmpty && children.isEmpty) {
-    //   children.add(
-    //   );
-    // }
+    final FButtonStyle ghostStyle = theme.buttonStyles.ghost;
+
     return FLabel(
       error: state.hasError ? Text(state.errorText!) : null,
       axis: Axis.vertical,
@@ -96,7 +94,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
           ),
           SizedBox(
             child: widget.onAdd != null ?  FButton.raw(
-              style: FButtonStyle.ghost,
+              style: ghostStyle,
               onPress: _addDocument,
               child: FIcon(FAssets.icons.listPlus),
             ) : null,
@@ -122,18 +120,18 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
   void _addDocument() async {
     // TODO: should do the same as what the account list is doing.
     printInfo("Adding Document to List");
-    final AccountingEntry? entry = await _createAccountingEntry();
+    final T? entry = await showAdaptiveDialog<T>(
+      context: context,
+      builder: widget.dialogContentBuilder,
+    );
+    // await widget.newDocument.call();
 
     if (entry == null || entry.action != DocAction.insert) return;
     if (!context.mounted) return;
     // TODO: should add to the list using builder and setState function();
-    // if (account.action == DocAction.insert || account.action == DocAction.update) {
-    //   addDocument(account);
-    // }
-  }
-
-  Future<AccountingEntry?> _createAccountingEntry() async {
-    throw UnimplementedError();
+    if (entry.action == DocAction.insert || entry.action == DocAction.update) {
+      widget.onAdd?.call(entry);
+    }
   }
 
   Widget _newItemButton(BuildContext context) => SizedBox(

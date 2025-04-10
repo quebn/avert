@@ -30,7 +30,7 @@ class JournalEntry implements Document {
   @override
   DateTime createdAt;
 
-  DateTime? postedAt;
+  DateTime postedAt;
   List<AccountingEntry> entries;
   Profile profile;
   String note;
@@ -72,7 +72,7 @@ class JournalEntry implements Document {
       "profile_id": profile.id,
       "note": note,
       "createdAt": now,
-      "postedAt": postedAt?.millisecondsSinceEpoch ?? 0,
+      "postedAt": postedAt.millisecondsSinceEpoch,
     };
     printWarn("creating entry with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
@@ -91,7 +91,7 @@ class JournalEntry implements Document {
     Map<String, Object?> values = {
       "name": name,
       "note": note,
-      "postedAt": postedAt?.millisecondsSinceEpoch ?? 0,
+      "postedAt": postedAt.millisecondsSinceEpoch,
     };
 
     printWarn("update with values of: ${values.toString()} on journal entry with id of: $id!");

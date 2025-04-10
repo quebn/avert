@@ -1,7 +1,9 @@
+import "package:avert/docs/accounting/account.dart";
 import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/accounting/journal_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/docs/profile.dart";
+import "package:avert/ui/accounting_entry.dart";
 
 import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/date_picker.dart";
@@ -9,10 +11,10 @@ import "package:avert/ui/components/input.dart";
 import "package:avert/ui/components/list_field.dart";
 import "package:avert/ui/components/time_picker.dart";
 import "package:avert/ui/core.dart";
-import "package:avert/ui/module.dart";
 
 import "package:avert/utils/common.dart";
 import "package:avert/utils/logger.dart";
+import "package:avert/utils/ui.dart";
 
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
@@ -36,11 +38,11 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   JournalEntry get document => widget.document;
   late final FDateFieldController dateController;
   late final FTimeFieldController timeController;
+  final List<Account> accounts = []; // TODO: fetch this
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
     'note': TextEditingController(),
@@ -55,7 +57,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   @override
   void initState() {
     super.initState();
-    final DateTime c = document.postedAt ?? DateTime.now();
+    final DateTime c = document.postedAt;
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
   }
@@ -96,7 +98,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           spacing: 8,
           children: [
             Flexible(
-              flex: 1,
+              flex: 3,
               child: AvertDatePicker(
                 required: true,
                 controller: dateController,
@@ -104,6 +106,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               ),
             ),
             Expanded(
+              flex: 2,
               child: AvertTimePicker(
                 required: true,
                 controller: timeController,
@@ -119,6 +122,13 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           hint: "Purpose of transaction...",
         ),
         AvertListField<AccountingEntry>(
+          dialogContentBuilder: (context) => AccountingEntryForm(
+            document: AccountingEntry(
+              journalEntry: document,
+              createdAt: DateTime.now().millisecondsSinceEpoch
+            ),
+            accounts: accounts,
+          ),
           label: "Accounting Entries",
           tileBuilder: (context, val) => ListTile(),
           required: true,
@@ -156,6 +166,26 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final bool success = await widget.onSubmit(document);
     if (success && mounted) Navigator.of(context).pop<JournalEntry>(document);
   }
+
+  // Future<AccountingEntry?> _newAccountingEntry() {
+  //   final AccountingEntry ac = AccountingEntry(
+  //     createdAt: DateTime.now().millisecondsSinceEpoch,
+  //     journalEntry: document,
+  //   );
+  //   return  showAdaptiveDialog<AccountingEntry?>(
+  //     context: context,
+  //     builder: (context) => AccountingEntryForm(
+  //       document: ac,
+  //       onSubmit: (d) async {
+  //         final  String msg = "Accounting Entry '${d.name}' created!";
+  //         if (context.mounted) notify(context, msg);
+  //         return true;
+  //       },
+  //       accounts: accounts,
+  //     )
+  //   );
+  // }
+
 }
 
 class JournalEntryTile extends StatefulWidget {

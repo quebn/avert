@@ -31,7 +31,6 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
   };

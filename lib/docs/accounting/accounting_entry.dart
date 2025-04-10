@@ -10,16 +10,17 @@ import "journal_entry.dart";
 
 class AccountingEntry implements Document {
   AccountingEntry({
-    required this.id,
-    required this.name,
-    required this.createdAt,
-    required this.account,
-    required this.debit,
-    required this.credit,
+    this.id = 0,
+    this.debit = 0,
+    this.credit = 0,
+    this.account,
+    this.description = "",
     required this.journalEntry,
-    required this.description,
+    int createdAt = 0,
     this.action = DocAction.none,
-  });
+  }):
+  name = "${journalEntry.name}-$id",
+  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   @override
   DocAction action;
@@ -30,7 +31,7 @@ class AccountingEntry implements Document {
   @override
   String name;
 
-  Account account;
+  Account? account;
   double debit, credit;
   JournalEntry journalEntry;
   String description;
@@ -39,16 +40,15 @@ class AccountingEntry implements Document {
   final DateTime createdAt;
 
   static String get tableName => "accounting_entries";
-  static String get tableQuery => """ CREATE TABLE $tableName(
+  static String get tableQuery => """CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
     createdAt INTEGER NOT NULL,
     account_id INTEGER,
     journal_entry_id INTEGER,
     description TEXT,
     debit INTEGER,
     credit INTEGER
-  ) """;
+  )""";
 
   @override
   Future<bool> delete() async {
@@ -67,9 +67,9 @@ class AccountingEntry implements Document {
       return false;
     }
     int now = DateTime.now().millisecondsSinceEpoch;
+
     Map<String, Object?> values = {
-      "name": name,
-      "account_id": account.id,
+      "account_id": account!.id,
       "createdAt": now,
       "description": description,
       "debit": debit,
@@ -90,8 +90,7 @@ class AccountingEntry implements Document {
     }
 
     Map<String, Object?> values = {
-      "name": name,
-      "account_id": account.id,
+      "account_id": account!.id,
       "description": description,
       "debit": debit,
       "credit": credit,
@@ -109,6 +108,6 @@ class AccountingEntry implements Document {
 
   Future<bool> valuesNotValid() async {
     bool hasDuplicates = await exists(this, tableName);
-    return name.isEmpty || hasDuplicates;
+    return name.isEmpty || hasDuplicates || account == null;
   }
 }

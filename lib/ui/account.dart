@@ -38,7 +38,6 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
   late final AvertSelectController<AccountType> _typeSelectController;
   late final AvertSelectController<Account> _parentSelectController;
 
-  @override
   final Map<String, TextEditingController> controllers = {
     'name': TextEditingController(),
   };

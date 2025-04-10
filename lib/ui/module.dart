@@ -154,7 +154,7 @@ class Accounting implements Module {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AvertListScreen<JournalEntry>(
-          title: Text("Accounts"),
+          title: Text("Journal Entries"),
           initialList: accounts,
           tileBuilder: (key ,context, account, removeDocument) => JournalEntryTile(
             key: key,

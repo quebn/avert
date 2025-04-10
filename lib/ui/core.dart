@@ -4,7 +4,6 @@ import "package:flutter/widgets.dart";
 abstract class DocumentForm {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final Map<String, TextEditingController> controllers = {};
 
   bool isDirty = false;
   String? errMsg;

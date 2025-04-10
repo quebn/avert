@@ -137,7 +137,8 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
 }
 
 class AvertDocumentForm<T extends Document> extends StatelessWidget {
-  const AvertDocumentForm({super.key,
+  const AvertDocumentForm({
+    super.key,
     required this.title,
     required this.contents,
     this.floatingActionButton,
@@ -146,7 +147,19 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     this.actions,
     this.isDirty = true,
     this.resizeToAvoidBottomInset = false,
-  });
+  }): isDialog = false;
+
+  const AvertDocumentForm.dialog({
+    super.key,
+    required this.title,
+    required this.contents,
+    this.floatingActionButton,
+    this.leading,
+    this.formKey,
+    this.actions,
+    this.isDirty = true,
+    this.resizeToAvoidBottomInset = false,
+  }): isDialog = true;
 
   final Widget title;
   final Widget? floatingActionButton;
@@ -156,64 +169,112 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
   final List<Widget>? actions;
   final bool isDirty;
   final bool resizeToAvoidBottomInset;
+  final bool isDialog;
 
   @override
   Widget build(BuildContext context) {
     final FThemeData theme = FTheme.of(context);
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.background,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        body: FScaffold(
-          header: FHeader.nested(
-            suffixActions: actions ?? [],
-            prefixActions: [
-              leading ?? FHeaderAction(
-                icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: FIcon(FAssets.icons.chevronLeft),
-                ),
-                onPress: () => Navigator.of(context).maybePop(),
+      child: isDialog ? _dialogDocumentForm(context, theme) : _screenDocumentForm(context, theme),
+    );
+  }
+
+// ConstrainedBox(
+//           constraints: BoxConstraints(
+//             maxWidth: MediaQuery.sizeOf(context).width/1.2,
+//             maxHeight: MediaQuery.sizeOf(context).height/2
+//           ),
+//
+  Widget _dialogDocumentForm(BuildContext context, FThemeData theme) => FDialog.raw(
+    style: theme.dialogStyle.copyWith(
+      decoration: theme.dialogStyle.decoration.copyWith(
+        border: Border.all(color: theme.colorScheme.border, width: 2)
+      ),
+    ),
+    builder: (context, style) => ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height/1.5,
+      ),
+      child: Form(
+        key: formKey,
+        canPop: !isDirty,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop) return;
+          final bool shouldPop = await confirm(context) ?? false;
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: FCard(
+          style: theme.cardStyle.copyWith(
+            contentStyle: theme.cardStyle.contentStyle.copyWith(
+              titleTextStyle: theme.cardStyle.contentStyle.titleTextStyle.copyWith(
+                fontSize: theme.typography.base.fontSize,
               ),
-            ],
-            style: theme.headerStyle.nestedStyle,
-            title: const Text("Avert",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
             ),
           ),
+          title: Container(
+            alignment: Alignment.center,
+            margin: EdgeInsets.only(bottom: 16),
+            child: title,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: contents,
+          ),
         ),
-        content: Form(
-          key: formKey,
-          canPop: !isDirty,
-          onPopInvokedWithResult: (didPop, _) async {
-            if (didPop) return;
-            final bool shouldPop = await confirm(context) ?? false;
-            if (shouldPop && context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          child: FCard(
-            title: Container(
-              alignment: Alignment.center,
-              child: title,
+      )
+    )
+  );
+
+  Widget _screenDocumentForm(BuildContext context, FThemeData theme) => Scaffold(
+    backgroundColor: theme.colorScheme.background,
+    resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+    body: FScaffold(
+      header: FHeader.nested(
+        suffixActions: actions ?? [],
+        prefixActions: [
+          leading ?? FHeaderAction(
+            icon: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: FIcon(FAssets.icons.chevronLeft),
             ),
-            child: Column(
-              children: [
-                Column(
-                  children: contents,
-                ),
-                Container(
-                ),
-              ]
-            ),
+            onPress: () => Navigator.of(context).maybePop(),
+          ),
+        ],
+        style: theme.headerStyle.nestedStyle,
+        title: const Text(
+          "Avert",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20,
           ),
         ),
       ),
-      floatingActionButton: floatingActionButton,
-    )
-    );
-  }
+      content: Form(
+        key: formKey,
+        canPop: !isDirty,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop) return;
+          final bool shouldPop = await confirm(context) ?? false;
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: FCard(
+          title: Container(
+            alignment: Alignment.center,
+            child: title,
+          ),
+          child: Column(
+            children: contents,
+          ),
+        ),
+      ),
+    ),
+    floatingActionButton: floatingActionButton,
+  );
 }
+
+// TODO: create DialogForm
