@@ -15,6 +15,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
     this.prefix,
     this.suffix,
     this.enabled = true,
+    this.yMargin = 4,
     // this.dialogActions = const [],
     this.required = false,
     this.validator,
@@ -33,6 +34,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
   final String? Function(T?)? validator;
   final String? forceErrorText;
   final AvertSelectController<T> controller;
+  final double yMargin;
 
   @override
   State<StatefulWidget> createState() => _SelectState<T>();
@@ -89,33 +91,36 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
 
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
-    return FLabel(
-      error: state.hasError ? Text(state.errorText!) : null,
-      axis: Axis.vertical,
-      label: RichText(
-        text: TextSpan(
-          style: state.hasError ? errorTextStyle : enabledTextStyle,
-          text: widget.label,
-          children:  widget.required ? const [
-            TextSpan(
-              text: " *",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              )
-            ),
-          ] : null,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.yMargin),
+      child: FLabel(
+        error: state.hasError ? Text(state.errorText!) : null,
+        axis: Axis.vertical,
+        label: RichText(
+          text: TextSpan(
+            style: state.hasError ? errorTextStyle : enabledTextStyle,
+            text: widget.label,
+            children:  widget.required ? const [
+              TextSpan(
+                text: " *",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                )
+              ),
+            ] : null,
+          ),
         ),
-      ),
-      description: widget.description,
-      child: FButton(
-        style: state.hasError ? errstyle : style,
-        onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
-        suffix: widget.suffix,
-        prefix: widget.prefix,
-        label: Expanded(
-          child: widget.valueBuilder(context, state.value),
-        )
+        description: widget.description,
+        child: FButton(
+          style: state.hasError ? errstyle : style,
+          onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
+          suffix: widget.suffix,
+          prefix: widget.prefix,
+          label: Expanded(
+            child: widget.valueBuilder(context, state.value),
+          )
+        ),
       ),
     );
   }

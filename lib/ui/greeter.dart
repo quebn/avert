@@ -222,7 +222,7 @@ class _FormState extends State<CreateProfileForm> {
         hint: "Ex. John Doe",
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChange: onChangeProfileName,
-        controller: controllers['name']!,
+        controller: controllers["name"]!,
         forceErrMsg: userErrMsg,
       ),
       const SizedBox(height: 20),
@@ -259,7 +259,7 @@ class _FormState extends State<CreateProfileForm> {
 
     if (!isValid) return;
 
-    Profile p = Profile(name: controllers['name']!.value.text,);
+    Profile p = Profile(name: controllers["name"]!.value.text,);
 
     if (await exists(p, Profile.tableName)) {
       setState(() {

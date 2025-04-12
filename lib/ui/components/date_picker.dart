@@ -15,6 +15,7 @@ class AvertDatePicker extends StatefulWidget {
     this.required = false,
     this.labelStyle,
     this.forceErrorText,
+    this.yMargin = 4,
   });
 
   final String label;
@@ -24,6 +25,7 @@ class AvertDatePicker extends StatefulWidget {
   final TextStyle? labelStyle;
   final String? forceErrorText;
   final FDateFieldController controller;
+  final double yMargin;
 
   @override
   State<StatefulWidget> createState() => _SelectState();
@@ -60,16 +62,19 @@ class _SelectState extends State<AvertDatePicker> {
       ),
     );
 
-    return FDateField.calendar(
-      key: widget.key,
-      controller: widget.controller,
-      autoHide: true,
-      clearable: true,
-      label: label,
-      description: widget.description,
-      enabled: widget.enabled,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      forceErrorText: widget.forceErrorText,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.yMargin),
+      child: FDateField.calendar(
+        key: widget.key,
+        controller: widget.controller,
+        autoHide: true,
+        clearable: true,
+        label: label,
+        description: widget.description,
+        enabled: widget.enabled,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        forceErrorText: widget.forceErrorText,
+      ),
     );
   }
 }

@@ -8,20 +8,24 @@ class AvertToggle extends StatelessWidget {
     required this.label,
     this.description,
     this.onChange,
+    this.yMargin = 4,
   });
 
   final String label;
   final bool initialValue;
   final Widget? description;
   final void Function(bool)? onChange;
+  final double yMargin;
 
   @override
   Widget build(BuildContext context) {
     FThemeData theme = FTheme.of(context);
     FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
-    return FLabel(
-      axis: Axis.vertical,
-      label: Text(label,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: yMargin),
+      child: FLabel(
+        axis: Axis.vertical,
+        label: Text(label,
         style: textStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal),
       ),
       description: description,
@@ -29,6 +33,7 @@ class AvertToggle extends StatelessWidget {
         initialValue: initialValue,
         builder: _builder,
       ),
+    ),
     );
   }
 

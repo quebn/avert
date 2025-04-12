@@ -16,6 +16,7 @@ class AvertTimePicker extends StatefulWidget {
     this.required = false,
     this.labelStyle,
     this.forceErrorText,
+    this.yMargin = 4,
   });
 
   final String label;
@@ -26,6 +27,7 @@ class AvertTimePicker extends StatefulWidget {
   final String? forceErrorText;
   final FTimeFieldController controller;
   final TextStyle? labelStyle;
+  final double yMargin;
 
   @override
   State<StatefulWidget> createState() => _SelectState();
@@ -62,14 +64,17 @@ class _SelectState extends State<AvertTimePicker> {
       ),
     );
 
-    return FTimeField.picker(
-      key: widget.key,
-      controller: widget.controller,
-      label: label,
-      description: widget.description,
-      enabled: widget.enabled,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      forceErrorText: widget.forceErrorText,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.yMargin),
+      child: FTimeField.picker(
+        key: widget.key,
+        controller: widget.controller,
+        label: label,
+        description: widget.description,
+        enabled: widget.enabled,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        forceErrorText: widget.forceErrorText,
+      ),
     );
   }
 }

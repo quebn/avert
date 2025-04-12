@@ -180,50 +180,44 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     );
   }
 
-// ConstrainedBox(
-//           constraints: BoxConstraints(
-//             maxWidth: MediaQuery.sizeOf(context).width/1.2,
-//             maxHeight: MediaQuery.sizeOf(context).height/2
-//           ),
-//
   Widget _dialogDocumentForm(BuildContext context, FThemeData theme) => FDialog.raw(
     style: theme.dialogStyle.copyWith(
       decoration: theme.dialogStyle.decoration.copyWith(
         border: Border.all(color: theme.colorScheme.border, width: 2)
       ),
     ),
-    builder: (context, style) => ConstrainedBox(
+    builder: (context, style) => Container(
+      padding: EdgeInsets.all(16),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height/1.5,
       ),
-      child: Form(
-        key: formKey,
-        canPop: !isDirty,
-        onPopInvokedWithResult: (didPop, _) async {
-          if (didPop) return;
-          final bool shouldPop = await confirm(context) ?? false;
-          if (shouldPop && context.mounted) {
-            Navigator.of(context).pop();
-          }
-        },
-        child: FCard(
-          style: theme.cardStyle.copyWith(
-            contentStyle: theme.cardStyle.contentStyle.copyWith(
-              titleTextStyle: theme.cardStyle.contentStyle.titleTextStyle.copyWith(
-                fontSize: theme.typography.base.fontSize,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          title,
+          SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              canPop: !isDirty,
+              onPopInvokedWithResult: (didPop, _) async {
+                if (didPop) return;
+                final bool shouldPop = await confirm(context) ?? false;
+                if (shouldPop && context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: contents,
               ),
-            ),
+            )
           ),
-          title: Container(
-            alignment: Alignment.center,
-            margin: EdgeInsets.only(bottom: 16),
-            child: title,
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: actions ?? [],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: contents,
-          ),
-        ),
+        ]
       )
     )
   );

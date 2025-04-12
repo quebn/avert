@@ -4,6 +4,7 @@ import "package:forui/forui.dart";
 
 enum AvertInputType {
   text,
+  number,
   alphanumeric,
   password,
   multiline,
@@ -15,7 +16,7 @@ class AvertInput extends StatefulWidget {
     required this.controller,
     required this.inputType,
     this.xMargin = 0,
-    this.yMargin = 0,
+    this.yMargin = 4,
     this.hint,
     this.required = false,
     this.validator,
@@ -31,7 +32,7 @@ class AvertInput extends StatefulWidget {
     this.forceErrMsg,
     this.minLines = 1,
     this.maxLines = 1,
-  });
+  }): isDecimal = false;
 
   const AvertInput.text({super.key,
     required this.label,
@@ -44,7 +45,7 @@ class AvertInput extends StatefulWidget {
     this.autofocus = false,
     this.enabled = true,
     this.xMargin = 0,
-    this.yMargin = 0,
+    this.yMargin = 4,
     this.labelStyle,
     this.initialValue,
     this.textInputAction,
@@ -53,14 +54,37 @@ class AvertInput extends StatefulWidget {
     this.forceErrMsg,
     this.minLines = 1,
     this.maxLines = 1,
-  }): inputType = AvertInputType.text;
+  }): inputType = AvertInputType.text, isDecimal = false;
+
+  const AvertInput.number({super.key,
+    required this.label,
+    required this.controller,
+    this.isDecimal = false,
+    this.hint,
+    this.required = false,
+    this.validator,
+    this.onChange,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.enabled = true,
+    this.xMargin = 0,
+    this.yMargin = 4,
+    this.labelStyle,
+    this.initialValue,
+    this.textInputAction,
+    this.description,
+    this.autovalidateMode,
+    this.forceErrMsg,
+    this.minLines = 1,
+    this.maxLines = 1,
+  }): inputType = AvertInputType.number;
 
   const AvertInput.alphanumeric({super.key,
     required this.label,
     required this.controller,
     this.hint,
     this.xMargin = 0,
-    this.yMargin = 0,
+    this.yMargin = 4,
     this.required = false,
     this.validator,
     this.onChange,
@@ -75,7 +99,7 @@ class AvertInput extends StatefulWidget {
     this.forceErrMsg,
     this.minLines = 1,
     this.maxLines = 1,
-  }) : inputType = AvertInputType.alphanumeric;
+  }) : inputType = AvertInputType.alphanumeric, isDecimal = false;
 
   const AvertInput.password({super.key,
     required this.controller,
@@ -83,7 +107,7 @@ class AvertInput extends StatefulWidget {
     this.validator,
     this.label = "Password",
     this.xMargin = 0,
-    this.yMargin = 0,
+    this.yMargin = 4,
     this.onChange,
     this.readOnly = false,
     this.autofocus = false,
@@ -94,7 +118,7 @@ class AvertInput extends StatefulWidget {
     this.description,
     this.autovalidateMode,
     this.forceErrMsg,
-  }) : inputType = AvertInputType.password, required = true, minLines = 1, maxLines = 1;
+  }) : inputType = AvertInputType.password, required = true, minLines = 1, maxLines = 1, isDecimal = false;
 
   const AvertInput.multiline({
     super.key,
@@ -108,7 +132,7 @@ class AvertInput extends StatefulWidget {
     this.autofocus = false,
     this.enabled = true,
     this.xMargin = 0,
-    this.yMargin = 0,
+    this.yMargin = 4,
     this.labelStyle,
     this.initialValue,
     this.textInputAction,
@@ -117,7 +141,7 @@ class AvertInput extends StatefulWidget {
     this.forceErrMsg,
     this.minLines = 3,
     this.maxLines = 3,
-  }): inputType = AvertInputType.multiline;
+  }): inputType = AvertInputType.multiline, isDecimal = false;
 
   final String label;
   final String? hint, initialValue, forceErrMsg;
@@ -132,6 +156,7 @@ class AvertInput extends StatefulWidget {
   final TextInputAction? textInputAction;
   final AutovalidateMode? autovalidateMode;
   final int? minLines, maxLines;
+  final bool isDecimal;
 
   @override
   State<StatefulWidget> createState() => _InputState();
@@ -153,6 +178,9 @@ class _InputState extends State<AvertInput> {
   Widget build(BuildContext context) {
     Widget textFormField;
     switch(widget.inputType) {
+      case AvertInputType.number: {
+        textFormField = _numberField;
+      } break;
       case AvertInputType.alphanumeric: {
         textFormField = _alphanumericField;
       } break;
@@ -204,6 +232,29 @@ class _InputState extends State<AvertInput> {
     maxLines: 1,
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     keyboardType: TextInputType.text,
+    forceErrorText: widget.forceErrMsg,
+  );
+
+  Widget get _numberField => FTextField(
+    minLines: widget.minLines,
+    label: _label,
+    description: widget.description,
+    readOnly: widget.readOnly,
+    textInputAction: widget.textInputAction ?? TextInputAction.done,
+    hint: widget.hint,
+    // inputFormatters: [
+    //   FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
+    // ],
+    autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
+    autofocus: widget.autofocus,
+    validator: _validate,
+    controller: widget.controller,
+    onChange: widget.onChange,
+    enabled: widget.enabled,
+    keyboardType: TextInputType.numberWithOptions(
+      signed: false, decimal: widget.isDecimal
+    ),
+    maxLines: 1,
     forceErrorText: widget.forceErrMsg,
   );
 

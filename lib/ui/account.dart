@@ -39,7 +39,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
   late final AvertSelectController<Account> _parentSelectController;
 
   final Map<String, TextEditingController> controllers = {
-    'name': TextEditingController(),
+    "name": TextEditingController(),
   };
 
   @override
@@ -87,7 +87,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
         AvertInput.text(
           label: "Name",
           hint: "Ex. Cash Account",
-          controller: controllers['name']!,
+          controller: controllers["name"]!,
           required: true,
           forceErrMsg: errMsg,
           initialValue: document.name,
@@ -193,7 +193,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
-    document.name = controllers['name']!.value.text;
+    document.name = controllers["name"]!.value.text;
     document.root = _rootSelectController.value!;
     document.type = _typeSelectController.value!;
     document.parentID = _parentSelectController.value?.id ?? 0;

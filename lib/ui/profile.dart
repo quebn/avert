@@ -32,7 +32,7 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final Map<String, TextEditingController> controllers = {
-    'name': TextEditingController(),
+    "name": TextEditingController(),
   };
 
   @override
@@ -67,7 +67,7 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
         AvertInput.text(
           label: "Name",
           hint: "Ex. Acme Inc.",
-          controller: controllers['name']!,
+          controller: controllers["name"]!,
           required: true,
           forceErrMsg: errMsg,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -115,7 +115,7 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
     }
     FocusScope.of(context).requestFocus(FocusNode());
 
-    widget.document.name = controllers['name']!.value.text;
+    widget.document.name = controllers["name"]!.value.text;
 
     final bool success = await widget.onSubmit();
 

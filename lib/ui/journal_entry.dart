@@ -44,8 +44,8 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final Map<String, TextEditingController> controllers = {
-    'name': TextEditingController(),
-    'note': TextEditingController(),
+    "name": TextEditingController(),
+    "note": TextEditingController(),
   };
 
   @override
@@ -83,10 +83,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       ),
       contents: [
         AvertInput.text(
-          yMargin: 8,
           label: "Name",
           hint: "Ex. Payment of Supplies",
-          controller: controllers['name']!,
+          controller: controllers["name"]!,
           required: true,
           forceErrMsg: errMsg,
           initialValue: document.name,
@@ -97,28 +96,21 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
         Row(
           spacing: 8,
           children: [
-            Flexible(
-              flex: 3,
-              child: AvertDatePicker(
-                required: true,
-                controller: dateController,
-                label: "Posting Date",
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: AvertTimePicker(
-                required: true,
-                controller: timeController,
-                label: "Posting Time",
-              ),
-            ),
+            Flexible(flex: 3, child: AvertDatePicker(
+              required: true,
+              controller: dateController,
+              label: "Posting Date",
+            )),
+            Expanded(flex: 2, child: AvertTimePicker(
+              required: true,
+              controller: timeController,
+              label: "Posting Time",
+            )),
           ],
         ),
         AvertInput.multiline(
-          yMargin: 8,
           label: "Notes",
-          controller: controllers['note']!,
+          controller: controllers["note"]!,
           hint: "Purpose of transaction...",
         ),
         AvertListField<AccountingEntry>(
@@ -137,7 +129,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             printInfo("${entry.toString()} Added!");
           },
         ),
-        // TODO: implement list_field
       ],
     );
   }
@@ -155,37 +146,17 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
-    document.name = controllers['name']!.value.text;
+    document.name = controllers["name"]!.value.text;
     document.postedAt = dateController.value!.copyWith(
       hour: timeController.value!.hour,
       minute: timeController.value!.minute,
     );
-    document.note = controllers['note']!.value.text;
-    // TODO: entries
+    document.note = controllers["note"]!.value.text;
+    // TODO: iterate and insert entries.
 
     final bool success = await widget.onSubmit(document);
     if (success && mounted) Navigator.of(context).pop<JournalEntry>(document);
   }
-
-  // Future<AccountingEntry?> _newAccountingEntry() {
-  //   final AccountingEntry ac = AccountingEntry(
-  //     createdAt: DateTime.now().millisecondsSinceEpoch,
-  //     journalEntry: document,
-  //   );
-  //   return  showAdaptiveDialog<AccountingEntry?>(
-  //     context: context,
-  //     builder: (context) => AccountingEntryForm(
-  //       document: ac,
-  //       onSubmit: (d) async {
-  //         final  String msg = "Accounting Entry '${d.name}' created!";
-  //         if (context.mounted) notify(context, msg);
-  //         return true;
-  //       },
-  //       accounts: accounts,
-  //     )
-  //   );
-  // }
-
 }
 
 class JournalEntryTile extends StatefulWidget {

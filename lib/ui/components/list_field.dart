@@ -21,6 +21,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
     this.required = false,
     this.validator,
     this.forceErrorText,
+    this.yMargin = 4,
   });
 
   final String label;
@@ -32,6 +33,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final Function(T)? onAdd;
   final List<T> list;
   final Widget Function(BuildContext) dialogContentBuilder;
+  final double yMargin;
   // final AvertListFieldController controller;
 
   @override
@@ -73,45 +75,46 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
     final FButtonStyle ghostStyle = theme.buttonStyles.ghost;
-
-    return FLabel(
-      error: state.hasError ? Text(state.errorText!) : null,
-      axis: Axis.vertical,
-      label: Row(
-        spacing: 12,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: state.hasError ? errorTextStyle : enabledTextStyle,
-              text: widget.label,
-              children:  widget.required ? const [
-                TextSpan(
-                  text: " *",
-                  style: TextStyle(color: Colors.red)
-                ),
-              ] : null,
+    final List<Widget> label = [
+      RichText(
+        text: TextSpan(
+          style: state.hasError ? errorTextStyle : enabledTextStyle,
+          text: widget.label,
+          children:  widget.required ? const [
+            TextSpan(
+              text: " *",
+              style: TextStyle(color: Colors.red)
             ),
-          ),
-          SizedBox(
-            child: widget.onAdd != null ?  FButton.raw(
-              style: ghostStyle,
-              onPress: _addDocument,
-              child: FIcon(FAssets.icons.listPlus),
-            ) : null,
-          ),
-        ]
+          ] : null,
+        ),
       ),
-      description: widget.description,
-      child: FCard.raw(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Column(
-              spacing: 8,
-              children: children
-            ),
-            _newItemButton(context)
-          ]
+      SizedBox(
+        child: widget.onAdd != null ?  FButton.raw(
+          style: ghostStyle,
+          onPress: _addDocument,
+          child: FIcon(FAssets.icons.listPlus),
+        ) : null,
+      ),
+    ];
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.yMargin),
+      child: FLabel(
+        error: state.hasError ? Text(state.errorText!) : null,
+        axis: Axis.vertical,
+        label: Row( spacing: 12, children: label),
+        description: widget.description,
+        child: FCard.raw(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Column(
+                spacing: 8,
+                children: children
+              ),
+              _newItemButton(context)
+            ]
+          ),
         ),
       ),
     );
