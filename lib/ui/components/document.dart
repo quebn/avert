@@ -231,6 +231,7 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     backgroundColor: theme.colorScheme.background,
     resizeToAvoidBottomInset: resizeToAvoidBottomInset,
     body: FScaffold(
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       header: FHeader.nested(
         suffixActions: actions ?? [],
         prefixActions: [
