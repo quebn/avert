@@ -1,5 +1,6 @@
 import "package:avert/docs/accounting/account.dart";
 import "package:avert/docs/accounting/accounting_entry.dart";
+import "package:avert/docs/document.dart";
 import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/input.dart";
 import "package:avert/ui/components/select.dart";
@@ -109,16 +110,21 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
       contents: contents,
       actions: [
         FButton(
-          prefix: FIcon(FAssets.icons.trash),
-          label: Text("Delete"),
+          prefix: FIcon(FAssets.icons.x),
+          label: Text("Cancel"),
           style: theme.buttonStyles.destructive,
-          onPress: null,
+          onPress: () {
+            document.action = DocAction.none;
+            Navigator.of(context).pop<AccountingEntry>(null);
+          }
         ),
-        FButton(
-          prefix: FIcon(FAssets.icons.plus),
-          label: Text("Add"),
-          style: theme.buttonStyles.primary,
-          onPress: null,
+        SizedBox(
+          child: FButton(
+            prefix: FIcon(FAssets.icons.plus),
+            label: Text("Add"),
+            style: theme.buttonStyles.primary,
+            onPress: submitDocument,
+          ),
         ),
       ]
     );
@@ -137,14 +143,20 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
 
     if (!isValid) return;
 
-    FocusScope.of(context).requestFocus(FocusNode());
+    // FocusScope.of(context).requestFocus(FocusNode());
     document.account = _accountSelectController.value!;
+    document.description = controllers["desc"]?.value.text ?? "";
+    document.debit = double.parse(controllers["debit"]?.value.text ?? "0");
+    document.credit = double.parse(controllers["credit"]?.value.text ?? "0");
+
+    document.action = DocAction.insert;
     Navigator.of(context).pop<AccountingEntry>(document);
   }
 
   String? validateValue(String name, String? value) {
-    if (value == "0" || value == null) return null;
-    if (controllers[name]!.value.text == "0"|| controllers[name]!.value.text == "") return null;
+    if (value == null || value == "0")  return null;
+    final String otherValue = controllers[name]?.value.text ?? "";
+    if (otherValue == "0"|| otherValue == "") return null;
     return "Can't have value greater than 0 on both Debit and Credit";
   }
 }

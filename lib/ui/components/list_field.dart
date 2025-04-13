@@ -13,9 +13,9 @@ class AvertListField<T extends Document> extends StatefulWidget {
     required this.tileBuilder,
     // required this.controller,
     required this.list,
-    required this.dialogContentBuilder,
+    required this.addDialogFormBuilder,
     this.description,
-    this.onAdd,
+    // this.onAdd,
     this.error,
     this.enabled = true,
     this.required = false,
@@ -30,9 +30,9 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final bool enabled, required;
   final String? Function(List<T>?)? validator;
   final String? forceErrorText;
-  final Function(T)? onAdd;
+  // final Function(T)? onAdd;
   final List<T> list;
-  final Widget Function(BuildContext) dialogContentBuilder;
+  final Widget Function(BuildContext) addDialogFormBuilder;
   final double yMargin;
   // final AvertListFieldController controller;
 
@@ -60,14 +60,14 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     return FormField<List<T>>(
       key: widget.key,
       enabled: widget.enabled,
-      builder: _builder,
-      validator: _validate,
+      builder: builder,
+      validator: validate,
       // initialValue: widget.controller.value,
       forceErrorText: widget.forceErrorText,
     );
   }
 
-  Widget _builder(FormFieldState<List<T>> state) {
+  Widget builder(FormFieldState<List<T>> state) {
     _state = state;
     // printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
@@ -89,11 +89,11 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
         ),
       ),
       SizedBox(
-        child: widget.onAdd != null ?  FButton.raw(
+        child: FButton.raw(
           style: ghostStyle,
-          onPress: _addDocument,
+          onPress: addDocument,
           child: FIcon(FAssets.icons.listPlus),
-        ) : null,
+        ),
       ),
     ];
 
@@ -112,7 +112,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
                 spacing: 8,
                 children: children
               ),
-              _newItemButton(context)
+              newItemButton(context)
             ]
           ),
         ),
@@ -120,28 +120,21 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     );
   }
 
-  void _addDocument() async {
-    // TODO: should do the same as what the account list is doing.
+  void addDocument() async {
     printInfo("Adding Document to List");
     final T? entry = await showAdaptiveDialog<T>(
       context: context,
-      builder: widget.dialogContentBuilder,
+      builder: widget.addDialogFormBuilder,
     );
-    // await widget.newDocument.call();
-
     if (entry == null || entry.action != DocAction.insert) return;
     if (!context.mounted) return;
-    // TODO: should add to the list using builder and setState function();
-    if (entry.action == DocAction.insert || entry.action == DocAction.update) {
-      widget.onAdd?.call(entry);
-    }
   }
 
-  Widget _newItemButton(BuildContext context) => SizedBox(
+  Widget newItemButton(BuildContext context) => SizedBox(
     child: FButton(
       prefix: FIcon(FAssets.icons.plus),
       style: FButtonStyle.ghost,
-      onPress: _addDocument,
+      onPress: addDocument,
       label: Text("Add New Item", style: context.theme.buttonStyles.ghost.contentStyle.enabledTextStyle.copyWith(
         // fontWeight: FontWeight.normal,
         fontSize: context.theme.typography.sm.fontSize,
@@ -149,7 +142,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     ),
   );
 
-  String? _validate(List<T>? value) {
+  String? validate(List<T>? value) {
     if (widget.required && (value == null || value.isEmpty)) return "${widget.label} is required!";
     return widget.validator?.call(value);
   }

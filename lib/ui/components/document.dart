@@ -180,47 +180,52 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     );
   }
 
-  Widget _dialogDocumentForm(BuildContext context, FThemeData theme) => FDialog.raw(
-    style: theme.dialogStyle.copyWith(
-      decoration: theme.dialogStyle.decoration.copyWith(
-        border: Border.all(color: theme.colorScheme.border, width: 2)
-      ),
-    ),
-    builder: (context, style) => Container(
-      padding: EdgeInsets.all(16),
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height/1.5,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          title,
-          SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              canPop: !isDirty,
-              onPopInvokedWithResult: (didPop, _) async {
-                if (didPop) return;
-                final bool shouldPop = await confirm(context) ?? false;
-                if (shouldPop && context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: contents,
-              ),
-            )
+  Widget _dialogDocumentForm(BuildContext context, FThemeData theme) {
+    final Widget form = Flexible(
+      child: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          canPop: !isDirty,
+          onPopInvokedWithResult: (didPop, _) async {
+            if (didPop) return;
+            final bool shouldPop = await confirm(context) ?? false;
+            if (shouldPop && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: Column(
+            children: contents,
           ),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: actions ?? [],
-          ),
-        ]
+        )
+      ),
+    );
+
+    return FDialog.raw(
+      style: theme.dialogStyle.copyWith(
+        decoration: theme.dialogStyle.decoration.copyWith(
+          border: Border.all(color: theme.colorScheme.border, width: 2)
+        ),
+      ),
+      builder: (context, style) => Container(
+        padding: EdgeInsets.all(16),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height/1.5,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            title,
+            form,
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: actions ?? [],
+            ),
+          ]
+        )
       )
-    )
-  );
+    );
+  }
 
   Widget _screenDocumentForm(BuildContext context, FThemeData theme) => Scaffold(
     backgroundColor: theme.colorScheme.background,

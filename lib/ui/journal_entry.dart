@@ -13,8 +13,8 @@ import "package:avert/ui/components/time_picker.dart";
 import "package:avert/ui/core.dart";
 
 import "package:avert/utils/common.dart";
+import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
-import "package:avert/utils/ui.dart";
 
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
@@ -38,7 +38,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   JournalEntry get document => widget.document;
   late final FDateFieldController dateController;
   late final FTimeFieldController timeController;
-  final List<Account> accounts = []; // TODO: fetch this
+  List<Account> accounts = []; // TODO: fetch this
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -60,6 +60,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final DateTime c = document.postedAt;
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
+    fetchAllAccounts(widget.document.profile).then((result) {
+      if (result.isNotEmpty) accounts = result;
+    });
   }
 
   @override
@@ -114,7 +117,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           hint: "Purpose of transaction...",
         ),
         AvertListField<AccountingEntry>(
-          dialogContentBuilder: (context) => AccountingEntryForm(
+          addDialogFormBuilder: (context) => AccountingEntryForm(
             document: AccountingEntry(
               journalEntry: document,
               createdAt: DateTime.now().millisecondsSinceEpoch
@@ -125,9 +128,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           tileBuilder: (context, val) => ListTile(),
           required: true,
           list: document.entries,
-          onAdd: (entry) {
-            printInfo("${entry.toString()} Added!");
-          },
         ),
       ],
     );

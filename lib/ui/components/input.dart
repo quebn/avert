@@ -179,19 +179,19 @@ class _InputState extends State<AvertInput> {
     Widget textFormField;
     switch(widget.inputType) {
       case AvertInputType.number: {
-        textFormField = _numberField;
+        textFormField = numberField;
       } break;
       case AvertInputType.alphanumeric: {
-        textFormField = _alphanumericField;
+        textFormField = alphanumericField;
       } break;
       case AvertInputType.password: {
-        textFormField = _passwordField;
+        textFormField = passwordField;
       } break;
       case AvertInputType.multiline: {
-        textFormField = _multilineField;
+        textFormField = multilineField;
       } break;
       default: {
-        textFormField = _textField;
+        textFormField = textField;
       } break;
     }
     Widget content =  Padding(
@@ -201,7 +201,7 @@ class _InputState extends State<AvertInput> {
     return content;
   }
 
-  Widget get _label => RichText(
+  Widget get label => RichText(
     text: TextSpan(
       text:widget.label,
       style: widget.labelStyle,
@@ -217,15 +217,15 @@ class _InputState extends State<AvertInput> {
     ),
   );
 
-  Widget get _textField => FTextField(
+  Widget get textField => FTextField(
     minLines: widget.minLines,
     description: widget.description,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
-    label: _label,
+    label: label,
     hint: widget.hint,
     autofocus: widget.autofocus,
     readOnly: widget.readOnly,
-    validator: _validate,
+    validator: validate,
     controller: widget.controller,
     onChange: widget.onChange,
     enabled: widget.enabled,
@@ -235,9 +235,9 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
   );
 
-  Widget get _numberField => FTextField(
+  Widget get numberField => FTextField(
     minLines: widget.minLines,
-    label: _label,
+    label: label,
     description: widget.description,
     readOnly: widget.readOnly,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
@@ -247,7 +247,7 @@ class _InputState extends State<AvertInput> {
     // ],
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     autofocus: widget.autofocus,
-    validator: _validate,
+    validator: validate,
     controller: widget.controller,
     onChange: widget.onChange,
     enabled: widget.enabled,
@@ -258,9 +258,9 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
   );
 
-  Widget get _alphanumericField => FTextField(
+  Widget get alphanumericField => FTextField(
     minLines: widget.minLines,
-    label: _label,
+    label: label,
     description: widget.description,
     readOnly: widget.readOnly,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
@@ -270,7 +270,7 @@ class _InputState extends State<AvertInput> {
     ],
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     autofocus: widget.autofocus,
-    validator: _validate,
+    validator: validate,
     controller: widget.controller,
     onChange: widget.onChange,
     enabled: widget.enabled,
@@ -279,30 +279,30 @@ class _InputState extends State<AvertInput> {
     forceErrorText: widget.forceErrMsg,
   );
 
-  Widget get _passwordField => FTextField.password(
+  Widget get passwordField => FTextField.password(
     minLines: widget.minLines,
-    label: _label,
+    label: label,
     readOnly: widget.readOnly,
     obscureText: shouldObscure,
-    validator: _validate,
+    validator: validate,
     onChange: widget.onChange,
     controller: widget.controller,
     enabled: widget.enabled,
     forceErrorText: widget.forceErrMsg,
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     keyboardType: TextInputType.visiblePassword,
-    suffixBuilder: (context, state, widget) => _showButton(),
+    suffixBuilder: (context, state, widget) => showButton(),
   );
 
-  Widget get _multilineField => FTextField.multiline(
+  Widget get multilineField => FTextField.multiline(
     minLines: widget.minLines,
     maxLines: widget.maxLines,
     description: widget.description,
-    label: _label,
+    label: label,
     hint: widget.hint,
     autofocus: widget.autofocus,
     readOnly: widget.readOnly,
-    validator: _validate,
+    validator: validate,
     controller: widget.controller,
     onChange: widget.onChange,
     enabled: widget.enabled,
@@ -311,7 +311,7 @@ class _InputState extends State<AvertInput> {
   );
 
 
-  Widget _showButton() => IconButton(
+  Widget showButton() => IconButton(
     //padding: EdgeInsets.all(0),
     iconSize: 28,
     isSelected: shouldObscure,
@@ -324,7 +324,7 @@ class _InputState extends State<AvertInput> {
     },
   );
 
-  String? _validate(String? value) {
+  String? validate(String? value) {
     if (widget.required && (value == null || value.isEmpty)) {
       return "${widget.label} is required!";
     }

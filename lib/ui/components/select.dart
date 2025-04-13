@@ -21,6 +21,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
     this.validator,
     this.onSaved,
     this.forceErrorText,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
   final String label;
@@ -35,13 +36,14 @@ class AvertSelect<T extends Object> extends StatefulWidget {
   final String? forceErrorText;
   final AvertSelectController<T> controller;
   final double yMargin;
+  final AutovalidateMode? autovalidateMode;
 
   @override
   State<StatefulWidget> createState() => _SelectState<T>();
 }
 
 class _SelectState<T extends Object> extends State<AvertSelect<T>> {
-  FormFieldState<T>? _state;
+  FormFieldState<T>? formFieldState;
   List<T> get options => widget.options;
 
   @override
@@ -58,7 +60,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
 
   void _updateState() {
     // printSuccess("Updating state on label: ${widget.label}");
-    _state?.didChange(widget.controller.value);
+    formFieldState?.didChange(widget.controller.value);
   }
 
   @override
@@ -68,15 +70,16 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
       key: widget.key,
       onSaved: widget.onSaved,
       enabled: widget.enabled,
-      builder: _builder,
-      validator: _validate,
+      builder: builder,
+      validator: validate,
       initialValue: widget.controller.value,
       forceErrorText: widget.forceErrorText,
+      autovalidateMode: widget.autovalidateMode,
     );
   }
 
-  Widget _builder(FormFieldState<T> state) {
-    _state = state;
+  Widget builder(FormFieldState<T> state) {
+    formFieldState = state;
     printAssert(state.value == widget.controller.value,"Select state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
     final FButtonStyle style = theme.buttonStyles.outline;
@@ -91,10 +94,12 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
 
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
+    FLabelState labelState = options.isNotEmpty ? FLabelState.enabled : FLabelState.disabled;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: widget.yMargin),
       child: FLabel(
-        error: state.hasError ? Text(state.errorText!) : null,
+        state: state.hasError ? FLabelState.error : labelState,
+        error: Text(state.errorText ?? ""),
         axis: Axis.vertical,
         label: RichText(
           text: TextSpan(
@@ -114,7 +119,7 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
         description: widget.description,
         child: FButton(
           style: state.hasError ? errstyle : style,
-          onPress: widget.enabled && options.isNotEmpty ? () async => _select(context) : null,
+          onPress: widget.enabled && options.isNotEmpty ? () async => select(context) : null,
           suffix: widget.suffix,
           prefix: widget.prefix,
           label: Expanded(
@@ -125,22 +130,22 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
     );
   }
 
-  String? _validate(T? value) {
+  String? validate(T? value) {
     if (widget.required && value == null) return "${widget.label} is required!";
     return widget.validator?.call(value);
   }
 
-  Future<void> _select(BuildContext context) async {
+  Future<void> select(BuildContext context) async {
     if (options.isEmpty) {
       notify(context, "${widget.label}: No available selections!");
       return;
     }
-    T? value = await _openSelectionDialog(context);
+    T? value = await openSelectionDialog(context);
     if (value != null) widget.controller.update(value);
   }
 
 
-  Future<T?> _openSelectionDialog(BuildContext context) {
+  Future<T?> openSelectionDialog(BuildContext context) {
     final FThemeData theme = FTheme.of(context);
     FDialogStyle dialogStyle = theme.dialogStyle.copyWith(
       decoration: theme.dialogStyle.decoration.copyWith(
