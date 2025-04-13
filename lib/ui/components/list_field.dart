@@ -1,3 +1,4 @@
+import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
@@ -11,11 +12,11 @@ class AvertListField<T extends Document> extends StatefulWidget {
   const AvertListField({super.key,
     required this.label,
     required this.tileBuilder,
-    // required this.controller,
+    required this.controller,
     required this.list,
     required this.addDialogFormBuilder,
     this.description,
-    // this.onAdd,
+    this.onChange,
     this.error,
     this.enabled = true,
     this.required = false,
@@ -30,11 +31,11 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final bool enabled, required;
   final String? Function(List<T>?)? validator;
   final String? forceErrorText;
-  // final Function(T)? onAdd;
+  final Function(T)? onChange; // TODO: implement this to trigger when changed
   final List<T> list;
   final Widget Function(BuildContext) addDialogFormBuilder;
   final double yMargin;
-  // final AvertListFieldController controller;
+  final AvertListFieldController<T> controller;
 
   @override
   State<StatefulWidget> createState() => _ListFieldState<T>();
@@ -47,6 +48,11 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
   @override
   void initState() {
     super.initState();
+    List<Widget> list = [];
+    for (T item in widget.controller.values) {
+      list.add(widget.tileBuilder(context, item));
+    }
+    if (list.isNotEmpty) setState(() => children = list);
   }
 
   @override
@@ -108,9 +114,17 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Column(
-                spacing: 8,
-                children: children
+              Padding(
+                padding: EdgeInsets.all(children.isEmpty ? 0 : 8),
+                child: Column(
+                  children: children
+                ),
+              ),
+              SizedBox(
+                child: children.isEmpty ? null : Divider(
+                  height: 1,
+                  color: theme.dividerStyles.horizontalStyle.color
+                ),
               ),
               newItemButton(context)
             ]
@@ -127,7 +141,12 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       builder: widget.addDialogFormBuilder,
     );
     if (entry == null || entry.action != DocAction.insert) return;
-    if (!context.mounted) return;
+    if (entry.action == DocAction.insert) {
+      widget.controller.add(entry);
+      setState(() {
+        children.add(widget.tileBuilder(context, entry));
+      });
+    }
   }
 
   Widget newItemButton(BuildContext context) => SizedBox(
@@ -187,10 +206,7 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
       suffixIcon: suffix,
       title: title,
       subtitle: subtitle,
-      onPress: () {
-        onPress?.call();
-        Navigator.of(context).pop<T?>(value);
-      }
+      onPress: null,
     );
   }
 }
@@ -205,7 +221,7 @@ class AvertListFieldController<T extends Object> {
   Function(List<T>)? onAdd;
   final List<Function> _listeners = [];
 
-  List<T> get value => this._values;
+  List<T> get values => this._values;
 
   bool add(T value) {
     if (_values.contains(value)) {

@@ -38,6 +38,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   JournalEntry get document => widget.document;
   late final FDateFieldController dateController;
   late final FTimeFieldController timeController;
+  late final AvertListFieldController<AccountingEntry> aeController;
   List<Account> accounts = []; // TODO: fetch this
 
   @override
@@ -60,6 +61,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final DateTime c = document.postedAt;
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
+    aeController = AvertListFieldController<AccountingEntry>(values:[]);
     fetchAllAccounts(widget.document.profile).then((result) {
       if (result.isNotEmpty) accounts = result;
     });
@@ -79,6 +81,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     return AvertDocumentForm(
       title: Text("${isNew(document) ? "New" : "Edit"} Journal Entry",),
       isDirty: isDirty,
+      resizeToAvoidBottomInset: false,
       floatingActionButton: !isDirty ? null : IconButton.filled(
         onPressed: submitDocument,
         iconSize: 48,
@@ -117,6 +120,17 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           hint: "Purpose of transaction...",
         ),
         AvertListField<AccountingEntry>(
+          controller: aeController,
+          label: "Accounting Entries",
+          tileBuilder: (context, val) => AvertListFieldTile(
+            value: val,
+            title: Text(val.account!.name),
+          ),
+          required: true,
+          list: document.entries,
+          onChange: (value) => onValueChange(() {
+            return !document.entries.contains(value);
+          }),
           addDialogFormBuilder: (context) => AccountingEntryForm(
             document: AccountingEntry(
               journalEntry: document,
@@ -124,10 +138,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             ),
             accounts: accounts,
           ),
-          label: "Accounting Entries",
-          tileBuilder: (context, val) => ListTile(),
-          required: true,
-          list: document.entries,
         ),
       ],
     );
