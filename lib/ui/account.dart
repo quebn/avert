@@ -171,10 +171,19 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
         ),
       ],
       isDirty: isDirty,
-      floatingActionButton: !isDirty ? null : IconButton.filled(
-        onPressed: submitDocument,
-        iconSize: 48,
-        icon: Icon(Icons.save_rounded)
+      floatingActionButton: !isDirty ? null : FButton.icon(
+        style: theme.buttonStyles.primary.copyWith(
+          enabledBoxDecoration: theme.buttonStyles.primary.enabledBoxDecoration.copyWith(
+            borderRadius: BorderRadius.circular(33),
+          )
+        ),
+        onPress: submitDocument,
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: FIcon(FAssets.icons.save,
+            size: 32,
+          ),
+        )
       ),
       resizeToAvoidBottomInset: true,
     );

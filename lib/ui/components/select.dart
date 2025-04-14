@@ -49,17 +49,16 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addValueListener(_updateState);
+    widget.controller.addValueListener(updateState);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.controller.removeValueListener(_updateState);
+    widget.controller.removeValueListener(updateState);
   }
 
-  void _updateState() {
-    // printSuccess("Updating state on label: ${widget.label}");
+  void updateState() {
     formFieldState?.didChange(widget.controller.value);
   }
 

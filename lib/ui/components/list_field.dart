@@ -1,4 +1,3 @@
-import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
@@ -6,7 +5,7 @@ import "package:forui/forui.dart";
 
 // TODO: things to implement
 // - [x] empty state view.
-// - [ ] non-empty state view.
+// - [x] non-empty state view.
 // - [ ] 'new item' button.
 class AvertListField<T extends Document> extends StatefulWidget {
   const AvertListField({super.key,
@@ -31,7 +30,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final bool enabled, required;
   final String? Function(List<T>?)? validator;
   final String? forceErrorText;
-  final Function(T)? onChange; // TODO: implement this to trigger when changed
+  final Function(T)? onChange;
   final List<T> list;
   final Widget Function(BuildContext) addDialogFormBuilder;
   final double yMargin;
@@ -42,7 +41,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
 }
 
 class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
-  FormFieldState<List<T>>? _state;
+  // FormFieldState<List<T>>? _state;
   List<Widget> children = [];
 
   @override
@@ -74,7 +73,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
   }
 
   Widget builder(FormFieldState<List<T>> state) {
-    _state = state;
+    // _state = state;
     // printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
 
@@ -86,7 +85,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
         text: TextSpan(
           style: state.hasError ? errorTextStyle : enabledTextStyle,
           text: widget.label,
-          children:  widget.required ? const [
+          children: widget.required ? const [
             TextSpan(
               text: " *",
               style: TextStyle(color: Colors.red)
@@ -97,7 +96,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       SizedBox(
         child: FButton.raw(
           style: ghostStyle,
-          onPress: addDocument,
+          onPress: addToList,
           child: FIcon(FAssets.icons.listPlus),
         ),
       ),
@@ -134,7 +133,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     );
   }
 
-  void addDocument() async {
+  void addToList() async {
     printInfo("Adding Document to List");
     final T? entry = await showAdaptiveDialog<T>(
       context: context,
@@ -143,23 +142,30 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     if (entry == null || entry.action != DocAction.insert) return;
     if (entry.action == DocAction.insert) {
       widget.controller.add(entry);
+      widget.onChange?.call(entry);
       setState(() {
         children.add(widget.tileBuilder(context, entry));
       });
     }
   }
 
-  Widget newItemButton(BuildContext context) => SizedBox(
-    child: FButton(
-      prefix: FIcon(FAssets.icons.plus),
-      style: FButtonStyle.ghost,
-      onPress: addDocument,
-      label: Text("Add New Item", style: context.theme.buttonStyles.ghost.contentStyle.enabledTextStyle.copyWith(
-        // fontWeight: FontWeight.normal,
-        fontSize: context.theme.typography.sm.fontSize,
-      )),
-    ),
-  );
+  Widget newItemButton(BuildContext context) {
+    final FThemeData theme = context.theme;
+    final TextStyle textStyle = theme.buttonStyles.ghost.contentStyle.enabledTextStyle;
+    return SizedBox(
+      child: FButton(
+        prefix: FIcon(FAssets.icons.plus),
+        style: FButtonStyle.ghost,
+        onPress: addToList,
+        label: Text(
+          "Add New Item",
+          style: textStyle.copyWith(
+            fontSize: theme.typography.sm.fontSize,
+          )
+        ),
+      ),
+    );
+  }
 
   String? validate(List<T>? value) {
     if (widget.required && (value == null || value.isEmpty)) return "${widget.label} is required!";
@@ -214,11 +220,11 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
 class AvertListFieldController<T extends Object> {
   AvertListFieldController({
     required List<T> values,
-    this.onAdd,
-  }):_values = values;
+    Function(T)? onAdd,
+  }):_values = values, _onAdd = onAdd;
 
   final List<T> _values;
-  Function(List<T>)? onAdd;
+  Function(T)? _onAdd;
   final List<Function> _listeners = [];
 
   List<T> get values => this._values;
@@ -229,18 +235,18 @@ class AvertListFieldController<T extends Object> {
       return false;
     }
     _values.add(value);
-    onAdd?.call(_values);
+    _onAdd?.call(value);
     for (Function listener in _listeners) {
-      listener.call();
+      listener.call(_values, value);
     }
     return true;
   }
 
-  void addValueListener(Function valueListener) {
+  void addValueListener(Function(List<T>, T) valueListener) {
     _listeners.add(valueListener);
   }
 
-  void removeValueListener(Function valueListener) {
+  void removeValueListener(Function(List<T>, T) valueListener) {
     _listeners.remove(valueListener);
   }
 }

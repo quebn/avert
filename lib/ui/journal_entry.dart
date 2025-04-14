@@ -65,12 +65,15 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     fetchAllAccounts(widget.document.profile).then((result) {
       if (result.isNotEmpty) accounts = result;
     });
+    dateController.addValueListener(checkDate);
+    timeController.addValueListener(checkTime);
   }
 
   @override
   void dispose() {
     super.dispose();
     dateController.dispose();
+    timeController.dispose();
     for (TextEditingController controller in controllers.values) {
       controller.dispose();
     }
@@ -78,14 +81,25 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
 
   @override
   Widget build(BuildContext context) {
+    final FThemeData theme = FTheme.of(context);
+    final FButtonStyle buttonStyle = theme.buttonStyles.primary;
     return AvertDocumentForm(
       title: Text("${isNew(document) ? "New" : "Edit"} Journal Entry",),
       isDirty: isDirty,
       resizeToAvoidBottomInset: false,
-      floatingActionButton: !isDirty ? null : IconButton.filled(
-        onPressed: submitDocument,
-        iconSize: 48,
-        icon: Icon(Icons.save_rounded)
+      floatingActionButton: !isDirty ? null : FButton.icon(
+        style: theme.buttonStyles.primary.copyWith(
+          enabledBoxDecoration: buttonStyle.enabledBoxDecoration.copyWith(
+            borderRadius: BorderRadius.circular(33),
+          )
+        ),
+        onPress: submitDocument,
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: FIcon(FAssets.icons.save,
+            size: 32,
+          ),
+        )
       ),
       contents: [
         AvertInput.text(
@@ -118,6 +132,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           label: "Notes",
           controller: controllers["note"]!,
           hint: "Purpose of transaction...",
+          onChange: (value) => onValueChange(() {
+            return value != document.note;
+          }),
         ),
         AvertListField<AccountingEntry>(
           controller: aeController,
@@ -167,6 +184,18 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final bool success = await widget.onSubmit(document);
     if (success && mounted) Navigator.of(context).pop<JournalEntry>(document);
   }
+
+  void checkDate(DateTime? dt) => onValueChange(() {
+    if (dt == null) return false;
+    final DateTime pa = document.postedAt;
+    return dt.year != pa.year || dt.month != pa.month || dt.day != pa.day ;
+  });
+
+  void checkTime(FTime? t) => onValueChange(() {
+    if (t == null) return false;
+    final DateTime pa = document.postedAt;
+    return t.hour != pa.hour || t.minute != pa.minute;
+  });
 }
 
 class JournalEntryTile extends StatefulWidget {
@@ -185,7 +214,7 @@ class JournalEntryTile extends StatefulWidget {
 }
 
 class _TileState extends State<JournalEntryTile> {
-  late String _name = widget.document.name;
+  late String name = widget.document.name;
   // late String _root = widget.document.root.toString();
   // late SvgAsset _icon = widget.document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
 
@@ -194,12 +223,12 @@ class _TileState extends State<JournalEntryTile> {
     printTrack("build account tile with name of :${widget.document.name}");
     final FThemeData theme = FTheme.of(context);
     return ListTile(
-      title: Text(_name, style: theme.typography.base),
-      onTap: _viewAccount,
+      title: Text(name, style: theme.typography.base),
+      onTap: viewAccount,
     );
   }
 
-  void _viewAccount() async {
+  void viewAccount() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Container(
@@ -212,7 +241,7 @@ class _TileState extends State<JournalEntryTile> {
 
     switch (widget.document.action) {
       case DocAction.update: {
-        setState(() => _name = widget.document.name);
+        setState(() => name = widget.document.name);
       } break;
       case DocAction.delete: {
         widget.removeDocument(widget.document);
