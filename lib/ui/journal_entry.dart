@@ -9,6 +9,7 @@ import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/date_picker.dart";
 import "package:avert/ui/components/input.dart";
 import "package:avert/ui/components/list_field.dart";
+import "package:avert/ui/components/select.dart";
 import "package:avert/ui/components/time_picker.dart";
 import "package:avert/ui/core.dart";
 
@@ -38,6 +39,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   JournalEntry get document => widget.document;
   late final FDateFieldController dateController;
   late final FTimeFieldController timeController;
+  late final AvertSelectController accountController;
   late final AvertListFieldController<AccountingEntry> aeController;
   List<Account> accounts = []; // TODO: fetch this
 
@@ -140,6 +142,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           controller: aeController,
           label: "Accounting Entries",
           tileBuilder: (context, val) => AvertListFieldTile(
+            onPress: viewAccountingEntry,
             value: val,
             title: Text(val.account!.name),
           ),
@@ -196,6 +199,16 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final DateTime pa = document.postedAt;
     return t.hour != pa.hour || t.minute != pa.minute;
   });
+
+  void viewAccountingEntry() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AccountingEntryView(
+          // document: widget.document,
+        ),
+      )
+    );
+  }
 }
 
 class JournalEntryTile extends StatefulWidget {
@@ -215,8 +228,6 @@ class JournalEntryTile extends StatefulWidget {
 
 class _TileState extends State<JournalEntryTile> {
   late String name = widget.document.name;
-  // late String _root = widget.document.root.toString();
-  // late SvgAsset _icon = widget.document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
 
   @override
   Widget build(BuildContext context) {

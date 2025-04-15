@@ -3,10 +3,6 @@ import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
 
-// TODO: things to implement
-// - [x] empty state view.
-// - [x] non-empty state view.
-// - [ ] 'new item' button.
 class AvertListField<T extends Document> extends StatefulWidget {
   const AvertListField({super.key,
     required this.label,
@@ -157,12 +153,9 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
         prefix: FIcon(FAssets.icons.plus),
         style: FButtonStyle.ghost,
         onPress: addToList,
-        label: Text(
-          "Add New Item",
-          style: textStyle.copyWith(
-            fontSize: theme.typography.sm.fontSize,
-          )
-        ),
+        label: Text("Add New Item", style: textStyle.copyWith(
+          fontSize: theme.typography.sm.fontSize,
+        )),
       ),
     );
   }
@@ -221,10 +214,12 @@ class AvertListFieldController<T extends Object> {
   AvertListFieldController({
     required List<T> values,
     Function(T)? onAdd,
+    Function(T)? onRemove,
   }):_values = values, _onAdd = onAdd;
 
   final List<T> _values;
   Function(T)? _onAdd;
+  Function(T)? _onRemove;
   final List<Function> _listeners = [];
 
   List<T> get values => this._values;
@@ -236,6 +231,19 @@ class AvertListFieldController<T extends Object> {
     }
     _values.add(value);
     _onAdd?.call(value);
+    for (Function listener in _listeners) {
+      listener.call(_values, value);
+    }
+    return true;
+  }
+
+  bool remove(T value) {
+    if (!_values.contains(value)) {
+      // throw StateError("value already exist in the list");
+      return false;
+    }
+    _values.remove(value);
+    _onRemove?.call(value);
     for (Function listener in _listeners) {
       listener.call(_values, value);
     }

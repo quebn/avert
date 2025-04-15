@@ -303,7 +303,7 @@ class AccountView extends StatefulWidget {
 }
 
 class _ViewState extends State<AccountView> with TickerProviderStateMixin implements DocumentView<Account>  {
-  late final FPopoverController _controller;
+  late final FPopoverController controller;
   List<Account> children = [];
 
   @override
@@ -312,7 +312,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
   @override
   void initState() {
     super.initState();
-    _controller = FPopoverController(vsync: this);
+    controller = FPopoverController(vsync: this);
     if (document.isGroup) {
       document.fetchChildren().then((value) {
         if (value.isEmpty) return;
@@ -324,7 +324,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose();
+    controller.dispose();
   }
 
   @override
@@ -428,7 +428,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       ),
     );
     return AvertDocumentView<Account>(
-      controller: _controller,
+      controller: controller,
       name: "Account",
       header: header,
       editDocument: editDocument,
@@ -446,7 +446,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (BuildContext context) => AccountForm(
         document: document,
-        onSubmit: _onEdit,
+        onSubmit: onEdit,
       ),
     ));
 
@@ -457,7 +457,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     }
   }
 
-  Future<bool> _onEdit(Account document) async  {
+  Future<bool> onEdit(Account document) async  {
     String msg = "Error writing Account to the database!";
     final bool success = await document.update();
     if (success) msg = "Successfully changed Account details";
@@ -465,7 +465,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     return success;
   }
 
-  Future<bool?> _confirmDelete() {
+  Future<bool?> confirmDelete() {
     return showAdaptiveDialog<bool>(
       context: context,
       builder: (BuildContext context) => FDialog(
@@ -499,7 +499,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       if (mounted) notify(context, "Could not delete: '${document.name}' has child accounts");
       return;
     }
-    final bool shouldDelete = await _confirmDelete() ?? false;
+    final bool shouldDelete = await confirmDelete() ?? false;
 
     if (shouldDelete) {
       final bool success = await document.delete();
