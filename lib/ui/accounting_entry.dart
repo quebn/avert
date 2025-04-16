@@ -3,23 +3,25 @@ import "package:avert/docs/accounting/accounting_entry.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/input.dart";
+import "package:avert/ui/components/list_field.dart";
 import "package:avert/ui/components/select.dart";
 import "package:avert/ui/core.dart";
-import "package:avert/utils/common.dart";
 import "package:avert/utils/logger.dart";
-import "package:avert/utils/ui.dart";
 import "package:flutter/material.dart";
 
 import "package:forui/forui.dart";
 
 class AccountingEntryForm extends StatefulWidget {
-  const AccountingEntryForm({super.key,
+  const AccountingEntryForm({
+    super.key,
     required this.document,
     required this.accounts,
+    required this.index
   });
 
   final AccountingEntry document;
   final List<Account> accounts;
+  final int index;
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -30,10 +32,10 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
   AccountingEntry get document => widget.document;
   late final AvertSelectController<Account> accountController;
 
-  final Map<String, TextEditingController> controllers = {
+  late final Map<String, TextEditingController> controllers = {
     "desc": TextEditingController(),
-    "debit": TextEditingController(text: "0"),
-    "credit": TextEditingController(text: "0"),
+    "debit": TextEditingController(text: widget.document.debit.toString()),
+    "credit": TextEditingController(text: widget.document.credit.toString()),
   };
 
   @override
@@ -75,7 +77,9 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
           selected: accountController.value == value,
           value: value,
-          prefix: FIcon(FAssets.icons.fileType),
+          prefix: FIcon(
+            value.isGroup ? FAssets.icons.folder : FAssets.icons.file
+          ),
           title: Text(value.name, style: theme.typography.base),
           subtitle: Text(value.type.toString(), style: theme.typography.sm),
         ),
@@ -88,7 +92,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         controller: controllers["desc"]!,
       ),
       AvertInput.number(
-        autovalidateMode: AutovalidateMode.always,
+        // autovalidateMode: AutovalidateMode.always,
         validator: (value) => validateValue("credit", value, controllers),
         label: "Debit",
         controller: controllers["debit"]!,
@@ -96,7 +100,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         isDecimal: true,
       ),
       AvertInput.number(
-        autovalidateMode: AutovalidateMode.always,
+        // autovalidateMode: AutovalidateMode.always,
         validator: (value) => validateValue("debit", value, controllers),
         label: "Credit",
         controller: controllers["credit"]!,
@@ -107,7 +111,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
 
     return AvertDocumentForm<AccountingEntry>.dialog(
       formKey: formKey,
-      title: Text("${isNew(document) ? "New" : "Edit"} Accounting Entry"),
+      title: Text("New Accounting Entry #${widget.index}"),
       isDirty: isDirty,
       contents: contents,
       actions: [
@@ -175,7 +179,7 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late final AvertSelectController<Account> accountSelectController;
   late final Map<String, TextEditingController> controllers = {
-    "desc": TextEditingController(),
+    "desc": TextEditingController(text: document.description),
     "debit": TextEditingController(text: document.debit.toString()),
     "credit": TextEditingController(text: document.credit.toString()),
   };
@@ -217,7 +221,9 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
         tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
           selected: accountSelectController.value == value,
           value: value,
-          prefix: FIcon(FAssets.icons.fileType),
+          prefix: FIcon(
+            value.isGroup ? FAssets.icons.folder : FAssets.icons.file
+          ),
           title: Text(value.name, style: theme.typography.base),
           subtitle: Text(value.type.toString(), style: theme.typography.sm),
         ),
@@ -230,7 +236,7 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
         controller: controllers["desc"]!,
       ),
       AvertInput.number(
-        autovalidateMode: AutovalidateMode.always,
+        // autovalidateMode: AutovalidateMode.always,
         validator: (value) => validateValue("credit", value, controllers),
         label: "Debit",
         controller: controllers["debit"]!,
@@ -238,7 +244,7 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
         isDecimal: true,
       ),
       AvertInput.number(
-        autovalidateMode: AutovalidateMode.always,
+        // autovalidateMode: AutovalidateMode.always,
         validator: (value) => validateValue("debit", value, controllers),
         label: "Credit",
         controller: controllers["credit"]!,
@@ -249,7 +255,7 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
 
     return AvertDocumentForm<AccountingEntry>.dialog(
       formKey: formKey,
-      title: Text("${isNew(document) ? "New" : "Edit"} Accounting Entry"),
+      title: Text("Edit Accounting Entry ${document.name}"),
       isDirty: isDirty,
       contents: contents,
       actions: [
@@ -284,7 +290,16 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
 
   @override
   void editDocument() async {
+    final bool isValid = formKey.currentState?.validate() ?? false;
+
+    if (!isValid) return;
+
     document.action = DocAction.update;
+    document.account =  accountSelectController.value;
+    document.description = controllers["desc"]!.value.text;
+    document.debit = double.parse(controllers["debit"]!.value.text);
+    document.credit = double.parse(controllers["credit"]!.value.text);
+
     Navigator.of(context).pop<AccountingEntry>(document);
   }
 
@@ -317,8 +332,74 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
 }
 
 String? validateValue(String name, String? value, Map<String, TextEditingController> controllers) {
-  if (value == null || value == "0")  return null;
-  final String otherValue = controllers[name]?.value.text ?? "";
-  if (otherValue == "0"|| otherValue == "") return null;
-  return "Can't have value greater than 0 on both Debit and Credit";
+  double thisValue = double.parse(value ?? "0.0");
+  double otherValue = double.parse(controllers[name]?.value.text ?? "0.0");
+  if (thisValue > 0 && otherValue > 0) return "Can't have value greater than 0 on both Debit and Credit";
+  if (thisValue == otherValue) return "Can't have the same value on both Debit and Credit";
+  return null;
+}
+
+class AccountingEntryTile extends StatefulWidget {
+  const AccountingEntryTile({
+    super.key,
+    required this.document,
+    required this.accounts,
+    this.onDelete,
+    this.onUpdate,
+  });
+
+  final AccountingEntry document;
+  final List<Account> accounts;
+  final Function()? onDelete;
+  final Function()? onUpdate;
+
+  @override
+  State<StatefulWidget> createState() => _TileState();
+}
+
+class _TileState extends State<AccountingEntryTile> {
+  late AccountingEntry document = widget.document;
+  int buildCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    printTrack("Building Accounting Entry tile with index of: ${document.name}");
+    final FThemeData theme = FTheme.of(context);
+
+    return AvertListFieldTile<AccountingEntry>(
+      key: widget.key,
+      onPress: onPress,
+      value: document,
+      suffix:Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("Debit: ${document.debit}", style: theme.typography.sm),
+          Text("Credit: ${document.credit}", style: theme.typography.sm),
+        ],
+      ),
+      prefix:Text("${document.name}.", style: theme.typography.base),
+      title: Text(document.account!.name),
+    );
+  }
+
+  void onPress() async {
+    AccountingEntry? doc = await showAdaptiveDialog(
+      context: context,
+      builder: (context) => AccountingEntryView(
+        document: document,
+        accounts: widget.accounts,
+      ),
+    );
+    if (doc == null) return;
+    switch(doc.action) {
+      case DocAction.delete: {
+        widget.onDelete?.call();
+      } break;
+      case DocAction.update: {
+        widget.onUpdate?.call();
+        setState(() => buildCount++);
+      } break;
+      default:return;
+    }
+  }
 }

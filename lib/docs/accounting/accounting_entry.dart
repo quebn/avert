@@ -10,16 +10,17 @@ import "journal_entry.dart";
 
 class AccountingEntry implements Document {
   AccountingEntry({
+    required int name,
+    required this.journalEntry,
     this.id = 0,
     this.debit = 0,
     this.credit = 0,
     this.account,
     this.description = "",
-    required this.journalEntry,
     int createdAt = 0,
     this.action = DocAction.none,
   }):
-  name = "${journalEntry.name}-$id",
+  name = name.toString(),
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   @override
@@ -42,6 +43,7 @@ class AccountingEntry implements Document {
   static String get tableName => "accounting_entries";
   static String get tableQuery => """CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
     createdAt INTEGER NOT NULL,
     account_id INTEGER,
     journal_entry_id INTEGER,
@@ -69,6 +71,7 @@ class AccountingEntry implements Document {
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, Object?> values = {
+      "name": name,
       "account_id": account!.id,
       "createdAt": now,
       "description": description,
@@ -90,6 +93,7 @@ class AccountingEntry implements Document {
     }
 
     Map<String, Object?> values = {
+      "name": name,
       "account_id": account!.id,
       "description": description,
       "debit": debit,

@@ -276,5 +276,3 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     floatingActionButton: floatingActionButton,
   );
 }
-
-// TODO: create DialogForm

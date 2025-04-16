@@ -21,14 +21,14 @@ class AvertListField<T extends Document> extends StatefulWidget {
   });
 
   final String label;
-  final Widget Function(BuildContext, T) tileBuilder;
+  final Widget Function(BuildContext, T, int) tileBuilder;
   final Widget? description, error;
   final bool enabled, required;
   final String? Function(List<T>?)? validator;
   final String? forceErrorText;
   final Function(T)? onChange;
   final List<T> list;
-  final Widget Function(BuildContext) addDialogFormBuilder;
+  final Widget Function(BuildContext, int index) addDialogFormBuilder;
   final double yMargin;
   final AvertListFieldController<T> controller;
 
@@ -37,17 +37,14 @@ class AvertListField<T extends Document> extends StatefulWidget {
 }
 
 class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
-  // FormFieldState<List<T>>? _state;
-  List<Widget> children = [];
+  int buildCount = 0;
 
   @override
   void initState() {
     super.initState();
-    List<Widget> list = [];
-    for (T item in widget.controller.values) {
-      list.add(widget.tileBuilder(context, item));
-    }
-    if (list.isNotEmpty) setState(() => children = list);
+    widget.controller.addValueListener((values, value) {
+      if (!values.contains(value)) setState(() => buildCount++);
+    });
   }
 
   @override
@@ -72,6 +69,12 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     // _state = state;
     // printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
+    List<Widget> children = [], list = [];
+    int count = 0;
+    for (T item in widget.controller.values) {
+      list.add(widget.tileBuilder(context, item, count++));
+    }
+    if (list.isNotEmpty) children = list;
 
     final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
     final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
@@ -112,7 +115,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
               Padding(
                 padding: EdgeInsets.all(children.isEmpty ? 0 : 8),
                 child: Column(
-                  children: children
+                  children: children,
                 ),
               ),
               SizedBox(
@@ -133,15 +136,14 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     printInfo("Adding Document to List");
     final T? entry = await showAdaptiveDialog<T>(
       context: context,
-      builder: widget.addDialogFormBuilder,
+      builder: (context) => widget.addDialogFormBuilder(context, widget.controller.values.length+1),
     );
     if (entry == null || entry.action != DocAction.insert) return;
     if (entry.action == DocAction.insert) {
-      widget.controller.add(entry);
-      widget.onChange?.call(entry);
       setState(() {
-        children.add(widget.tileBuilder(context, entry));
+        widget.controller.add(entry);
       });
+      widget.onChange?.call(entry);
     }
   }
 
@@ -205,7 +207,7 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
       suffixIcon: suffix,
       title: title,
       subtitle: subtitle,
-      onPress: null,
+      onPress: () => onPress?.call(),
     );
   }
 }
@@ -226,7 +228,6 @@ class AvertListFieldController<T extends Object> {
 
   bool add(T value) {
     if (_values.contains(value)) {
-      // throw StateError("value already exist in the list");
       return false;
     }
     _values.add(value);

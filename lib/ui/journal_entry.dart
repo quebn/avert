@@ -141,22 +141,28 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
         AvertListField<AccountingEntry>(
           controller: aeController,
           label: "Accounting Entries",
-          tileBuilder: (context, val) => AvertListFieldTile(
-            onPress: viewAccountingEntry,
-            value: val,
-            title: Text(val.account!.name),
-          ),
+          tileBuilder: (context, value, index) {
+            value.name = (index + 1).toString();
+            return AccountingEntryTile(
+              key: ObjectKey(value),
+              onDelete: () => aeController.remove(value),
+              document: value,
+              accounts: accounts,
+            );
+          },
           required: true,
           list: document.entries,
           onChange: (value) => onValueChange(() {
             return !document.entries.contains(value);
           }),
-          addDialogFormBuilder: (context) => AccountingEntryForm(
+          addDialogFormBuilder: (context, index) => AccountingEntryForm(
             document: AccountingEntry(
+              name: index,
               journalEntry: document,
               createdAt: DateTime.now().millisecondsSinceEpoch
             ),
             accounts: accounts,
+            index: index,
           ),
         ),
       ],
@@ -200,15 +206,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     return t.hour != pa.hour || t.minute != pa.minute;
   });
 
-  void viewAccountingEntry() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AccountingEntryView(
-          // document: widget.document,
-        ),
-      )
-    );
-  }
 }
 
 class JournalEntryTile extends StatefulWidget {
