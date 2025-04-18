@@ -133,13 +133,13 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
   }
 
   void addToList() async {
-    printInfo("Adding Document to List");
     final T? entry = await showAdaptiveDialog<T>(
       context: context,
       builder: (context) => widget.addDialogFormBuilder(context, widget.controller.values.length+1),
     );
     if (entry == null || entry.action != DocAction.insert) return;
     if (entry.action == DocAction.insert) {
+      printInfo("Adding Document to List");
       setState(() {
         widget.controller.add(entry);
       });
@@ -177,6 +177,7 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
     this.subtitle,
     this.prefix,
     this.suffix,
+    this.details,
     this.tileStyle,
     this.selectedStyle,
     this.selected = false,
@@ -188,6 +189,7 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
   final Widget? subtitle;
   final Widget? prefix;
   final Widget? suffix;
+  final Widget? details;
   final FTileStyle? tileStyle;
   final FTileStyle? selectedStyle;
   final bool selected;
@@ -207,6 +209,7 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
       suffixIcon: suffix,
       title: title,
       subtitle: subtitle,
+      details: details,
       onPress: () => onPress?.call(),
     );
   }

@@ -159,6 +159,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             document: AccountingEntry(
               name: index,
               journalEntry: document,
+              type: EntryType.none,
               createdAt: DateTime.now().millisecondsSinceEpoch
             ),
             accounts: accounts,
@@ -188,6 +189,8 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       minute: timeController.value!.minute,
     );
     document.note = controllers["note"]!.value.text;
+    // for (AccountingEntry entry in aeController.values) {
+    // }
     // TODO: iterate and insert entries.
 
     final bool success = await widget.onSubmit(document);

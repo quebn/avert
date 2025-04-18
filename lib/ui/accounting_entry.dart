@@ -31,11 +31,10 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
 
   AccountingEntry get document => widget.document;
   late final AvertSelectController<Account> accountController;
-
+  late final AvertSelectController<EntryType> typeController;
   late final Map<String, TextEditingController> controllers = {
     "desc": TextEditingController(),
-    "debit": TextEditingController(text: widget.document.debit.toString()),
-    "credit": TextEditingController(text: widget.document.credit.toString()),
+    "value": TextEditingController(text: widget.document.value.toString()),
   };
 
   @override
@@ -50,6 +49,9 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
   @override
   void initState() {
     super.initState();
+    typeController = AvertSelectController<EntryType>(
+      value: document.type,
+    );
     accountController = AvertSelectController<Account>();
   }
 
@@ -91,19 +93,26 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         label: "Description",
         controller: controllers["desc"]!,
       ),
-      AvertInput.number(
-        // autovalidateMode: AutovalidateMode.always,
-        validator: (value) => validateValue("credit", value, controllers),
-        label: "Debit",
-        controller: controllers["debit"]!,
+      AvertSelect<EntryType>(
+        options: const [EntryType.debit, EntryType.credit],
+        label: "Entry Type",
+        prefix: FIcon(FAssets.icons.type),
         required: true,
-        isDecimal: true,
+        validator: validateType,
+        valueBuilder: (context, type) => Text(type.toString()),
+        controller: typeController,
+        tileSelectBuilder: (context, value) => AvertSelectTile<EntryType>(
+          selected: typeController.value == value,
+          value: value,
+          prefix: FIcon(FAssets.icons.folderRoot),
+          title: Text(value.toString(), style: theme.typography.base),
+        ),
       ),
       AvertInput.number(
         // autovalidateMode: AutovalidateMode.always,
-        validator: (value) => validateValue("debit", value, controllers),
-        label: "Credit",
-        controller: controllers["credit"]!,
+        validator: validateValue,
+        label: "Value",
+        controller: controllers["value"]!,
         required: true,
         isDecimal: true,
       ),
@@ -117,7 +126,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
       actions: [
         FButton(
           prefix: FIcon(FAssets.icons.x),
-          label: Text("Cancel"),
+          label: const Text("Cancel"),
           style: theme.buttonStyles.destructive,
           onPress: () {
             document.action = DocAction.none;
@@ -127,7 +136,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         SizedBox(
           child: FButton(
             prefix: FIcon(FAssets.icons.plus),
-            label: Text("Add"),
+            label: const Text("Add"),
             style: theme.buttonStyles.primary,
             onPress: submitDocument,
           ),
@@ -152,8 +161,8 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
     // FocusScope.of(context).requestFocus(FocusNode());
     document.account = accountController.value!;
     document.description = controllers["desc"]?.value.text ?? "";
-    document.debit = double.parse(controllers["debit"]?.value.text ?? "0");
-    document.credit = double.parse(controllers["credit"]?.value.text ?? "0");
+    document.type = typeController.value!;
+    document.value = double.parse(controllers["value"]?.value.text ?? "0");
 
     document.action = DocAction.insert;
     Navigator.of(context).pop<AccountingEntry>(document);
@@ -177,11 +186,11 @@ class AccountingEntryView extends StatefulWidget {
 class _ViewState extends State<AccountingEntryView> implements DocumentView<AccountingEntry>{
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  late final AvertSelectController<Account> accountSelectController;
+  late final AvertSelectController<Account> accountController;
+  late final AvertSelectController<EntryType> typeController;
   late final Map<String, TextEditingController> controllers = {
     "desc": TextEditingController(text: document.description),
-    "debit": TextEditingController(text: document.debit.toString()),
-    "credit": TextEditingController(text: document.credit.toString()),
+    "value": TextEditingController(text: document.value.toString()),
   };
 
   bool isDirty = false;
@@ -192,7 +201,10 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
   @override
   void initState() {
     super.initState();
-    accountSelectController = AvertSelectController<Account>(
+    typeController = AvertSelectController<EntryType>(
+      value: document.type,
+    );
+    accountController = AvertSelectController<Account>(
       value: widget.document.account
     );
   }
@@ -212,14 +224,14 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
     final List<Widget> contents = [
       AvertSelect<Account>(
         required: true,
-        label: "Account",
+        label: "value",
         valueBuilder: (context, account) {
           return (account != null)
           ? Text(account.name)
           : Text("None", style: selectValueStyle);
         },
         tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
-          selected: accountSelectController.value == value,
+          selected: accountController.value == value,
           value: value,
           prefix: FIcon(
             value.isGroup ? FAssets.icons.folder : FAssets.icons.file
@@ -228,26 +240,32 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
           subtitle: Text(value.type.toString(), style: theme.typography.sm),
         ),
         options: widget.accounts,
-        controller: accountSelectController
+        controller: accountController,
       ),
       AvertInput.multiline(
         minLines: 2,
         label: "Description",
         controller: controllers["desc"]!,
       ),
-      AvertInput.number(
-        // autovalidateMode: AutovalidateMode.always,
-        validator: (value) => validateValue("credit", value, controllers),
-        label: "Debit",
-        controller: controllers["debit"]!,
+      AvertSelect<EntryType>(
+        options: const [EntryType.debit, EntryType.credit],
+        label: "Entry Type",
+        prefix: FIcon(FAssets.icons.type),
         required: true,
-        isDecimal: true,
+        valueBuilder: (context, type) => Text(type.toString()),
+        controller: typeController,
+        validator: validateType,
+        tileSelectBuilder: (context, value) => AvertSelectTile<EntryType>(
+          selected: typeController.value == value,
+          value: value,
+          prefix: FIcon(FAssets.icons.folderRoot),
+          title: Text(value.toString(), style: theme.typography.base),
+        ),
       ),
       AvertInput.number(
-        // autovalidateMode: AutovalidateMode.always,
-        validator: (value) => validateValue("debit", value, controllers),
-        label: "Credit",
-        controller: controllers["credit"]!,
+        validator: validateValue,
+        label: "Value",
+        controller: controllers["value"]!,
         required: true,
         isDecimal: true,
       ),
@@ -261,14 +279,14 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
       actions: [
         FButton(
           prefix: FIcon(FAssets.icons.x),
-          label: Text("Delete"),
+          label: const Text("Delete"),
           style: theme.buttonStyles.destructive,
           onPress: deleteDocument,
         ),
         SizedBox(
           child: FButton(
             prefix: FIcon(FAssets.icons.save),
-            label: Text("Update"),
+            label: const Text("Update"),
             style: theme.buttonStyles.primary,
             onPress: editDocument,
           ),
@@ -295,10 +313,9 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
     if (!isValid) return;
 
     document.action = DocAction.update;
-    document.account =  accountSelectController.value;
+    document.account =  accountController.value;
     document.description = controllers["desc"]!.value.text;
-    document.debit = double.parse(controllers["debit"]!.value.text);
-    document.credit = double.parse(controllers["credit"]!.value.text);
+    document.value = double.parse(controllers["value"]!.value.text);
 
     Navigator.of(context).pop<AccountingEntry>(document);
   }
@@ -331,11 +348,14 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
   }
 }
 
-String? validateValue(String name, String? value, Map<String, TextEditingController> controllers) {
+String? validateType(EntryType? type) {
+  if (type != EntryType.none) return null;
+  return "Should be 'Debit' or 'Credit'";
+}
+
+String? validateValue(String? value) {
   double thisValue = double.parse(value ?? "0.0");
-  double otherValue = double.parse(controllers[name]?.value.text ?? "0.0");
-  if (thisValue > 0 && otherValue > 0) return "Can't have value greater than 0 on both Debit and Credit";
-  if (thisValue == otherValue) return "Can't have the same value on both Debit and Credit";
+  if (thisValue == 0) return "Field value should be non-zero";
   return null;
 }
 
@@ -365,20 +385,32 @@ class _TileState extends State<AccountingEntryTile> {
   Widget build(BuildContext context) {
     printTrack("Building Accounting Entry tile with index of: ${document.name}");
     final FThemeData theme = FTheme.of(context);
+    final FBadgeStyle badgeStyle = document.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
+      backgroundColor: Colors.teal,
+      borderColor: Colors.teal,
+      contentStyle: theme.badgeStyles.primary.contentStyle.copyWith(
+        labelTextStyle: theme.badgeStyles.primary.contentStyle.labelTextStyle.copyWith(
+          color: theme.colorScheme.foreground
+        ),
+      ),
+    ): theme.badgeStyles.destructive;
 
     return AvertListFieldTile<AccountingEntry>(
       key: widget.key,
       onPress: onPress,
       value: document,
-      suffix:Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Debit: ${document.debit}", style: theme.typography.sm),
-          Text("Credit: ${document.credit}", style: theme.typography.sm),
-        ],
+      // TODO: format to currency formatting with monofonts
+      details: Text(
+        document.value.toString(),
+        style: theme.typography.base.copyWith(
+          fontWeight: FontWeight.bold
+        ),
       ),
-      prefix:Text("${document.name}.", style: theme.typography.base),
-      title: Text(document.account!.name),
+      suffix: FBadge(
+        label: Text(document.type.abbrev),
+        style: badgeStyle,
+      ),
+      title: Text("${document.name}. ${document.account!.name}"),
     );
   }
 

@@ -34,9 +34,9 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  late final AvertSelectController<AccountRoot> _rootSelectController;
-  late final AvertSelectController<AccountType> _typeSelectController;
-  late final AvertSelectController<Account> _parentSelectController;
+  late final AvertSelectController<AccountRoot> rootController;
+  late final AvertSelectController<AccountType> typeController;
+  late final AvertSelectController<Account> parentController;
 
   final Map<String, TextEditingController> controllers = {
     "name": TextEditingController(),
@@ -51,20 +51,20 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
   @override
   void initState() {
     super.initState();
-    _rootSelectController = AvertSelectController<AccountRoot>(
+    rootController = AvertSelectController<AccountRoot>(
       value: AccountRoot.asset,
       onUpdate: (value, didChange) {
-        if (didChange) _updateParentsOptions();
+        if (didChange) updateParentsOptions();
       },
     );
-    _typeSelectController = AvertSelectController<AccountType>(
+    typeController = AvertSelectController<AccountType>(
       value: AccountType.none,
       onUpdate: (value, didChange) {
-        if (didChange) _updateParentsOptions();
+        if (didChange) updateParentsOptions();
       },
     );
-    _parentSelectController = AvertSelectController<Account>();
-    _updateParentsOptions();
+    parentController = AvertSelectController<Account>();
+    updateParentsOptions();
   }
 
   @override
@@ -106,9 +106,9 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                 prefix: FIcon(FAssets.icons.folderRoot),
                 required: true,
                 valueBuilder: (context, root) => Text(root.toString()),
-                controller: _rootSelectController,
+                controller: rootController,
                 tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
-                  selected: _rootSelectController.value == value,
+                  selected: rootController.value == value,
                   value: value,
                   prefix: FIcon(FAssets.icons.folderRoot),
                   title: Text(value.toString(), style: theme.typography.base),
@@ -122,9 +122,9 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                 prefix: FIcon(FAssets.icons.fileType),
                 required: true,
                 valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
-                controller: _typeSelectController,
+                controller: typeController,
                 tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(
-                  selected: _typeSelectController.value == value,
+                  selected: typeController.value == value,
                   value: value,
                   prefix: FIcon(FAssets.icons.fileType),
                   title: Text(value.displayName, style: theme.typography.base),
@@ -147,10 +147,10 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                   ? Text(account.name)
                   : Text("None", style: selectValueStyle);
                 },
-                validator: _parentValidator,
-                controller: _parentSelectController,
+                validator: parentValidator,
+                controller: parentController,
                 tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
-                  selected: _parentSelectController.value == value,
+                  selected: parentController.value == value,
                   value: value,
                   prefix: FIcon(FAssets.icons.fileType),
                   title: Text(value.name, style: theme.typography.base),
@@ -203,32 +203,32 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
     FocusScope.of(context).requestFocus(FocusNode());
 
     document.name = controllers["name"]!.value.text;
-    document.root = _rootSelectController.value!;
-    document.type = _typeSelectController.value!;
-    document.parentID = _parentSelectController.value?.id ?? 0;
+    document.root = rootController.value!;
+    document.type = typeController.value!;
+    document.parentID = parentController.value?.id ?? 0;
 
     final bool success = await widget.onSubmit(document);
     if (success && mounted) Navigator.of(context).pop<Account>(document);
   }
 
-  void _updateParentsOptions() {
+  void updateParentsOptions() {
     Account.fetchParents(
       document.profile,
-      _rootSelectController.value,
-      _typeSelectController.value,
+      rootController.value,
+      typeController.value,
     ).then((accounts) {
       setState(() {
-        _parentSelectController.update(null);
+        parentController.update(null);
         parents = accounts;
       });
-      printAssert(_parentSelectController.value == null, "Failed to clear!");
+      printAssert(parentController.value == null, "Failed to clear!");
     });
   }
 
-  String? _parentValidator(Account? value) {
+  String? parentValidator(Account? value) {
     if (value == null) return null;
-    final AccountType type = _typeSelectController.value!;
-    final AccountRoot root = _rootSelectController.value!;
+    final AccountType type = typeController.value!;
+    final AccountRoot root = rootController.value!;
     if (value.root != root && value.type != type) {
       return "Parent '${value.name}' is not valid! root should be '${root.toString()}' and type should be '${type.displayName}'";
     }
@@ -252,23 +252,23 @@ class AccountTile extends StatefulWidget {
 }
 
 class _TileState extends State<AccountTile> {
-  late String _name = widget.document.name;
-  late String _root = widget.document.root.toString();
-  late SvgAsset _icon = widget.document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
+  late String name = widget.document.name;
+  late String root = widget.document.root.toString();
+  late SvgAsset icon = widget.document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
 
   @override
   Widget build(BuildContext context) {
     printTrack("build account tile with name of :${widget.document.name}");
     final FThemeData theme = FTheme.of(context);
     return ListTile(
-      leading: FIcon(_icon),
-      subtitle: Text(_root, style: theme.typography.sm),
-      title: Text(_name, style: theme.typography.base),
-      onTap: _viewAccount,
+      leading: FIcon(icon),
+      subtitle: Text(root, style: theme.typography.sm),
+      title: Text(name, style: theme.typography.base),
+      onTap: viewAccount,
     );
   }
 
-  void _viewAccount() async {
+  void viewAccount() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AccountView(
@@ -281,7 +281,7 @@ class _TileState extends State<AccountTile> {
 
     switch (widget.document.action) {
       case DocAction.update: {
-        setState(() => _name = widget.document.name);
+        setState(() => name = widget.document.name);
       } break;
       case DocAction.delete: {
         widget.removeDocument(widget.document);
