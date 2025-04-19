@@ -16,10 +16,10 @@ class AvertSelect<T extends Object> extends StatefulWidget {
     this.suffix,
     this.enabled = true,
     this.yMargin = 4,
-    // this.dialogActions = const [],
     this.required = false,
     this.validator,
     this.onSaved,
+    this.onChange,
     this.forceErrorText,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
@@ -37,6 +37,7 @@ class AvertSelect<T extends Object> extends StatefulWidget {
   final AvertSelectController<T> controller;
   final double yMargin;
   final AutovalidateMode? autovalidateMode;
+  final void Function(T?)? onChange;
 
   @override
   State<StatefulWidget> createState() => _SelectState<T>();
@@ -58,8 +59,9 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
     widget.controller.removeValueListener(updateState);
   }
 
-  void updateState() {
-    formFieldState?.didChange(widget.controller.value);
+  void updateState(T? value) {
+    formFieldState?.didChange(value);
+    widget.onChange?.call(value);
   }
 
   @override
@@ -91,8 +93,6 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
       )
     );
 
-    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
-    final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
     FLabelState labelState = options.isNotEmpty ? FLabelState.enabled : FLabelState.disabled;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: widget.yMargin),
@@ -102,7 +102,6 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
         axis: Axis.vertical,
         label: RichText(
           text: TextSpan(
-            style: state.hasError ? errorTextStyle : enabledTextStyle,
             text: widget.label,
             children:  widget.required ? const [
               TextSpan(
@@ -260,7 +259,7 @@ class AvertSelectController<T extends Object> {
 
   T? _value;
   Function(T?, bool)? onUpdate;
-  final List<Function> _listeners = [];
+  final List<void Function(T?)> _valueListeners = [];
 
   T? get value => this._value;
 
@@ -271,17 +270,17 @@ class AvertSelectController<T extends Object> {
     }
     _value = value;
     onUpdate?.call(_value, true);
-    for (Function listener in _listeners) {
-      listener.call();
+    for (void Function(T?) listener in _valueListeners) {
+      listener.call(_value);
     }
     return true;
   }
 
-  void addValueListener(Function valueListener) {
-    _listeners.add(valueListener);
+  void addValueListener(void Function(T?) valueListener) {
+    _valueListeners.add(valueListener);
   }
 
-  void removeValueListener(Function valueListener) {
-    _listeners.remove(valueListener);
+  void removeValueListener(void Function(T?) valueListener) {
+    _valueListeners.remove(valueListener);
   }
 }

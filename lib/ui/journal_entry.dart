@@ -84,6 +84,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final FThemeData theme = FTheme.of(context);
     final FButtonStyle buttonStyle = theme.buttonStyles.primary;
     return AvertDocumentForm(
+      formKey: formKey,
       title: Text("${isNew(document) ? "New" : "Edit"} Journal Entry",),
       isDirty: isDirty,
       resizeToAvoidBottomInset: false,
@@ -122,7 +123,11 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               onChange: (dt) => onValueChange(() {
                 if (dt == null) return false;
                 final DateTime pa = document.postedAt;
-                return dt.year != pa.year || dt.month != pa.month || dt.day != pa.day ;
+                return (
+                  dt.year != pa.year ||
+                  dt.month != pa.month ||
+                  dt.day != pa.day
+                );
               }),
               label: "Posting Date",
             )),
@@ -133,7 +138,10 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               onChange: (time) => onValueChange(() {
                 if (time == null) return false;
                 final DateTime pa = document.postedAt;
-                return time.hour != pa.hour || time.minute != pa.minute;
+                return (
+                  time.hour != pa.hour ||
+                  time.minute != pa.minute
+                );
               }),
             )),
           ],
@@ -190,6 +198,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
+    printInfo("Pressed Submit Button");
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 

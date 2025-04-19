@@ -203,7 +203,7 @@ class _InputState extends State<AvertInput> {
 
   Widget get label => RichText(
     text: TextSpan(
-      text:widget.label,
+      text: widget.label,
       style: widget.labelStyle,
       children:  widget.required ? const [
         TextSpan(

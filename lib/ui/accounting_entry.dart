@@ -315,6 +315,7 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
     document.action = DocAction.update;
     document.account =  accountController.value;
     document.description = controllers["desc"]!.value.text;
+    document.type = typeController.value!;
     document.value = double.parse(controllers["value"]!.value.text);
 
     Navigator.of(context).pop<AccountingEntry>(document);

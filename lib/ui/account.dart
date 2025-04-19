@@ -105,6 +105,9 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                 label: "Root Type",
                 prefix: FIcon(FAssets.icons.folderRoot),
                 required: true,
+                onChange: (v) => onValueChange(() {
+                  return v != document.root;
+                }),
                 valueBuilder: (context, root) => Text(root.toString()),
                 controller: rootController,
                 tileSelectBuilder: (context, value) => AvertSelectTile<AccountRoot>(
@@ -121,6 +124,9 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                 label: "Account Type",
                 prefix: FIcon(FAssets.icons.fileType),
                 required: true,
+                onChange: (v) => onValueChange(() {
+                  return v != document.type;
+                }),
                 valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
                 controller: typeController,
                 tileSelectBuilder: (context, value) => AvertSelectTile<AccountType>(

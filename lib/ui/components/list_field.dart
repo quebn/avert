@@ -76,13 +76,10 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     }
     if (list.isNotEmpty) children = list;
 
-    final TextStyle enabledTextStyle = theme.textFieldStyle.enabledStyle.labelTextStyle.copyWith(fontWeight: FontWeight.normal);
-    final TextStyle errorTextStyle = theme.textFieldStyle.errorStyle.labelTextStyle;
     final FButtonStyle ghostStyle = theme.buttonStyles.ghost;
     final List<Widget> label = [
       RichText(
         text: TextSpan(
-          style: state.hasError ? errorTextStyle : enabledTextStyle,
           text: widget.label,
           children: widget.required ? const [
             TextSpan(
@@ -101,14 +98,24 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       ),
     ];
 
+    final FCardStyle errorStyle = theme.cardStyle.copyWith(
+      decoration: theme.cardStyle.decoration.copyWith(
+        border: Border.all(
+          color: theme.colorScheme.destructive
+        )
+      )
+    );
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: widget.yMargin),
       child: FLabel(
-        error: state.hasError ? Text(state.errorText!) : null,
+        state: state.hasError ? FLabelState.error : FLabelState.enabled,
+        error: Text(state.errorText ?? ""),
         axis: Axis.vertical,
         label: Row( spacing: 12, children: label),
         description: widget.description,
         child: FCard.raw(
+          style: state.hasError ? errorStyle : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -121,7 +128,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
               SizedBox(
                 child: children.isEmpty ? null : Divider(
                   height: 1,
-                  color: theme.dividerStyles.horizontalStyle.color
+                  color: state.hasError ? theme.colorScheme.destructive : theme.dividerStyles.horizontalStyle.color
                 ),
               ),
               newItemButton(context)
