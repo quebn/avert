@@ -16,6 +16,7 @@ class AvertDatePicker extends StatefulWidget {
     this.labelStyle,
     this.forceErrorText,
     this.yMargin = 4,
+    this.onChange,
   });
 
   final String label;
@@ -26,6 +27,7 @@ class AvertDatePicker extends StatefulWidget {
   final String? forceErrorText;
   final FDateFieldController controller;
   final double yMargin;
+  final void Function(DateTime? date)? onChange;
 
   @override
   State<StatefulWidget> createState() => _SelectState();
@@ -36,11 +38,17 @@ class _SelectState extends State<AvertDatePicker> {
   @override
   void initState() {
     super.initState();
+    if (widget.onChange != null) {
+      widget.controller.addValueListener(widget.onChange!);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    if (widget.onChange != null) {
+      widget.controller.removeValueListener(widget.onChange!);
+    }
   }
 
   @override

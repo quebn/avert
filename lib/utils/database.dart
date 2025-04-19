@@ -59,7 +59,7 @@ void createAccountingTables(Batch batch) {
   }
 }
 
-Future<List<Account>> fetchAllAccounts(Profile profile, {bool sorted = false}) async {
+Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) async {
   List<Account> list = [];
   List<Map<String, Object?>> values = await Core.database!.query(
     Account.tableName,

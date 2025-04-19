@@ -17,6 +17,7 @@ class AvertTimePicker extends StatefulWidget {
     this.labelStyle,
     this.forceErrorText,
     this.yMargin = 4,
+    this.onChange,
   });
 
   final String label;
@@ -28,6 +29,7 @@ class AvertTimePicker extends StatefulWidget {
   final FTimeFieldController controller;
   final TextStyle? labelStyle;
   final double yMargin;
+  final void Function(FTime? time)? onChange;
 
   @override
   State<StatefulWidget> createState() => _SelectState();
@@ -38,11 +40,17 @@ class _SelectState extends State<AvertTimePicker> {
   @override
   void initState() {
     super.initState();
+    if (widget.onChange != null) {
+      widget.controller.addValueListener(widget.onChange!);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    if (widget.onChange != null) {
+      widget.controller.removeValueListener(widget.onChange!);
+    }
   }
 
   @override

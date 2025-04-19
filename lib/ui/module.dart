@@ -108,7 +108,7 @@ class Accounting implements Module {
   }
 
   void listScreenAccount(BuildContext context, Profile profile) async {
-    final List<Account> accounts = await fetchAllAccounts(profile);
+    final List<Account> accounts = await fetchAccounts(profile);
 
     if (!context.mounted) return;
 

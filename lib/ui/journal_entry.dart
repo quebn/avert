@@ -41,7 +41,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   late final FTimeFieldController timeController;
   late final AvertSelectController accountController;
   late final AvertListFieldController<AccountingEntry> aeController;
-  List<Account> accounts = []; // TODO: fetch this
+  List<Account> accounts = [];
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -64,11 +64,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
     aeController = AvertListFieldController<AccountingEntry>(values:[]);
-    fetchAllAccounts(widget.document.profile).then((result) {
+    fetchAccounts(widget.document.profile).then((result) {
       if (result.isNotEmpty) accounts = result;
     });
-    dateController.addValueListener(checkDate);
-    timeController.addValueListener(checkTime);
   }
 
   @override
@@ -121,12 +119,22 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             Flexible(flex: 3, child: AvertDatePicker(
               required: true,
               controller: dateController,
+              onChange: (dt) => onValueChange(() {
+                if (dt == null) return false;
+                final DateTime pa = document.postedAt;
+                return dt.year != pa.year || dt.month != pa.month || dt.day != pa.day ;
+              }),
               label: "Posting Date",
             )),
             Expanded(flex: 2, child: AvertTimePicker(
               required: true,
               controller: timeController,
               label: "Posting Time",
+              onChange: (time) => onValueChange(() {
+                if (time == null) return false;
+                final DateTime pa = document.postedAt;
+                return time.hour != pa.hour || time.minute != pa.minute;
+              }),
             )),
           ],
         ),
@@ -141,6 +149,8 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
         AvertListField<AccountingEntry>(
           controller: aeController,
           label: "Accounting Entries",
+          validator: validateEntries,
+          initialValues: aeController.values,
           tileBuilder: (context, value, index) {
             value.name = (index + 1).toString();
             return AccountingEntryTile(
@@ -197,18 +207,20 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     if (success && mounted) Navigator.of(context).pop<JournalEntry>(document);
   }
 
-  void checkDate(DateTime? dt) => onValueChange(() {
-    if (dt == null) return false;
-    final DateTime pa = document.postedAt;
-    return dt.year != pa.year || dt.month != pa.month || dt.day != pa.day ;
-  });
-
-  void checkTime(FTime? t) => onValueChange(() {
-    if (t == null) return false;
-    final DateTime pa = document.postedAt;
-    return t.hour != pa.hour || t.minute != pa.minute;
-  });
-
+  String? validateEntries(List<AccountingEntry>? entries) {
+    if (entries == null) return "Debit and Credit entries should be present";
+    double debit = 0, credit = 0, diff = 0;
+    for (AccountingEntry entry in entries) {
+      if (entry.type == EntryType.debit) {
+        debit += entry.value;
+      } else if (entry.type == EntryType.credit){
+        credit += entry.value;
+      }
+    }
+    diff = (debit - credit).abs();
+    if (diff == 0) return null;
+    return "Debit and Credit in Accounting Entries should be balance";
+  }
 }
 
 class JournalEntryTile extends StatefulWidget {

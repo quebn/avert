@@ -18,6 +18,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
     this.validator,
     this.forceErrorText,
     this.yMargin = 4,
+    this.initialValues,
   });
 
   final String label;
@@ -31,6 +32,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final Widget Function(BuildContext, int index) addDialogFormBuilder;
   final double yMargin;
   final AvertListFieldController<T> controller;
+  final List<T>? initialValues;
 
   @override
   State<StatefulWidget> createState() => _ListFieldState<T>();
@@ -60,14 +62,12 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       enabled: widget.enabled,
       builder: builder,
       validator: validate,
-      // initialValue: widget.controller.value,
+      initialValue: widget.initialValues,
       forceErrorText: widget.forceErrorText,
     );
   }
 
   Widget builder(FormFieldState<List<T>> state) {
-    // _state = state;
-    // printAssert(state.value == widget.controller.value,"List Field state value does not match the controller value: controller->${widget.controller.value.toString()} state->${state.value.toString()}");
     final FThemeData theme = FTheme.of(context);
     List<Widget> children = [], list = [];
     int count = 0;
@@ -162,9 +162,9 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     );
   }
 
-  String? validate(List<T>? value) {
-    if (widget.required && (value == null || value.isEmpty)) return "${widget.label} is required!";
-    return widget.validator?.call(value);
+  String? validate(List<T>? values) {
+    if (widget.required && (values == null || values.isEmpty)) return "${widget.label} is required!";
+    return widget.validator?.call(values);
   }
 }
 
