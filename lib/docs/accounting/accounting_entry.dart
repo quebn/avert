@@ -84,7 +84,7 @@ class AccountingEntry implements Document {
   Account? account;
   EntryType type;
   double value;
-  JournalEntry journalEntry;
+  final JournalEntry journalEntry;
   String description;
 
   @override
@@ -123,6 +123,7 @@ class AccountingEntry implements Document {
     Map<String, Object?> values = {
       "name": name,
       "account_id": account!.id,
+      "journal_entry_id": journalEntry.id,
       "createdAt": now,
       "description": description,
       "type": type.value,

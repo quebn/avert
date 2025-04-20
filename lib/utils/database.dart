@@ -116,3 +116,22 @@ Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) as
   }
   return list;
 }
+
+void logTable(String tablename, List<String>? columns, {String? where, List<Object>? whereArgs}) async {
+  List<Map<String, Object?>> values = await Core.database!.query(
+    tablename,
+    columns: columns,
+    where: where,
+    whereArgs: whereArgs
+  );
+  printInfo(values.toString());
+}
+
+Future<List<T>> insertDocuments<T extends Document>(List<T> documents) async {
+  final List<T> failed = [];
+  for (T documents in documents) {
+    bool success = await documents.insert();
+    if (!success) failed.add(documents);
+  }
+  return failed;
+}

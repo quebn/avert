@@ -169,7 +169,7 @@ class Accounting implements Module {
 
             if(!context.mounted) return;
             await Navigator.of(context).push(
-              MaterialPageRoute(
+             MaterialPageRoute(
                 builder: (context) => throw UnimplementedError(),
               )
             );
@@ -214,7 +214,6 @@ class Accounting implements Module {
             onSubmit: (d) async {
               String msg = "Error inserting the document to the database!";
               final bool success = await d.insert();
-
               if (success) msg = "Account '${d.name}' created!";
               if (context.mounted) notify(context, msg);
               return success;

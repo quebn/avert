@@ -159,6 +159,22 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           label: "Accounting Entries",
           validator: validateEntries,
           initialValues: aeController.values,
+          description: JournalEntryTotal(
+            controller: aeController,
+            updateState: true,
+            builder: (context, values) => [
+              Text("Total Balance:", style: context.theme.typography.sm,),
+              Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Text(
+                  getAccountingEntriesDiff(values).toString(),
+                  style: context.theme.typography.base.copyWith(
+                    fontWeight: FontWeight.bold,
+                  )
+                ),
+              ),
+            ],
+          ),
           tileBuilder: (context, value, index) {
             value.name = (index + 1).toString();
             return AccountingEntryTile(
@@ -203,33 +219,67 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     FocusScope.of(context).requestFocus(FocusNode());
 
     document.name = controllers["name"]!.value.text;
+    document.note = controllers["note"]!.value.text;
     document.postedAt = dateController.value!.copyWith(
       hour: timeController.value!.hour,
       minute: timeController.value!.minute,
     );
-    document.note = controllers["note"]!.value.text;
-    // for (AccountingEntry entry in aeController.values) {
-    // }
-    // TODO: iterate and insert entries.
 
     final bool success = await widget.onSubmit(document);
-    if (success && mounted) Navigator.of(context).pop<JournalEntry>(document);
+    if (!success) return;
+    final List<AccountingEntry> failed = await insertDocuments<AccountingEntry>(aeController.values);
+    if (failed.isEmpty && mounted) Navigator.of(context).pop<JournalEntry>(document);
   }
 
   String? validateEntries(List<AccountingEntry>? entries) {
     if (entries == null) return "Debit and Credit entries should be present";
-    double debit = 0, credit = 0, diff = 0;
-    for (AccountingEntry entry in entries) {
-      if (entry.type == EntryType.debit) {
-        debit += entry.value;
-      } else if (entry.type == EntryType.credit){
-        credit += entry.value;
-      }
-    }
-    diff = (debit - credit).abs();
+    final double diff = getAccountingEntriesDiff(entries);
     if (diff == 0) return null;
     return "Debit and Credit in Accounting Entries should be balance";
   }
+}
+
+class JournalEntryTotal extends StatefulWidget {
+  const JournalEntryTotal({
+    super.key,
+    required this.controller,
+    required this.builder,
+    required this.updateState,
+  });
+
+  final AvertListFieldController<AccountingEntry> controller;
+  final List<Widget> Function(BuildContext, List<AccountingEntry>) builder;
+  final bool updateState;
+
+  @override
+  State<StatefulWidget> createState() => _TotalState();
+}
+
+class _TotalState extends State<JournalEntryTotal> {
+  int updateCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addValueListener(updateState);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.controller.removeValueListener(updateState);
+  }
+
+  void updateState(List<AccountingEntry> values, AccountingEntry value) {
+    final bool shouldUpdate = widget.updateState;
+    if (!shouldUpdate) return;
+    setState(() => updateCount++);
+  }
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: widget.builder(context, widget.controller.values),
+  );
 }
 
 class JournalEntryTile extends StatefulWidget {
