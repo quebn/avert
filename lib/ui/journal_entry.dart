@@ -16,6 +16,7 @@ import "package:avert/ui/core.dart";
 import "package:avert/utils/common.dart";
 import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
+import "package:avert/utils/ui.dart";
 
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
@@ -64,9 +65,10 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
     aeController = AvertListFieldController<AccountingEntry>(values:[]);
-    fetchAccounts(widget.document.profile).then((result) {
-      if (result.isNotEmpty) accounts = result;
-    });
+    document.fetchEntries();
+    // fetchAccounts(widget.document.profile).then((result) {
+    //   if (result.isNotEmpty) accounts = result;
+    // });
   }
 
   @override
@@ -282,6 +284,190 @@ class _TotalState extends State<JournalEntryTotal> {
   );
 }
 
+class JournalEntryView extends StatefulWidget {
+  const JournalEntryView({ super.key,
+    required this.document,
+  });
+
+  final JournalEntry document;
+
+  @override
+  State<StatefulWidget> createState() => _ViewState();
+}
+
+class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin implements DocumentView<JournalEntry>  {
+  int updateCount = 0;
+  late final FPopoverController controller;
+  List<Widget> entries = [];
+
+  @override
+  JournalEntry get document => widget.document;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = FPopoverController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    printTrack("Building Account Document View");
+    final FThemeData theme = FTheme.of(context);
+    final FCardContentStyle contentStyle = theme.cardStyle.contentStyle;
+
+    final FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
+    buildEntryWidgets();
+    final List<Widget> header = [
+      Row (
+        children: [
+          FIcon(FAssets.icons.file, size: 48),
+          SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(document.name, style: contentStyle.titleTextStyle),
+              Text(formatDT(document.postedAt), style: contentStyle.subtitleTextStyle),
+            ],
+          ),
+        ],
+      ),
+      SizedBox(height: 8),
+      Text( document.note, style: theme.typography.base),
+      SizedBox(height: 4),
+    ];
+    return AvertDocumentView<JournalEntry>(
+      controller: controller,
+      name: "Journal Entry",
+      header: header,
+      editDocument: editDocument,
+      deleteDocument: deleteDocument,
+      content: Column(
+        children: [
+          Text("Accounting Entries", style: theme.textFieldStyle.enabledStyle.labelTextStyle),
+          SizedBox(
+            child: entries.isNotEmpty ? Column(
+              children: entries
+            ): Text("No Entries", style: theme.typography.sm),
+          )
+        ]
+      ),
+    );
+  }
+
+  @override
+  void editDocument() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (BuildContext context) => JournalEntryForm(
+        document: document,
+        onSubmit: onEdit,
+      ),
+    ));
+
+    if (document.action == DocAction.none) return;
+    if (document.action == DocAction.update) {
+      setState(() => updateCount++);
+      throw UnimplementedError("Should update the View");
+    }
+  }
+
+  Future<bool> onEdit(JournalEntry document) async  {
+    String msg = "Error writing Journal Entry to the database!";
+    final bool success = await document.update();
+    if (success) msg = "Successfully changed Journal Entry details";
+    if (mounted) notify(context, msg);
+    return success;
+  }
+
+  Future<bool?> confirmDelete() {
+    return showAdaptiveDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => FDialog(
+        direction: Axis.horizontal,
+        title: Text("Delete '${document.name}'?"),
+        body: const Text("Are you sure you want to delete this Journal Entry?"),
+        actions: <Widget>[
+          FButton(
+            label: const Text("No"),
+            style: FButtonStyle.outline,
+            onPress: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          FButton(
+            style: FButtonStyle.destructive,
+            label: const Text("Yes"),
+            onPress: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Future<void> deleteDocument() async {
+    final bool shouldDelete = await confirmDelete() ?? false;
+
+    if (shouldDelete) {
+      final bool success = await document.delete();
+
+      if (!success) {
+        if (mounted) notify(context, "Could not delete: '${document.name}' can't be deteled in database!");
+        return;
+      }
+      printWarn("Deleting Journal Entry:${document.name} with id of: ${widget.document.id}");
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
+  void buildEntryWidgets() {
+    List<Widget> list = [];
+    for (AccountingEntry entry in document.entries) {
+      list.add(entryTileBuilder(entry));
+    }
+    entries = list;
+  }
+
+  Widget entryTileBuilder(AccountingEntry entry) {
+    printTrack("Building Entry Tile with index of: ${entry.name}");
+    final FThemeData theme = FTheme.of(context);
+    final FBadgeStyle badgeStyle = entry.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
+      backgroundColor: Colors.teal,
+      borderColor: Colors.teal,
+      contentStyle: theme.badgeStyles.primary.contentStyle.copyWith(
+        labelTextStyle: theme.badgeStyles.primary.contentStyle.labelTextStyle.copyWith(
+          color: theme.colorScheme.foreground
+        ),
+      ),
+    ):theme.badgeStyles.destructive;
+
+    return AvertListFieldTile<AccountingEntry>(
+      key: widget.key,
+      onPress: null,
+      value: entry,
+      // TODO: format to currency formatting with monofonts
+      details: Text(
+        entry.value.toString(),
+        style: theme.typography.base.copyWith(
+          fontWeight: FontWeight.bold
+        ),
+      ),
+      suffix: FBadge(
+        label: Text(entry.type.abbrev),
+        style: badgeStyle,
+      ),
+      title: Text("${entry.name}. ${entry.account!.name}"),
+    );
+  }
+}
+
 class JournalEntryTile extends StatefulWidget {
   const JournalEntryTile({super.key,
     required this.document,
@@ -298,22 +484,27 @@ class JournalEntryTile extends StatefulWidget {
 }
 
 class _TileState extends State<JournalEntryTile> {
-  late String name = widget.document.name;
+  int buildCount = 0;
+  JournalEntry get document => widget.document;
 
   @override
   Widget build(BuildContext context) {
-    printTrack("build account tile with name of :${widget.document.name}");
+    // document.fetchEntries();
+    printTrack("build journal entry tile with name of :${widget.document.name}");
     final FThemeData theme = FTheme.of(context);
     return ListTile(
-      title: Text(name, style: theme.typography.base),
-      onTap: viewAccount,
+      leading: FIcon(FAssets.icons.file),
+      title: Text(document.name, style: theme.typography.base.copyWith(fontWeight: FontWeight.bold)),
+      subtitle: Text(formatDT(document.postedAt), style: theme.typography.sm),
+      onTap: view,
     );
   }
 
-  void viewAccount() async {
+  void view() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => Container(
+        builder: (context) => JournalEntryView(
+          document: document,
           // document: widget.document,
         ),
       )
@@ -323,7 +514,7 @@ class _TileState extends State<JournalEntryTile> {
 
     switch (widget.document.action) {
       case DocAction.update: {
-        setState(() => name = widget.document.name);
+        setState(() => buildCount++);
       } break;
       case DocAction.delete: {
         widget.removeDocument(widget.document);

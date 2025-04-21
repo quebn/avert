@@ -104,7 +104,7 @@ Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) as
 
   if (values.isEmpty) return list;
 
-  for (Map<String, Object?> value in values ) {
+  for (Map<String, Object?> value in values) {
     printAssert(value["profile_id"] as int == profile.id, "Journal Entry belongs to a different profile.");
     list.add(JournalEntry(
       profile,

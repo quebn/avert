@@ -43,6 +43,18 @@ class AccountingEntry implements Document {
   name = name.toString(),
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
+  AccountingEntry.map({
+    required this.name,
+    required this.journalEntry,
+    required this.id,
+    required this.value,
+    required this.type,
+    required this.account,
+    required this.description,
+    required this.createdAt,
+    this.action = DocAction.none,
+  });
+
   AccountingEntry.debit({
     required int name,
     required this.journalEntry,

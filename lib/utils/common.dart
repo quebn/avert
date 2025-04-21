@@ -70,3 +70,14 @@ double getAccountingEntriesDiff(List<AccountingEntry> entries) {
   diff = (debit - credit).abs();
   return diff;
 }
+
+const Map<int, String> months = {
+  1:"January", 2:"February", 3:"March", 4:"April",
+  5:"May", 6:"June", 7:"July", 8:"August",
+  9:"September", 10:"October", 11:"November", 12:"December",
+};
+
+String formatDT(DateTime dt) {
+  final String month = months[dt.month]!;
+  return "${dt.year}, $month ${dt.day}, ${dt.hour}:${dt.minute}";
+}

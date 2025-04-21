@@ -4,6 +4,7 @@ import "package:avert/docs/profile.dart";
 import "package:avert/utils/common.dart";
 import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
+import "package:flutter/foundation.dart";
 
 import "accounting_entry.dart";
 
@@ -17,6 +18,7 @@ class JournalEntry implements Document {
     DateTime? postedAt,
     this.note = "",
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), postedAt = postedAt ?? DateTime.now();
+
 
   @override
   DocAction action;
@@ -47,7 +49,16 @@ class JournalEntry implements Document {
 
   @override
   Future<bool> delete() async {
-    final bool success =  await Core.database!.delete(tableName,
+    final int fails = await Core.database!.delete(
+      AccountingEntry.tableName,
+      where: "journal_entry_id = ?",
+      whereArgs: [id],
+    );
+
+    if (fails < 2) throw ErrorHint("Something went wrong deleting accounting Entries in the db!");
+
+    final bool success = await Core.database!.delete(
+      tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;

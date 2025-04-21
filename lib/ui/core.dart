@@ -15,5 +15,5 @@ abstract class DocumentForm {
 abstract class DocumentView<T extends Document> {
   Future<void> deleteDocument();
   void editDocument();
-  late T document;
+  T get document;
 }

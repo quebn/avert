@@ -270,11 +270,11 @@ class _TileState extends State<AccountTile> {
       leading: FIcon(icon),
       subtitle: Text(root, style: theme.typography.sm),
       title: Text(name, style: theme.typography.base),
-      onTap: viewAccount,
+      onTap: view,
     );
   }
 
-  void viewAccount() async {
+  void view() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AccountView(
