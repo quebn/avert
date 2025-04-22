@@ -102,16 +102,26 @@ Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) as
     whereArgs: [profile.id],
   );
 
+  // printInfo(result.toString());
+  printInfo(values.toString());
+
   if (values.isEmpty) return list;
 
   for (Map<String, Object?> value in values) {
     printAssert(value["profile_id"] as int == profile.id, "Journal Entry belongs to a different profile.");
-    list.add(JournalEntry(
+    final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["createdAt"]! as int);
+    final DateTime postedAt = DateTime.fromMillisecondsSinceEpoch(value["postedAt"]! as int);
+    list.add(JournalEntry.map(
       profile,
       action: DocAction.none,
-      id: value["id"]! as int,
       name: value["name"]! as String,
-      createdAt: value["createdAt"]! as int,
+      id: value["id"]! as int,
+      note: value["note"]! as String,
+      entries: [
+
+      ],
+      createdAt: createdAt,
+      postedAt: postedAt
     ));
   }
   return list;

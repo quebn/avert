@@ -39,13 +39,13 @@ class AvertListField<T extends Document> extends StatefulWidget {
 }
 
 class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
-  int buildCount = 0;
+  int updateCount = 0;
 
   @override
   void initState() {
     super.initState();
     widget.controller.addValueListener((values, value) {
-      if (!values.contains(value)) setState(() => buildCount++);
+      if (!values.contains(value)) setState(() => updateCount++);
     });
   }
 

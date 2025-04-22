@@ -52,13 +52,13 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
   void initState() {
     super.initState();
     rootController = AvertSelectController<AccountRoot>(
-      value: AccountRoot.asset,
+      value: document.root,
       onUpdate: (value, didChange) {
         if (didChange) updateParentsOptions();
       },
     );
     typeController = AvertSelectController<AccountType>(
-      value: AccountType.none,
+      value: document.type,
       onUpdate: (value, didChange) {
         if (didChange) updateParentsOptions();
       },
@@ -258,8 +258,8 @@ class AccountTile extends StatefulWidget {
 }
 
 class _TileState extends State<AccountTile> {
-  late String name = widget.document.name;
-  late String root = widget.document.root.toString();
+  int updateCount = 0;
+  Account get document => widget.document;
   late SvgAsset icon = widget.document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
 
   @override
@@ -268,8 +268,8 @@ class _TileState extends State<AccountTile> {
     final FThemeData theme = FTheme.of(context);
     return ListTile(
       leading: FIcon(icon),
-      subtitle: Text(root, style: theme.typography.sm),
-      title: Text(name, style: theme.typography.base),
+      subtitle: Text(document.root.toString(), style: theme.typography.sm),
+      title: Text(document.name, style: theme.typography.base),
       onTap: view,
     );
   }
@@ -287,7 +287,7 @@ class _TileState extends State<AccountTile> {
 
     switch (widget.document.action) {
       case DocAction.update: {
-        setState(() => name = widget.document.name);
+        setState(() => updateCount++);
       } break;
       case DocAction.delete: {
         widget.removeDocument(widget.document);
@@ -311,9 +311,10 @@ class AccountView extends StatefulWidget {
 class _ViewState extends State<AccountView> with TickerProviderStateMixin implements DocumentView<Account>  {
   late final FPopoverController controller;
   List<Account> children = [];
+  int updateCount = 0;
 
   @override
-  late Account document = widget.document;
+  Account get document => widget.document;
 
   @override
   void initState() {
@@ -458,8 +459,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
 
     if (document.action == DocAction.none) return;
     if (document.action == DocAction.update) {
-      setState(() => document = document);
-      throw UnimplementedError("Should update the View");
+      setState(() => updateCount++);
     }
   }
 

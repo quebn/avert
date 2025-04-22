@@ -65,10 +65,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
     aeController = AvertListFieldController<AccountingEntry>(values:[]);
-    document.fetchEntries();
-    // fetchAccounts(widget.document.profile).then((result) {
-    //   if (result.isNotEmpty) accounts = result;
-    // });
+    fetchAccounts(widget.document.profile).then((result) {
+      if (result.isNotEmpty) accounts = result;
+    });
   }
 
   @override
@@ -226,11 +225,13 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       hour: timeController.value!.hour,
       minute: timeController.value!.minute,
     );
+    document.entries = aeController.values;
 
     final bool success = await widget.onSubmit(document);
-    if (!success) return;
-    final List<AccountingEntry> failed = await insertDocuments<AccountingEntry>(aeController.values);
-    if (failed.isEmpty && mounted) Navigator.of(context).pop<JournalEntry>(document);
+
+    if (success && mounted) {
+      Navigator.of(context).pop<JournalEntry>(document);
+    }
   }
 
   String? validateEntries(List<AccountingEntry>? entries) {
@@ -307,6 +308,9 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
   void initState() {
     super.initState();
     controller = FPopoverController(vsync: this);
+    document.fetchEntries().then((_) {
+      setState(() => updateCount++);
+    });
   }
 
   @override
@@ -321,7 +325,6 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
     final FThemeData theme = FTheme.of(context);
     final FCardContentStyle contentStyle = theme.cardStyle.contentStyle;
 
-    final FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
     buildEntryWidgets();
     final List<Widget> header = [
       Row (
@@ -484,7 +487,7 @@ class JournalEntryTile extends StatefulWidget {
 }
 
 class _TileState extends State<JournalEntryTile> {
-  int buildCount = 0;
+  int updateCount = 0;
   JournalEntry get document => widget.document;
 
   @override
@@ -503,7 +506,8 @@ class _TileState extends State<JournalEntryTile> {
   void view() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => JournalEntryView(
+        builder: (context) =>
+        JournalEntryView(
           document: document,
           // document: widget.document,
         ),
@@ -514,7 +518,7 @@ class _TileState extends State<JournalEntryTile> {
 
     switch (widget.document.action) {
       case DocAction.update: {
-        setState(() => buildCount++);
+        setState(() => updateCount++);
       } break;
       case DocAction.delete: {
         widget.removeDocument(widget.document);

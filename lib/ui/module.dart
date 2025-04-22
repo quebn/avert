@@ -164,18 +164,20 @@ class Accounting implements Module {
             //onDelete: () => deleteDocument(),
           ),
           createDocument: (addDocument) async {
-            final JournalEntry? account = await createJE(context, profile);
-            if (account == null || account.action != DocAction.insert) return;
+            final JournalEntry? entry = await createJE(context, profile);
+            if (entry == null || entry.action != DocAction.insert) return;
 
             if(!context.mounted) return;
             await Navigator.of(context).push(
              MaterialPageRoute(
-                builder: (context) => throw UnimplementedError(),
+                builder: (context) => JournalEntryView(
+                  document: entry
+                ),
               )
             );
 
-            if (account.action == DocAction.insert || account.action == DocAction.update) {
-              addDocument(account);
+            if (entry.action == DocAction.insert || entry.action == DocAction.update) {
+              addDocument(entry);
             }
           }
         ),
@@ -206,21 +208,16 @@ class Accounting implements Module {
 
   Future<JournalEntry?> createJE(BuildContext context, Profile profile) async {
     return await Navigator.of(context).push<JournalEntry>(
-      MaterialPageRoute(
-        builder: (context) {
-          final JournalEntry document = JournalEntry(profile);
-          return JournalEntryForm(
-            document: document,
-            onSubmit: (d) async {
-              String msg = "Error inserting the document to the database!";
-              final bool success = await d.insert();
-              if (success) msg = "Account '${d.name}' created!";
-              if (context.mounted) notify(context, msg);
-              return success;
-            },
-          );
+      MaterialPageRoute(builder: (context) => JournalEntryForm(
+        document: JournalEntry(profile),
+        onSubmit: (d) async {
+          String msg = "Error inserting the document to the database!";
+          final bool success = await d.insert();
+          if (success) msg = "Account '${d.name}' created!";
+          if (context.mounted) notify(context, msg);
+          return success;
         },
-      )
+      )),
     );
   }
 }

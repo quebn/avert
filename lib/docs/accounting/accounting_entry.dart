@@ -111,7 +111,7 @@ class AccountingEntry implements Document {
     journal_entry_id INTEGER,
     description TEXT,
     type INTEGER NOT NULL,
-    value INTEGER NOT NULL
+    value REAL NOT NULL
   )""";
 
   @override

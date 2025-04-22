@@ -380,7 +380,7 @@ class AccountingEntryTile extends StatefulWidget {
 
 class _TileState extends State<AccountingEntryTile> {
   late AccountingEntry document = widget.document;
-  int buildCount = 0;
+  int updateCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -430,7 +430,7 @@ class _TileState extends State<AccountingEntryTile> {
       } break;
       case DocAction.update: {
         widget.onUpdate?.call();
-        setState(() => buildCount++);
+        setState(() => updateCount++);
       } break;
       default:return;
     }
