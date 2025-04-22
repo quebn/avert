@@ -1,5 +1,5 @@
 import "dart:convert";
-import "package:avert/docs/accounting/accounting_entry.dart";
+import "package:avert/docs/accounting.dart";
 import "package:avert/docs/document.dart";
 import "package:crypto/crypto.dart";
 

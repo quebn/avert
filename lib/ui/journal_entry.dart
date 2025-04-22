@@ -1,6 +1,4 @@
-import "package:avert/docs/accounting/account.dart";
-import "package:avert/docs/accounting/accounting_entry.dart";
-import "package:avert/docs/accounting/journal_entry.dart";
+import "package:avert/docs/accounting.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/docs/profile.dart";
 import "package:avert/ui/accounting_entry.dart";
@@ -177,8 +175,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             ],
           ),
           tileBuilder: (context, value, index) {
-            value.name = (index + 1).toString();
+            value.name = index.toString();
             return AccountingEntryTile(
+              index: index+1,
               key: ObjectKey(value),
               onDelete: () => aeController.remove(value),
               document: value,

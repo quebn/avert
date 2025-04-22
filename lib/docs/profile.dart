@@ -45,7 +45,7 @@ class Profile implements Document {
   """;
 
   Future<bool> valuesNotValid() async {
-    bool hasDuplicates = await exists(this, tableName);
+    bool hasDuplicates = await nameExists(this, tableName);
     return name.isEmpty || hasDuplicates;
   }
 

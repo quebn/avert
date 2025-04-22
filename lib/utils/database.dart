@@ -1,6 +1,4 @@
-import "package:avert/docs/accounting/account.dart";
-import "package:avert/docs/accounting/accounting_entry.dart";
-import "package:avert/docs/accounting/journal_entry.dart";
+import "package:avert/docs/accounting.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/ui/module.dart";
 import "package:avert/docs/profile.dart";
@@ -38,7 +36,7 @@ Future<List<Profile>> fetchAllProfile({Database? database}) async {
   return list;
 }
 
-Future<bool> exists(Document document, String table) async {
+Future<bool> nameExists(Document document, String table) async {
   List<Map<String, Object?>> values = await Core.database!.query(table,
     columns: ["id"],
     where: "name = ?",

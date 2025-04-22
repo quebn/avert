@@ -1,5 +1,4 @@
-import "package:avert/docs/accounting/account.dart";
-import "package:avert/docs/accounting/accounting_entry.dart";
+import "package:avert/docs/accounting.dart";
 import "package:avert/docs/document.dart";
 import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/input.dart";
@@ -365,10 +364,12 @@ class AccountingEntryTile extends StatefulWidget {
     super.key,
     required this.document,
     required this.accounts,
+    required this.index,
     this.onDelete,
     this.onUpdate,
   });
 
+  final int index;
   final AccountingEntry document;
   final List<Account> accounts;
   final Function()? onDelete;
@@ -379,7 +380,7 @@ class AccountingEntryTile extends StatefulWidget {
 }
 
 class _TileState extends State<AccountingEntryTile> {
-  late AccountingEntry document = widget.document;
+  AccountingEntry get document => widget.document;
   int updateCount = 0;
 
   @override
@@ -394,7 +395,7 @@ class _TileState extends State<AccountingEntryTile> {
           color: theme.colorScheme.foreground
         ),
       ),
-    ):theme.badgeStyles.destructive;
+    ) : theme.badgeStyles.destructive;
 
     return AvertListFieldTile<AccountingEntry>(
       key: widget.key,
@@ -411,7 +412,7 @@ class _TileState extends State<AccountingEntryTile> {
         label: Text(document.type.abbrev),
         style: badgeStyle,
       ),
-      title: Text("${document.name}. ${document.account!.name}"),
+      title: Text("${widget.index}. ${document.account!.name}"),
     );
   }
 
