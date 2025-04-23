@@ -1,3 +1,4 @@
+import "package:avert/docs/accounting.dart";
 import "package:avert/ui/module.dart";
 import "package:avert/docs/profile.dart";
 
@@ -19,8 +20,12 @@ void main() async {
   Core.database = await openDatabase(
     "avert.db",
     version: 1,
-    onCreate: _onCreate,
+    onCreate: onCreate,
+    onConfigure: (db) async {
+      await db.execute("PRAGMA foreign_keys = ON");
+    },
     onOpen: (db) async {
+      await onOpen(db);
       profiles = await fetchAllProfile(database: db);
     }
   );
@@ -39,7 +44,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _createAppDir();
+    createAppDir();
     return FTheme(
       data: FThemes.zinc.dark,
       child: MaterialApp(
@@ -55,7 +60,7 @@ class App extends StatelessWidget {
   }
 }
 
-Future<bool> _createAppDir() async {
+Future<bool> createAppDir() async {
   if (!Platform.isAndroid) {
     return false;
   }
@@ -71,11 +76,24 @@ Future<bool> _createAppDir() async {
   return status.isDenied;
 }
 
-_onCreate(Database db, int version) async {
+void onCreate(Database db, int version) async {
   Batch batch = db.batch();
 
   createCoreTables(batch);
   createAccountingTables(batch);
 
   await batch.commit();
+}
+
+Future<void> onOpen(Database db) async {
+  List<Map<String, Object?>> profiles = await db.query(Profile.tableName);
+  for (var profile in profiles) {
+    printTrack(profile.toString());
+    List<Map<String, Object?>> accounts = await db.query(
+      Account.tableName,
+      where: "profile_id = ?",
+      whereArgs: [profile["id"]! as int],
+    );
+    printSuccess(accounts.toString());
+  }
 }

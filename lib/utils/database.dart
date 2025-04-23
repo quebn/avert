@@ -36,7 +36,7 @@ Future<List<Profile>> fetchAllProfile({Database? database}) async {
   return list;
 }
 
-Future<bool> nameExists(Document document, String table) async {
+Future<bool> exist(Document document, String table) async {
   List<Map<String, Object?>> values = await Core.database!.query(table,
     columns: ["id"],
     where: "name = ?",
@@ -81,15 +81,6 @@ Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) asyn
     ));
   }
   return list;
-}
-
-Future<bool> deleteAllAccounts(Profile profile) async {
-  final count = await Core.database!.delete(
-    Account.tableName,
-    where: "profile_id = ?",
-    whereArgs: [profile.id],
-  );
-  return count > 0;
 }
 
 Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) async {
@@ -142,4 +133,41 @@ Future<List<T>> insertDocuments<T extends Document>(List<T> documents) async {
     if (!success) failed.add(documents);
   }
   return failed;
+}
+
+List<Account> defaultAccounts(Profile profile) => [
+    Account.asset(
+      profile: profile,
+      name: "Assets",
+      children: [
+        Account.asset(
+          profile: profile,
+          name: "Bank",
+          type: AccountType.bank
+        ),
+        Account.asset(
+          profile: profile,
+          name: "Cash on Hand",
+          type: AccountType.cash
+        ),
+      ]
+    ),
+    Account.liability(
+      profile: profile,
+      name: "Liabilities",
+      children: [
+        Account.liability(
+          profile: profile,
+          name: "Accounts Payable",
+          type: AccountType.payable
+        )
+      ]
+    ),
+];
+
+Future<void> genTestDocs(Profile profile) async {
+  final List<Account> accounts = defaultAccounts(profile);
+  for (Account account in accounts) {
+    await account.insert();
+  }
 }

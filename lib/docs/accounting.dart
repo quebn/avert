@@ -5,7 +5,6 @@ import "package:avert/docs/profile.dart";
 import "package:avert/utils/common.dart";
 import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
-import "package:flutter/material.dart";
 
 enum AccountRoot {
   asset,
@@ -53,80 +52,96 @@ class Account implements Document {
     this.isGroup = false,
     int createdAt = 0,
     this.action = DocAction.none,
+    this.children,
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.asset({
     required Profile profile,
+    required String name,
     int id = 0,
-    String name = "",
     int parentID = 0,
     AccountType type = AccountType.none,
+    List<Account>? children,
   }) : this(
     profile,
     id: id,
     name: name,
     parentID: parentID,
+    children: children,
     type: type,
+    isGroup: children != null,
     root: AccountRoot.asset
   );
 
   Account.liability({
     required Profile profile,
+    required String name,
     int id = 0,
-    String name = "",
     int parentID = 0,
     AccountType type =  AccountType.none,
+    List<Account>? children,
   }) : this(
     profile,
     id: id,
     name: name,
     parentID: parentID,
+    children: children,
     type: type,
+    isGroup: children != null,
     root: AccountRoot.liability
   );
 
   Account.equity({
     required Profile profile,
+    required String name,
     int id = 0,
-    String name = "",
     int parentID = 0,
     AccountType type =  AccountType.none,
+    List<Account>? children,
   }) : this(
     profile,
     id: id,
     name: name,
     parentID: parentID,
+    children: children,
     type: type,
+    isGroup: children != null,
     root: AccountRoot.equity
   );
 
   Account.income({
     required Profile profile,
+    required String name,
     int id = 0,
-    String name = "",
     int parentID = 0,
     AccountType type =  AccountType.none,
+    List<Account>? children,
   }) : this(
     profile,
     id: id,
     name: name,
     parentID: parentID,
+    children: children,
     type: type,
+    isGroup: children != null,
     root: AccountRoot.income
   );
 
   Account.expense({
     required Profile profile,
+    required String name,
     int id = 0,
-    String name = "",
     int parentID = 0,
     AccountType type =  AccountType.none,
+    List<Account>? children,
   }) : this(
     profile,
     id: id,
     name: name,
     parentID: parentID,
+    children: children,
     type: type,
+    isGroup: children != null,
     root: AccountRoot.expense
   );
 
@@ -168,6 +183,7 @@ class Account implements Document {
   AccountType type;
   bool isGroup;
   int parentID;
+  List<Account>? children;
 
   static String get tableName => "accounts";
   static String get tableQuery => """ CREATE TABLE $tableName(
@@ -178,7 +194,8 @@ class Account implements Document {
     is_group INTEGER NOT NULL,
     parent_id INTEGER,
     root INTEGER NOT NULL,
-    type TEXT NOT NULL
+    type TEXT NOT NULL,
+    FOREIGN KEY(profile_id) REFERENCES ${Profile.tableName}(id) ON DELETE CASCADE
   ) """;
 
   @override
@@ -214,7 +231,15 @@ class Account implements Document {
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
     final success = id > 0;
-    if (success) action = DocAction.insert;
+    if (success) {
+      action = DocAction.insert;
+      if (isGroup && children != null && children!.isNotEmpty) {
+        for (Account child in children!) {
+          await child.insert();
+        }
+      }
+      // check if parent and has children
+    }
     return success;
   }
 
@@ -244,7 +269,7 @@ class Account implements Document {
   }
 
   Future<bool> valuesNotValid() async {
-    bool hasDuplicates = await nameExists(this, tableName);
+    bool hasDuplicates = await profile.nameExists(this, tableName);
     return name.isEmpty || hasDuplicates;
   }
 
@@ -258,7 +283,8 @@ class Account implements Document {
     return values.isNotEmpty;
   }
 
-  Future<List<Account>> fetchChildren() async {
+  Future<bool> fetchChildren() async {
+    if (!isGroup) return false;
     List<Account> list = [];
     String where = "profile_id = ? and parent_id = ?";
     List<Object> whereArgs = [profile.id, id];
@@ -267,7 +293,7 @@ class Account implements Document {
       whereArgs: whereArgs,
     );
 
-    if (values.isEmpty) return list;
+    if (values.isEmpty) return false;
 
     for (Map<String, Object?> value in values ) {
       printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
@@ -282,7 +308,8 @@ class Account implements Document {
         isGroup: value["is_group"]!,
       ));
     }
-    return list;
+    children = list;
+    return true;
   }
 
   static Future<List<Account>> fetchParents(Profile profile, AccountRoot? root, AccountType? type) async {
@@ -425,7 +452,8 @@ class AccountingEntry implements Document {
     journal_entry_id INTEGER,
     description TEXT,
     type INTEGER NOT NULL,
-    value REAL NOT NULL
+    value REAL NOT NULL,
+    FOREIGN KEY(journal_entry_id) REFERENCES ${JournalEntry.tableName}(id) ON DELETE CASCADE
   )""";
 
   @override
@@ -537,19 +565,12 @@ class JournalEntry implements Document {
     createdAt INTEGER NOT NULL,
     profile_id INTEGER NOT NULL,
     postedAt INTEGER,
-    note TEXT
+    note TEXT,
+    FOREIGN KEY(profile_id) REFERENCES ${Profile.tableName}(id) ON DELETE CASCADE
   ) """;
 
   @override
   Future<bool> delete() async {
-    final int fails = await Core.database!.delete(
-      AccountingEntry.tableName,
-      where: "journal_entry_id = ?",
-      whereArgs: [id],
-    );
-
-    if (fails > 0) throw ErrorHint("Something went wrong deleting accounting Entries in the db!");
-
     final bool success = await Core.database!.delete(
       tableName,
       where: "id = ?",

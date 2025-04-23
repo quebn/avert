@@ -62,7 +62,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final DateTime c = document.postedAt;
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
-    aeController = AvertListFieldController<AccountingEntry>(values:[]);
+    aeController = AvertListFieldController<AccountingEntry>(values:document.entries);
     fetchAccounts(widget.document.profile).then((result) {
       if (result.isNotEmpty) accounts = result;
     });
@@ -431,13 +431,14 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
 
   void buildEntryWidgets() {
     List<Widget> list = [];
+    int index = 0;
     for (AccountingEntry entry in document.entries) {
-      list.add(entryTileBuilder(entry));
+      list.add(entryTileBuilder(entry, index++));
     }
     entries = list;
   }
 
-  Widget entryTileBuilder(AccountingEntry entry) {
+  Widget entryTileBuilder(AccountingEntry entry, int index) {
     printTrack("Building Entry Tile with index of: ${entry.name}");
     final FThemeData theme = FTheme.of(context);
     final FBadgeStyle badgeStyle = entry.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
@@ -465,7 +466,7 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
         label: Text(entry.type.abbrev),
         style: badgeStyle,
       ),
-      title: Text("${entry.name}. ${entry.account!.name}"),
+      title: Text("${index+1}. ${entry.account!.name}"),
     );
   }
 }

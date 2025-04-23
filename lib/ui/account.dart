@@ -310,7 +310,6 @@ class AccountView extends StatefulWidget {
 
 class _ViewState extends State<AccountView> with TickerProviderStateMixin implements DocumentView<Account>  {
   late final FPopoverController controller;
-  List<Account> children = [];
   int updateCount = 0;
 
   @override
@@ -321,9 +320,9 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     super.initState();
     controller = FPopoverController(vsync: this);
     if (document.isGroup) {
-      document.fetchChildren().then((value) {
-        if (value.isEmpty) return;
-        setState(() => children = value);
+      document.fetchChildren().then((success) {
+        if (!success) return;
+        setState(() => updateCount++);
       });
     }
   }
@@ -391,49 +390,6 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
         ]
       ),
     ];
-    final Widget parentDetails = children.isNotEmpty ? Container(
-      decoration: theme.cardStyle.decoration,
-      padding: EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Child Accounts",
-            style: theme.typography.lg.copyWith(fontWeight: FontWeight.w600),
-          ),
-          ListView.builder(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            itemCount: children.length,
-            itemBuilder: (context, index) {
-              Account document = children[index];
-              return AccountTile(
-                key: ObjectKey(document),
-                document: document,
-                profile: document.profile,
-                removeDocument: (account) {
-                  if (children.contains(account)) {
-                    setState(() => children.remove(document));
-                  }
-                },
-              );
-            },
-          )
-        ]
-      ),
-    ) : Container(
-      decoration: theme.cardStyle.decoration,
-      padding: EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Expanded( flex: 1, child: Text(
-            "No Child Available!",
-            style: theme.typography.base,
-            textAlign: TextAlign.center,
-          ))
-        ]
-      ),
-    );
     return AvertDocumentView<Account>(
       controller: controller,
       name: "Account",
@@ -442,7 +398,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       deleteDocument: deleteDocument,
       content: Column(
         children: [
-          SizedBox(child: document.isGroup ? parentDetails : null),
+          SizedBox(child: document.isGroup ? childrenDetails() : null),
         ]
       ),
     );
@@ -518,5 +474,49 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       if (mounted) Navigator.of(context).pop();
     }
   }
+
+  Widget childrenDetails() => document.children != null && document.children!.isNotEmpty ? Container(
+      decoration: context.theme.cardStyle.decoration,
+      padding: EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Child Accounts",
+            style: context.theme.typography.lg.copyWith(fontWeight: FontWeight.w600),
+          ),
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: document.children!.length,
+            itemBuilder: (context, index) {
+              Account doc = document.children![index];
+              return AccountTile(
+                key: ObjectKey(doc),
+                document: doc,
+                profile: doc.profile,
+                removeDocument: (account) {
+                  if (document.children!.contains(account)) {
+                    setState(() => document.children!.remove(doc));
+                  }
+                },
+              );
+            },
+          )
+        ]
+      ),
+    ) : Container(
+      decoration: context.theme.cardStyle.decoration,
+      padding: EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Expanded( flex: 1, child: Text(
+            "No Child Available!",
+            style: context.theme.typography.base,
+            textAlign: TextAlign.center,
+          ))
+        ]
+      ),
+    );
 }
 

@@ -26,16 +26,16 @@ class GreeterScreen extends StatefulWidget {
 }
 
 class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
-  late final AvertSelectController<Profile> _selectController;
-  late final FTabController _tabController;
+  late final AvertSelectController<Profile> selectController;
+  late final FTabController tabController;
 
-  Profile get selectedProfile => _selectController.value!;
+  Profile get selectedProfile => selectController.value!;
 
   @override
   void initState() {
     super.initState();
-    _tabController = FTabController(length: 2, vsync: this, initialIndex: 0);
-    _selectController = AvertSelectController<Profile>(
+    tabController = FTabController(length: 2, vsync: this, initialIndex: 0);
+    selectController = AvertSelectController<Profile>(
       value: widget.initialProfile ?? widget.profiles.firstOrNull
     );
   }
@@ -43,7 +43,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
   @override
   void dispose() {
     super.dispose();
-    _tabController.dispose();
+    tabController.dispose();
     // _selectController.dispose();
   }
 
@@ -61,7 +61,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
         ),
         content: SelectProfileForm(
           profiles: widget.profiles,
-          controller: _selectController,
+          controller: selectController,
           onEnter: widget.profiles.isNotEmpty ? () {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -82,7 +82,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
         ),
         content: CreateProfileForm(
           profiles: widget.profiles,
-          onCreate: _onProfileCreate,
+          onCreate: onProfileCreate,
         ),
       ),
     ];
@@ -103,7 +103,7 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
             ),
             FDivider(),
             FTabs(
-              controller: _tabController,
+              controller: tabController,
               tabs: tabs,
             ),
           ],
@@ -117,11 +117,11 @@ class _ScreenState extends State<GreeterScreen> with TickerProviderStateMixin{
     );
   }
 
-  void _onProfileCreate(Profile profile) {
-    _selectController.update(profile);//, selected: true);
+  void onProfileCreate(Profile profile) {
+    selectController.update(profile);//, selected: true);
     setState( () {
       widget.profiles.add(profile);
-      _tabController.index = 0;
+      tabController.index = 0;
     });
     notify(context, "Profile '${profile.name}' has been successfully created!");
   }
@@ -261,7 +261,7 @@ class _FormState extends State<CreateProfileForm> {
 
     Profile p = Profile(name: controllers["name"]!.value.text,);
 
-    if (await nameExists(p, Profile.tableName)) {
+    if (await exist(p, Profile.tableName)) {
       setState(() {
          userErrMsg = "Profile Name: '${p.name}' already exists!";
       });
@@ -269,6 +269,7 @@ class _FormState extends State<CreateProfileForm> {
     }
     final bool success = await p.insert();
     if (success && p.action == DocAction.insert) {
+      genTestDocs(p);
       widget.onCreate(p);
     }
   }

@@ -5,7 +5,6 @@ import "package:avert/ui/components/document.dart";
 import "package:avert/ui/components/input.dart";
 import "package:avert/ui/core.dart";
 import "package:avert/utils/common.dart";
-import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
 import "package:avert/utils/ui.dart";
 
@@ -190,13 +189,12 @@ class _ViewState extends State<ProfileView> with TickerProviderStateMixin implem
 
   @override
   Future<void> deleteDocument() async {
-    final bool shouldDelete = await _confirmDelete() ?? false;
+    final bool shouldDelete = await confirmDelete() ?? false;
 
     if (!shouldDelete) return;
 
     final bool success = await document.delete();
     if (success && mounted) {
-      deleteAllAccounts(document);
       printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
       Navigator.of(context).pop();
     }
@@ -223,7 +221,7 @@ class _ViewState extends State<ProfileView> with TickerProviderStateMixin implem
     return success;
   }
 
-  Future<bool?> _confirmDelete() {
+  Future<bool?> confirmDelete() {
     return showAdaptiveDialog<bool>(
       context: context,
       builder: (BuildContext context) => FDialog(

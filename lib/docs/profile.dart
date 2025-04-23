@@ -45,7 +45,7 @@ class Profile implements Document {
   """;
 
   Future<bool> valuesNotValid() async {
-    bool hasDuplicates = await nameExists(this, tableName);
+    bool hasDuplicates = await exist(this, tableName);
     return name.isEmpty || hasDuplicates;
   }
 
@@ -86,11 +86,26 @@ class Profile implements Document {
 
   @override
   Future<bool> delete() async {
-    bool success = await Core.database!.delete(tableName,
+    // bool delJEs = await deleteAllAccounts();
+    // if (!delJEs) printWarn("No JEs deleted!");
+    // bool delAccounts = await deleteAllAccounts();
+    // if (!delAccounts) printError("No Accounts deleted!");
+    bool success = await Core.database!.delete(
+      tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.delete;
     return success;
+  }
+
+  Future<bool> nameExists(Document document, String table) async {
+    List<Map<String, Object?>> values = await Core.database!.query(
+      table,
+      columns: ["id"],
+      where: "name = ? and profile_id = ?",
+      whereArgs: [document.name, id],
+    );
+    return values.isNotEmpty;
   }
 }
