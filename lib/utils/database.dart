@@ -6,9 +6,8 @@ import "package:avert/utils/logger.dart";
 import "package:sqflite/sqlite_api.dart";
 
 void createCoreTables(Batch batch) {
-  List<String> queries = [
+  final List<String> queries = [
     Profile.tableQuery,
-    // Task.getTableQuery() // NOTE: Not planned.
   ];
 
   for (String query in queries) {
@@ -17,27 +16,28 @@ void createCoreTables(Batch batch) {
 }
 
 Future<List<Profile>> fetchAllProfile({Database? database}) async {
-  List<Map<String, Object?>> values = await (database ?? Core.database!).query(Profile.tableName,
+  final List<Map<String, Object?>> values = await (database ?? Core.database!).query(
+    Profile.tableName,
     columns: ["id", "name", "createdAt"],
   );
 
-  List<Profile> list = [];
+  final List<Profile> list = [];
 
-  if (values.isNotEmpty) {
-    for (Map<String, Object?> v in values) {
-      list.add(Profile.map(
-        id: v["id"]!,
-        name: v["name"]!,
-        createdAt: v["createdAt"]!,
-      ));
-    }
+  if (values.isEmpty) return list;
+
+  for (var v in values) {
+    list.add(Profile.map(
+      id: v["id"]!,
+      name: v["name"]!,
+      createdAt: v["createdAt"]!,
+    ));
   }
 
   return list;
 }
 
 Future<bool> exist(Document document, String table) async {
-  List<Map<String, Object?>> values = await Core.database!.query(table,
+  final List<Map<String, Object?>> values = await Core.database!.query(table,
     columns: ["id"],
     where: "name = ?",
     whereArgs: [document.name],
@@ -46,7 +46,7 @@ Future<bool> exist(Document document, String table) async {
 }
 
 void createAccountingTables(Batch batch) {
-  List<String> queries = [
+  final List<String> queries = [
     Account.tableQuery,
     AccountingEntry.tableQuery,
     JournalEntry.tableQuery
@@ -58,8 +58,8 @@ void createAccountingTables(Batch batch) {
 }
 
 Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) async {
-  List<Account> list = [];
-  List<Map<String, Object?>> values = await Core.database!.query(
+  final List<Account> list = [];
+  final List<Map<String, Object?>> values = await Core.database!.query(
     Account.tableName,
     where: "profile_id = ?",
     whereArgs: [profile.id],
@@ -67,7 +67,7 @@ Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) asyn
 
   if (values.isEmpty) return list;
 
-  for (Map<String, Object?> value in values ) {
+  for (var value in values ) {
     printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
     list.add(Account.map(
       profile: profile,
@@ -84,8 +84,8 @@ Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) asyn
 }
 
 Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) async {
-  List<JournalEntry> list = [];
-  List<Map<String, Object?>> values = await Core.database!.query(
+  final List<JournalEntry> list = [];
+  final List<Map<String, Object?>> values = await Core.database!.query(
     JournalEntry.tableName,
     where: "profile_id = ?",
     whereArgs: [profile.id],
@@ -96,7 +96,7 @@ Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) as
 
   if (values.isEmpty) return list;
 
-  for (Map<String, Object?> value in values) {
+  for (var value in values) {
     printAssert(value["profile_id"] as int == profile.id, "Journal Entry belongs to a different profile.");
     final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["createdAt"]! as int);
     final DateTime postedAt = DateTime.fromMillisecondsSinceEpoch(value["postedAt"]! as int);
@@ -117,7 +117,7 @@ Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) as
 }
 
 void logTable(String tablename, List<String>? columns, {String? where, List<Object>? whereArgs}) async {
-  List<Map<String, Object?>> values = await Core.database!.query(
+  final List<Map<String, Object?>> values = await Core.database!.query(
     tablename,
     columns: columns,
     where: where,

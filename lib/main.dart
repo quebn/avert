@@ -71,13 +71,13 @@ Future<bool> createAppDir() async {
   } else {
     printInfo("Storage access permission granted!");
   }
-  Directory dir = await Directory(path).create(recursive: true);
+  final Directory dir = await Directory(path).create(recursive: true);
   printWarn("Avert Directory path: ${dir.path} uri: ${dir.uri}");
   return status.isDenied;
 }
 
 void onCreate(Database db, int version) async {
-  Batch batch = db.batch();
+  final Batch batch = db.batch();
 
   createCoreTables(batch);
   createAccountingTables(batch);
@@ -86,10 +86,10 @@ void onCreate(Database db, int version) async {
 }
 
 Future<void> onOpen(Database db) async {
-  List<Map<String, Object?>> profiles = await db.query(Profile.tableName);
+  final List<Map<String, Object?>> profiles = await db.query(Profile.tableName);
   for (var profile in profiles) {
     printTrack(profile.toString());
-    List<Map<String, Object?>> accounts = await db.query(
+    final List<Map<String, Object?>> accounts = await db.query(
       Account.tableName,
       where: "profile_id = ?",
       whereArgs: [profile["id"]! as int],

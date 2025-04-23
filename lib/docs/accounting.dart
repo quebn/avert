@@ -200,6 +200,16 @@ class Account implements Document {
 
   @override
   Future<bool> delete() async {
+    final List<Map<String, Object?>> entries = await Core.database!.query(
+      AccountingEntry.tableName,
+      columns: ["id"],
+      where: "account_id = ?",
+      whereArgs: [id],
+    );
+    if (entries.isNotEmpty) {
+      printError("Account:$name has ${entries.length} entries available and cannot be deleted!");
+      return false;
+    }
     final bool success =  await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
@@ -215,9 +225,9 @@ class Account implements Document {
       return false;
     }
 
-    int now = DateTime.now().millisecondsSinceEpoch;
+    final int now = DateTime.now().millisecondsSinceEpoch;
 
-    Map<String, Object?> values = {
+    final Map<String, Object?> values = {
       "name": name,
       "createdAt": now,
       "profile_id": profile.id,
@@ -249,7 +259,7 @@ class Account implements Document {
       return false;
     }
 
-    Map<String, Object?> values = {
+    final Map<String, Object?> values = {
       "name": name,
       "root": root.index,
       "type": type.toString(),
@@ -259,7 +269,7 @@ class Account implements Document {
 
     printWarn("update with values of: ${values.toString()} on account with id of: $id!");
 
-    bool success = await Core.database!.update(tableName, values,
+    final bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
@@ -285,17 +295,17 @@ class Account implements Document {
 
   Future<bool> fetchChildren() async {
     if (!isGroup) return false;
-    List<Account> list = [];
-    String where = "profile_id = ? and parent_id = ?";
-    List<Object> whereArgs = [profile.id, id];
-    List<Map<String, Object?>> values = await Core.database!.query(tableName,
+    final List<Account> list = [];
+    final String where = "profile_id = ? and parent_id = ?";
+    final List<Object> whereArgs = [profile.id, id];
+    final List<Map<String, Object?>> values = await Core.database!.query(tableName,
       where: where,
       whereArgs: whereArgs,
     );
 
     if (values.isEmpty) return false;
 
-    for (Map<String, Object?> value in values ) {
+    for (var value in values ) {
       printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
       list.add(Account.map(
         profile: profile,
@@ -313,9 +323,9 @@ class Account implements Document {
   }
 
   static Future<List<Account>> fetchParents(Profile profile, AccountRoot? root, AccountType? type) async {
-    List<Account> list = [];
+    final List<Account> list = [];
+    final List<Object> whereArgs = [profile.id, 1];
     String where = "profile_id = ? and is_group = ?";
-    List<Object> whereArgs = [profile.id, 1];
     if (root != null) {
       where = "$where and root = ?";
       whereArgs.add(root.index);
@@ -324,14 +334,14 @@ class Account implements Document {
       where = "$where and type = ?";
       whereArgs.add(type.toString());
     }
-    List<Map<String, Object?>> values = await Core.database!.query(tableName,
+    final List<Map<String, Object?>> values = await Core.database!.query(tableName,
       where: where,
       whereArgs: whereArgs,
     );
 
     if (values.isEmpty) return list;
 
-    for (Map<String, Object?> value in values ) {
+    for (var value in values ) {
       printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
       list.add(Account.map(
         profile: profile,
@@ -472,9 +482,9 @@ class AccountingEntry implements Document {
       printInfo("Document Accounting entry:$name is already be in database with id of '$id'");
       return false;
     }
-    int now = DateTime.now().millisecondsSinceEpoch;
+    final int now = DateTime.now().millisecondsSinceEpoch;
 
-    Map<String, Object?> values = {
+    final Map<String, Object?> values = {
       "name": name,
       "account_id": account!.id,
       "journal_entry_id": journalEntry.id,
@@ -497,7 +507,7 @@ class AccountingEntry implements Document {
       return false;
     }
 
-    Map<String, Object?> values = {
+    final Map<String, Object?> values = {
       "name": name,
       "account_id": account!.id,
       "description": description,
@@ -507,7 +517,7 @@ class AccountingEntry implements Document {
 
     printWarn("update with values of: ${values.toString()} on entry with id of: $id!");
 
-    bool success = await Core.database!.update(tableName, values,
+    final bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
@@ -590,8 +600,8 @@ class JournalEntry implements Document {
       printInfo("Document Journal entry:$name is already be in database with id of '$id'");
       return false;
     }
-    int now = DateTime.now().millisecondsSinceEpoch;
-    Map<String, Object?> values = {
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final Map<String, Object?> values = {
       "name": name,
       "profile_id": profile.id,
       "note": note,
@@ -601,7 +611,7 @@ class JournalEntry implements Document {
     printWarn("creating entry with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("entry created with id of $id");
-    List<AccountingEntry> fails = await insertDocuments(entries);
+    final List<AccountingEntry> fails = await insertDocuments(entries);
     final success = id > 0 && fails.isEmpty;
     if (success) {
       action = DocAction.insert;
@@ -617,7 +627,7 @@ class JournalEntry implements Document {
       return false;
     }
 
-    Map<String, Object?> values = {
+    final Map<String, Object?> values = {
       "name": name,
       "note": note,
       "postedAt": postedAt.millisecondsSinceEpoch,
@@ -625,7 +635,7 @@ class JournalEntry implements Document {
 
     printWarn("update with values of: ${values.toString()} on journal entry with id of: $id!");
 
-    bool success = await Core.database!.update(tableName, values,
+    final bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
@@ -648,10 +658,10 @@ class JournalEntry implements Document {
     JOIN ${Account.tableName} a ON ae.account_id = a.id
     WHERE ae.journal_entry_id = $id
     """;
-    List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
+    final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
     final List<AccountingEntry> list = [];
 
-    for (Map<String, Object?> value in values) {
+    for (var value in values) {
       final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["createdAt"]! as int);
       assert(value["a_profile_id"]! as int == profile.id);
       list.add(AccountingEntry.map(

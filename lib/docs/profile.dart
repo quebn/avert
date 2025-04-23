@@ -45,18 +45,18 @@ class Profile implements Document {
   """;
 
   Future<bool> valuesNotValid() async {
-    bool hasDuplicates = await exist(this, tableName);
+    final bool hasDuplicates = await exist(this, tableName);
     return name.isEmpty || hasDuplicates;
   }
 
   @override
   Future<bool> update() async {
     if (await valuesNotValid() || isNew(this)) return false;
-    Map<String, Object?> values = {
+    final Map<String, Object?> values = {
       "name": name,
     };
     printWarn("update with values of: ${values.toString()} on profile with id of: $id!");
-    bool success = await Core.database!.update(tableName, values,
+    final bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
@@ -71,8 +71,8 @@ class Profile implements Document {
       return false;
     }
     if (await valuesNotValid()) return false;
-    int now = DateTime.now().millisecondsSinceEpoch;
-    Map<String, Object?> values = {
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final Map<String, Object?> values = {
       "name": name,
       "createdAt": now,
     };
@@ -90,7 +90,7 @@ class Profile implements Document {
     // if (!delJEs) printWarn("No JEs deleted!");
     // bool delAccounts = await deleteAllAccounts();
     // if (!delAccounts) printError("No Accounts deleted!");
-    bool success = await Core.database!.delete(
+    final bool success = await Core.database!.delete(
       tableName,
       where: "id = ?",
       whereArgs: [id],
@@ -100,7 +100,7 @@ class Profile implements Document {
   }
 
   Future<bool> nameExists(Document document, String table) async {
-    List<Map<String, Object?>> values = await Core.database!.query(
+    final List<Map<String, Object?>> values = await Core.database!.query(
       table,
       columns: ["id"],
       where: "name = ? and profile_id = ?",
