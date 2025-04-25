@@ -18,9 +18,9 @@ abstract class Document {
   final DateTime createdAt;
   DocAction action;
 
-  Future<bool> update();
-  Future<bool> insert();
-  Future<bool> delete();
+  Future<String?> update();
+  Future<String?> insert();
+  Future<String?> delete();
 
   @override
   String toString() => name;

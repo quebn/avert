@@ -267,8 +267,8 @@ class _FormState extends State<CreateProfileForm> {
       });
       return;
     }
-    final bool success = await p.insert();
-    if (success && p.action == DocAction.insert) {
+    final String? error = await p.insert();
+    if (error != null && p.action == DocAction.insert) {
       genTestDocs(p);
       widget.onCreate(p);
     }

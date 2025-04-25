@@ -192,12 +192,10 @@ class Accounting implements Module {
           return AccountForm(
             document: document,
             onSubmit: (d) async {
-              String msg = "Error inserting the document to the database!";
-              final bool success = await d.insert();
-
-              if (success) msg = "Account '${d.name}' created!";
+              final String? error = await d.insert();
+              String msg = error ?? "Account '${d.name}' created!";
               if (context.mounted) notify(context, msg);
-              return success;
+              return error == null;
             },
           );
         },
@@ -210,11 +208,10 @@ class Accounting implements Module {
       MaterialPageRoute(builder: (context) => JournalEntryForm(
         document: JournalEntry(profile),
         onSubmit: (d) async {
-          String msg = "Error inserting the document to the database!";
-          final bool success = await d.insert();
-          if (success) msg = "Account '${d.name}' created!";
+          final String? error = await d.insert();
+          String msg = error ?? "Account '${d.name}' created!";
           if (context.mounted) notify(context, msg);
-          return success;
+          return error == null;
         },
       )),
     );

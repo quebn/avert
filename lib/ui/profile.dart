@@ -193,8 +193,8 @@ class _ViewState extends State<ProfileView> with TickerProviderStateMixin implem
 
     if (!shouldDelete) return;
 
-    final bool success = await document.delete();
-    if (success && mounted) {
+    final String? error = await document.delete();
+    if (error == null && mounted) {
       printWarn("Deleting Profile:${document.name} with id of: ${document.id}");
       Navigator.of(context).pop();
     }
@@ -214,11 +214,10 @@ class _ViewState extends State<ProfileView> with TickerProviderStateMixin implem
   }
 
   Future<bool> _onEdit() async {
-    String msg = "Error writing the document to the database!";
-    final bool success = await document.update();
-    if (success) msg = "Successfully changed profile details";
+    final String? error = await document.update();
+    String msg = error ?? "Successfully changed profile details";
     if (mounted) notify(context, msg);
-    return success;
+    return error == null;
   }
 
   Future<bool?> confirmDelete() {

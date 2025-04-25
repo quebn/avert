@@ -379,11 +379,10 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
   }
 
   Future<bool> onEdit(JournalEntry document) async  {
-    String msg = "Error writing Journal Entry to the database!";
-    final bool success = await document.update();
-    if (success) msg = "Successfully changed Journal Entry details";
+    final String? error = await document.update();
+    String msg = error ?? "Successfully changed Journal Entry details";
     if (mounted) notify(context, msg);
-    return success;
+    return error == null;
   }
 
   Future<bool?> confirmDelete() {
@@ -418,10 +417,10 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
     final bool shouldDelete = await confirmDelete() ?? false;
 
     if (shouldDelete) {
-      final bool success = await document.delete();
+      final String? error = await document.delete();
 
-      if (!success) {
-        if (mounted) notify(context, "Could not delete: '${document.name}' can't be deteled in database!");
+      if (error != null) {
+        if (mounted) notify(context, error);
         return;
       }
       printWarn("Deleting Journal Entry:${document.name} with id of: ${widget.document.id}");

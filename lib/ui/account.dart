@@ -420,11 +420,10 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
   }
 
   Future<bool> onEdit(Account document) async  {
-    String msg = "Error writing Account to the database!";
-    final bool success = await document.update();
-    if (success) msg = "Successfully changed Account details";
+    final String? error = await document.update();
+    final String msg = error ?? "Successfully changed Account details";
     if (mounted) notify(context, msg);
-    return success;
+    return error == null;
   }
 
   Future<bool?> confirmDelete() {
@@ -456,18 +455,13 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
 
   @override
   Future<void> deleteDocument() async {
-    bool hasChild = await document.hasChild;
-    if (hasChild) {
-      if (mounted) notify(context, "Could not delete: '${document.name}' has child accounts");
-      return;
-    }
     final bool shouldDelete = await confirmDelete() ?? false;
 
     if (shouldDelete) {
-      final bool success = await document.delete();
+      final String? error = await document.delete();
 
-      if (!success) {
-        if (mounted) notify(context, "Could not delete: '${document.name}' can't be deteled in database!");
+      if (error != null) {
+        if (mounted) notify(context, error);
         return;
       }
       printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");

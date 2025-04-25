@@ -50,8 +50,10 @@ class Profile implements Document {
   }
 
   @override
-  Future<bool> update() async {
-    if (await valuesNotValid() || isNew(this)) return false;
+  Future<String?> update() async {
+    if (await valuesNotValid() || isNew(this)) {
+      return "Account:$name values not valid is a new document";
+    }
     final Map<String, Object?> values = {
       "name": name,
     };
@@ -61,16 +63,14 @@ class Profile implements Document {
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.update;
-    return success;
+    return success ? null : "Profile:$name failed to update in database";
   }
 
   @override
-  Future<bool> insert() async {
-    if (!isNew(this)) {
-      printInfo("Document is already be in database with id of '$id'");
-      return false;
+  Future<String?> insert() async {
+    if (!isNew(this) || await valuesNotValid()) {
+      return "Profile:$name values not valid or is not new";
     }
-    if (await valuesNotValid()) return false;
     final int now = DateTime.now().millisecondsSinceEpoch;
     final Map<String, Object?> values = {
       "name": name,
@@ -81,22 +81,18 @@ class Profile implements Document {
     printSuccess("profile created with id of $id");
     final bool success = id > 0;
     if (success) action = DocAction.insert;
-    return success;
+    return success ? null : "Profile:$name failed to insert to database";
   }
 
   @override
-  Future<bool> delete() async {
-    // bool delJEs = await deleteAllAccounts();
-    // if (!delJEs) printWarn("No JEs deleted!");
-    // bool delAccounts = await deleteAllAccounts();
-    // if (!delAccounts) printError("No Accounts deleted!");
+  Future<String?> delete() async {
     final bool success = await Core.database!.delete(
       tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.delete;
-    return success;
+    return success ? null : "Profile:$name failed to delete from database";
   }
 
   Future<bool> nameExists(Document document, String table) async {

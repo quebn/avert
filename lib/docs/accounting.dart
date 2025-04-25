@@ -199,30 +199,25 @@ class Account implements Document {
   ) """;
 
   @override
-  Future<bool> delete() async {
-    final List<Map<String, Object?>> entries = await Core.database!.query(
-      AccountingEntry.tableName,
-      columns: ["id"],
-      where: "account_id = ?",
-      whereArgs: [id],
-    );
-    if (entries.isNotEmpty) {
-      printError("Account:$name has ${entries.length} entries available and cannot be deleted!");
-      return false;
+  Future<String?> delete() async {
+    if (await hasChild) {
+      return "Could not delete: '$name' has child accounts";
+    }
+    if (await hasEntries()) {
+      return "Account:$name has entries available and cannot be deleted!";
     }
     final bool success =  await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.delete;
-    return success;
+    return success ? null : "Account:$name could not be deleted in the database!";
   }
 
   @override
-  Future<bool> insert() async {
+  Future<String?> insert() async {
     if (!isNew(this) || await valuesNotValid()) {
-      printInfo("Document Account:$name is already be in database with id of '$id'");
-      return false;
+      return "Document Account:$name is already be in database with id of '$id'";
     }
 
     final int now = DateTime.now().millisecondsSinceEpoch;
@@ -240,7 +235,7 @@ class Account implements Document {
     printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
     printSuccess("profile created with id of $id");
-    final success = id > 0;
+    final bool success = id > 0;
     if (success) {
       action = DocAction.insert;
       if (isGroup && children != null && children!.isNotEmpty) {
@@ -250,13 +245,13 @@ class Account implements Document {
       }
       // check if parent and has children
     }
-    return success;
+    return success ? null : "Account:$name failed to insert to Database!";
   }
 
   @override
-  Future<bool> update() async {
+  Future<String?> update() async {
     if (await valuesNotValid() || isNew(this) || await hasChild) {
-      return false;
+      return "Account:$name values not valid";
     }
 
     final Map<String, Object?> values = {
@@ -274,8 +269,7 @@ class Account implements Document {
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.update;
-
-    return success;
+    return success ? null : "Account:$name failed to edit to database!";
   }
 
   Future<bool> valuesNotValid() async {
@@ -356,6 +350,16 @@ class Account implements Document {
       // printInfo("fetch with value of: ${value.toString()}");
     }
     return list;
+  }
+
+  Future<bool> hasEntries() async {
+    final List<Map<String, Object?>> entries = await Core.database!.query(
+      AccountingEntry.tableName,
+      columns: ["id"],
+      where: "account_id = ?",
+      whereArgs: [id],
+    );
+    return entries.isNotEmpty;
   }
 }
 
@@ -467,20 +471,19 @@ class AccountingEntry implements Document {
   )""";
 
   @override
-  Future<bool> delete() async {
+  Future<String?> delete() async {
     final bool success =  await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.delete;
-    return success;
+    return success ? null : "Accounting Entry:$name failed to delete from database";
   }
 
   @override
-  Future<bool> insert() async {
+  Future<String?> insert() async {
     if (!isNew(this) || await valuesNotValid()) {
-      printInfo("Document Accounting entry:$name is already be in database with id of '$id'");
-      return false;
+      return "Accounting Entry:$name is already be in database with id of '$id'";
     }
     final int now = DateTime.now().millisecondsSinceEpoch;
 
@@ -498,13 +501,13 @@ class AccountingEntry implements Document {
     printSuccess("entry created with id of $id");
     final success = id > 0;
     if (success) action = DocAction.insert;
-    return success;
+    return success ? null : "Accounting Entry:$name failed to insert to database";
   }
 
   @override
-  Future<bool> update() async {
+  Future<String?> update() async {
     if (await valuesNotValid() || isNew(this)) {
-      return false;
+      return "Accounting Entry:$name values is not valid or new!";
     }
 
     final Map<String, Object?> values = {
@@ -522,7 +525,7 @@ class AccountingEntry implements Document {
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.update;
-    return success;
+    return success ? null : "Accounting Entry:$name failed to update values in the database";
   }
 
   Future<bool> valuesNotValid() async {
@@ -580,14 +583,14 @@ class JournalEntry implements Document {
   ) """;
 
   @override
-  Future<bool> delete() async {
+  Future<String?> delete() async {
     final bool success = await Core.database!.delete(
       tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.delete;
-    return success;
+    return success ? null : "Journal Entry:$name failed to delete from the database";
   }
 
   Future<bool> valuesNotValid() async {
@@ -595,10 +598,9 @@ class JournalEntry implements Document {
   }
 
   @override
-  Future<bool> insert() async {
+  Future<String?> insert() async {
     if (!isNew(this) || await valuesNotValid()) {
-      printInfo("Document Journal entry:$name is already be in database with id of '$id'");
-      return false;
+      return "Journal Entry:$name is already be in database with id of '$id'";
     }
     final int now = DateTime.now().millisecondsSinceEpoch;
     final Map<String, Object?> values = {
@@ -618,13 +620,13 @@ class JournalEntry implements Document {
     } else {
       await Core.database!.delete( tableName, where: "id = ?", whereArgs: [id]);
     }
-    return success;
+    return success ? null : "Journal Entry:$name failed to insert to database";
   }
 
   @override
-  Future<bool> update() async {
+  Future<String?> update() async {
     if (await valuesNotValid() || isNew(this)) {
-      return false;
+      return "Journal Entry:$name values is not valid or document is new";
     }
 
     final Map<String, Object?> values = {
@@ -640,7 +642,7 @@ class JournalEntry implements Document {
       whereArgs: [id],
     ) == 1;
     if (success) action = DocAction.update;
-    return success;
+    return success ? null : "Journal Entry:$name failed to update in database";
   }
 
   Future<void> fetchEntries() async {

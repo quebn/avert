@@ -129,8 +129,8 @@ void logTable(String tablename, List<String>? columns, {String? where, List<Obje
 Future<List<T>> insertDocuments<T extends Document>(List<T> documents) async {
   final List<T> failed = [];
   for (T documents in documents) {
-    bool success = await documents.insert();
-    if (!success) failed.add(documents);
+    final String? error = await documents.insert();
+    if (error != null) failed.add(documents);
   }
   return failed;
 }
