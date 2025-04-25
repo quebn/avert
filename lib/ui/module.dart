@@ -107,46 +107,44 @@ class Accounting implements Module {
   }
 
   void listScreenAccount(BuildContext context, Profile profile) async {
-    final List<Account> accounts = await fetchAccounts(profile);
+    final List<Account> accounts = await fetchAccounts(profile, orderBy: "is_group desc");
 
     if (!context.mounted) return;
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AvertListScreen<Account>(
-          title: Text("Accounts"),
-          initialList: accounts,
-          tileBuilder: (key ,context, account, removeDocument) => AccountTile(
-            key: key,
-            document: account,
-            profile: profile,
-            removeDocument: removeDocument,
-            //onDelete: () => deleteDocument(),
-          ),
-          createDocument: (addDocument) async {
-            final Account? account = await createAccount(context, profile);
-            if (account == null || account.action != DocAction.insert) return;
-
-            if(!context.mounted) return;
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AccountView(
-                  document: account,
-                ),
-              )
-            );
-
-            if (account.action == DocAction.insert || account.action == DocAction.update) {
-              addDocument(account);
-            }
-          }
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => AvertListScreen<Account>(
+        title: Text("Accounts"),
+        initialList: accounts,
+        tileBuilder: (key ,context, account, removeDocument) => AccountTile(
+          key: key,
+          document: account,
+          profile: profile,
+          removeDocument: removeDocument,
+          //onDelete: () => deleteDocument(),
         ),
+        createDocument: (addDocument) async {
+          final Account? account = await createAccount(context, profile);
+          if (account == null || account.action != DocAction.insert) return;
+
+          if(!context.mounted) return;
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AccountView(
+                document: account,
+              ),
+            )
+          );
+
+          if (account.action == DocAction.insert || account.action == DocAction.update) {
+            addDocument(account);
+          }
+        }
       ),
-    );
+    ));
   }
 
   void listScreenJE(BuildContext context, Profile profile) async {
-    final List<JournalEntry> accounts = await fetchAllJE(profile);
+    final List<JournalEntry> accounts = await fetchJournalEntries(profile);
 
     if (!context.mounted) return;
 
@@ -206,7 +204,7 @@ class Accounting implements Module {
   Future<JournalEntry?> createJE(BuildContext context, Profile profile) async {
     return await Navigator.of(context).push<JournalEntry>(
       MaterialPageRoute(builder: (context) => JournalEntryForm(
-        document: JournalEntry(profile),
+        document: JournalEntry(profile, entries: []),
         onSubmit: (d) async {
           final String? error = await d.insert();
           String msg = error ?? "Account '${d.name}' created!";

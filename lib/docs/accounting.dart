@@ -535,11 +535,11 @@ class AccountingEntry implements Document {
 
 class JournalEntry implements Document {
   JournalEntry(this.profile, {
+    required this.entries,
     this.name = "",
     this.id = 0,
     this.action = DocAction.none,
     int createdAt = 0,
-    this.entries = const [],
     DateTime? postedAt,
     this.note = "",
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt), postedAt = postedAt ?? DateTime.now();

@@ -8,7 +8,6 @@ abstract class DocumentForm {
   bool isDirty = false;
   String? errMsg;
 
-  void onValueChange(bool Function() isDirtyCallback);
   void submitDocument();
 }
 

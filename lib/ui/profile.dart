@@ -71,7 +71,7 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
           forceErrMsg: errMsg,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           initialValue: widget.document.name,
-          onChange: (value) => onValueChange((){
+          onChange: (value) => onValueChange(setState, this, (){
             return value != widget.document.name;
           }),
         ),
@@ -94,16 +94,6 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
       ),
       resizeToAvoidBottomInset: true,
     );
-  }
-
-  @override
-  void onValueChange(bool Function() isDirtyCallback) {
-    final bool isReallyDirty = isDirtyCallback();
-    if (isReallyDirty == isDirty) {
-      return;
-    }
-    printTrack("Setting state of isdirty = $isReallyDirty");
-    setState(() => isDirty = isReallyDirty );
   }
 
   @override

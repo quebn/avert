@@ -63,7 +63,8 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
     aeController = AvertListFieldController<AccountingEntry>(values:document.entries);
-    fetchAccounts(widget.document.profile).then((result) {
+    final Profile p = document.profile;
+    fetchAccounts(p, where: "profile_id = ? and is_group = ?", whereArgs: [p.id, 0]).then((result) {
       if (result.isNotEmpty) accounts = result;
     });
   }
@@ -109,7 +110,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           required: true,
           forceErrMsg: errMsg,
           initialValue: document.name,
-          onChange: (value) => onValueChange(() {
+          onChange: (value) => onValueChange(setState, this, () {
             return value != document.name;
           }),
         ),
@@ -119,7 +120,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             Flexible(flex: 3, child: AvertDatePicker(
               required: true,
               controller: dateController,
-              onChange: (dt) => onValueChange(() {
+              onChange: (dt) => onValueChange(setState, this, () {
                 if (dt == null) return false;
                 final DateTime pa = document.postedAt;
                 return (
@@ -134,7 +135,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               required: true,
               controller: timeController,
               label: "Posting Time",
-              onChange: (time) => onValueChange(() {
+              onChange: (time) => onValueChange(setState, this, () {
                 if (time == null) return false;
                 final DateTime pa = document.postedAt;
                 return (
@@ -149,7 +150,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           label: "Notes",
           controller: controllers["note"]!,
           hint: "Purpose of transaction...",
-          onChange: (value) => onValueChange(() {
+          onChange: (value) => onValueChange(setState, this, () {
             return value != document.note;
           }),
         ),
@@ -158,6 +159,21 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           label: "Accounting Entries",
           validator: validateEntries,
           initialValues: aeController.values,
+          required: true,
+          list: document.entries,
+          onChange: (value) => onValueChange(setState, this, () {
+            return !document.entries.contains(value);
+          }),
+          tileBuilder: (context, value, index) {
+            value.name = index.toString();
+            return AccountingEntryTile(
+              index: index+1,
+              key: ObjectKey(value),
+              onDelete: () => aeController.remove(value),
+              document: value,
+              accounts: accounts,
+            );
+          },
           description: JournalEntryTotal(
             controller: aeController,
             updateState: true,
@@ -174,21 +190,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               ),
             ],
           ),
-          tileBuilder: (context, value, index) {
-            value.name = index.toString();
-            return AccountingEntryTile(
-              index: index+1,
-              key: ObjectKey(value),
-              onDelete: () => aeController.remove(value),
-              document: value,
-              accounts: accounts,
-            );
-          },
-          required: true,
-          list: document.entries,
-          onChange: (value) => onValueChange(() {
-            return !document.entries.contains(value);
-          }),
           addDialogFormBuilder: (context, index) => AccountingEntryForm(
             document: AccountingEntry(
               name: index,
@@ -202,13 +203,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
         ),
       ],
     );
-  }
-
-  @override
-  void onValueChange(bool Function() isDirtyCallback) {
-    final bool isReallyDirty = isDirtyCallback();
-    if (isReallyDirty == isDirty) return;
-    setState(() => isDirty = isReallyDirty );
   }
 
   @override

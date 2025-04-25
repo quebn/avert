@@ -1,3 +1,4 @@
+import "package:avert/ui/core.dart";
 import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
@@ -37,4 +38,10 @@ Future<bool?> confirm(BuildContext context) {
       ],
     ),
   );
+}
+
+void onValueChange(void Function(void Function() fn) setState, DocumentForm form, bool Function() isDirtyCallback) {
+  final bool isReallyDirty = isDirtyCallback();
+  if (isReallyDirty == form.isDirty) return;
+  setState(() => form.isDirty = isReallyDirty);
 }

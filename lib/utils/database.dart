@@ -57,12 +57,15 @@ void createAccountingTables(Batch batch) {
   }
 }
 
-Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) async {
+Future<List<Account>> fetchAccounts(Profile profile, {String? where, List<Object>? whereArgs, String? orderBy}) async {
   final List<Account> list = [];
+  final String w = where ?? "profile_id = ?";
+  final List<Object> wa = whereArgs ?? [profile.id];
   final List<Map<String, Object?>> values = await Core.database!.query(
     Account.tableName,
-    where: "profile_id = ?",
-    whereArgs: [profile.id],
+    where: w,
+    whereArgs: wa,
+    orderBy: orderBy,
   );
 
   if (values.isEmpty) return list;
@@ -83,7 +86,7 @@ Future<List<Account>> fetchAccounts(Profile profile, {bool sorted = false}) asyn
   return list;
 }
 
-Future<List<JournalEntry>> fetchAllJE(Profile profile, {bool sorted = false}) async {
+Future<List<JournalEntry>> fetchJournalEntries(Profile profile, {bool sorted = false}) async {
   final List<JournalEntry> list = [];
   final List<Map<String, Object?>> values = await Core.database!.query(
     JournalEntry.tableName,

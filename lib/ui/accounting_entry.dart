@@ -78,9 +78,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
           selected: accountController.value == value,
           value: value,
-          prefix: FIcon(
-            value.isGroup ? FAssets.icons.folder : FAssets.icons.file
-          ),
+          prefix: FIcon(FAssets.icons.file),
           title: Text(value.name, style: theme.typography.base),
           subtitle: Text(value.type.toString(), style: theme.typography.sm),
         ),
@@ -142,13 +140,6 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         ),
       ]
     );
-  }
-
-  @override
-  void onValueChange(bool Function() isDirtyCallback) {
-    final bool isReallyDirty = isDirtyCallback();
-    if (isReallyDirty == isDirty) return;
-    setState(() => isDirty = isReallyDirty );
   }
 
   @override

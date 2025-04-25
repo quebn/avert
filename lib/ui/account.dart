@@ -91,7 +91,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
           required: true,
           forceErrMsg: errMsg,
           initialValue: document.name,
-          onChange: (value) => onValueChange(() {
+          onChange: (value) => onValueChange(setState, this, () {
             return value != document.name;
           }),
         ),
@@ -105,7 +105,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                 label: "Root Type",
                 prefix: FIcon(FAssets.icons.folderRoot),
                 required: true,
-                onChange: (v) => onValueChange(() {
+                onChange: (v) => onValueChange(setState, this, () {
                   return v != document.root;
                 }),
                 valueBuilder: (context, root) => Text(root.toString()),
@@ -124,7 +124,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
                 label: "Account Type",
                 prefix: FIcon(FAssets.icons.fileType),
                 required: true,
-                onChange: (v) => onValueChange(() {
+                onChange: (v) => onValueChange(setState, this, () {
                   return v != document.type;
                 }),
                 valueBuilder: (context, type) => Text(type?.displayName ?? "No Type Found"),
@@ -195,12 +195,12 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
     );
   }
 
-  @override
-  void onValueChange(bool Function() isDirtyCallback) {
-    final bool isReallyDirty = isDirtyCallback();
-    if (isReallyDirty == isDirty) return;
-    setState(() => isDirty = isReallyDirty );
-  }
+  // @override
+  // void onValueChange(bool Function() isDirtyCallback) {
+  //   final bool isReallyDirty = isDirtyCallback();
+  //   if (isReallyDirty == isDirty) return;
+  //   setState(() => isDirty = isReallyDirty );
+  // }
 
   @override
   void submitDocument() async {
@@ -341,7 +341,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
 
     final SvgAsset icon = document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
     final FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
-    final Widget? parent = document.parentID == 0 ? Column( children: [
+    final Widget? parent = document.parentID == 0 ? Column(children: [
       Text("Parent:", style: textStyle.enabledStyle.labelTextStyle),
       SizedBox(height: 4),
       Row(children: [

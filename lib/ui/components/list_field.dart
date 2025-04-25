@@ -147,10 +147,10 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     if (entry == null || entry.action != DocAction.insert) return;
     if (entry.action == DocAction.insert) {
       printInfo("Adding Document to List");
+      widget.onChange?.call(entry);
       setState(() {
         widget.controller.add(entry);
       });
-      widget.onChange?.call(entry);
     }
   }
 
