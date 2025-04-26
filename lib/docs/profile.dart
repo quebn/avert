@@ -76,9 +76,9 @@ class Profile implements Document {
       "name": name,
       "createdAt": now,
     };
-    printWarn("creating profile with values of: ${values.toString()}");
+
     id = await Core.database!.insert(tableName, values);
-    printSuccess("profile created with id of $id");
+
     final bool success = id > 0;
     if (success) action = DocAction.insert;
     return success ? null : "Profile:$name failed to insert to database";

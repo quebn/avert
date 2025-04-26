@@ -240,7 +240,9 @@ class Account implements Document {
       action = DocAction.insert;
       if (isGroup && children != null && children!.isNotEmpty) {
         for (Account child in children!) {
-          await child.insert();
+          child.parentID = id;
+          final String? error = await child.insert();
+          if (error != null) printWarn(error);
         }
       }
       // check if parent and has children
@@ -360,6 +362,11 @@ class Account implements Document {
       whereArgs: [id],
     );
     return entries.isNotEmpty;
+  }
+
+  // TODO: implement
+  Future<double> getTotalBalance() async {
+    return 8008135;
   }
 }
 

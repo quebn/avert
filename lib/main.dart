@@ -96,4 +96,8 @@ Future<void> onOpen(Database db) async {
     );
     printSuccess(accounts.toString());
   }
+  final List<Map<String, Object?>> aes = await db.query(AccountingEntry.tableName);
+  printSuccess(aes.toString());
+  final List<Map<String, Object?>> jes = await db.query(JournalEntry.tableName);
+  printSuccess(jes.toString());
 }

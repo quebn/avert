@@ -341,18 +341,19 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
 
     final SvgAsset icon = document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
     final FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
-    final Widget? parent = document.parentID == 0 ? Column(children: [
+    final Widget? parent = document.parentID == 0 ? null : Column(children: [
       Text("Parent:", style: textStyle.enabledStyle.labelTextStyle),
       SizedBox(height: 4),
-      Row(children: [
+      Row( children: [
         FIcon(FAssets.icons.folder),
         SizedBox(width: 8),
         Text("Parent Name", style: theme.typography.sm),
       ]),
-    ]) : null;
+    ]);
 
     final List<Widget> header = [
-      Row (
+      Row(
+        mainAxisSize: MainAxisSize.max,
         children: [
           FIcon(icon, size: 48),
           SizedBox(width: 8),
@@ -367,25 +368,25 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       ),
       SizedBox(height: 8),
       Row(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 8,
         children: [
-          Column( children: [
-            Text( "Type:", style: textStyle.enabledStyle.labelTextStyle),
-            SizedBox(height: 4),
-            FBadge(
-              label: Text(document.type.displayName),
-              style: document.type == AccountType.none ?  FBadgeStyle.secondary : FBadgeStyle.primary ),
-          ]),
-          SizedBox(width: 8),
-          Column( children: [
-            Text( "Group:", style: textStyle.enabledStyle.labelTextStyle),
-            SizedBox(height: 4),
-            FBadge(
-              label: Text(document.isGroup?"Yes":"No"),
-              style: document.isGroup ? FBadgeStyle.primary :FBadgeStyle.destructive
-            ),
-          ]),
-          SizedBox(width: 8),
+          // Column(children: [
+          //   Text("Type:", style: textStyle.enabledStyle.labelTextStyle),
+          //   SizedBox(height: 4),
+          //   FBadge(
+          //     label: Text(document.type.displayName),
+          //     style: document.type == AccountType.none ?  FBadgeStyle.secondary : FBadgeStyle.primary ),
+          // ]),
+          // Column(children: [
+          //   Text("Group:", style: textStyle.enabledStyle.labelTextStyle),
+          //   SizedBox(height: 4),
+          //   FBadge(
+          //     label: Text(document.isGroup?"Yes":"No"),
+          //     style: document.isGroup ? FBadgeStyle.primary :FBadgeStyle.destructive
+          //   ),
+          // ]),
           Container(child: parent),
         ]
       ),
@@ -398,6 +399,10 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       deleteDocument: deleteDocument,
       content: Column(
         children: [
+          // TODO: display the ff.
+          // - [ ] total debit or credit valus of entries of this account.
+          // - [ ] when click should display a popup to list all the entry tiles.
+          AccountTotalBalance(account: document),
           SizedBox(child: document.isGroup ? childrenDetails() : null),
         ]
       ),
@@ -477,7 +482,9 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
         children: [
           Text(
             "Child Accounts",
-            style: context.theme.typography.lg.copyWith(fontWeight: FontWeight.w600),
+            style: context.theme.typography.lg.copyWith(
+              fontWeight: FontWeight.w600
+            ),
           ),
           ListView.builder(
             padding: EdgeInsets.zero,
@@ -514,3 +521,49 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     );
 }
 
+class AccountTotalBalance extends StatefulWidget {
+  const AccountTotalBalance({
+    super.key,
+    required this.account,
+  });
+
+  final Account account;
+
+  @override
+  State<StatefulWidget> createState() => _TotalBalanceState();
+}
+
+class _TotalBalanceState extends State<AccountTotalBalance> {
+  Account get document => widget.account;
+  double total = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    document.getTotalBalance().then((v) {
+      if (v == total) return;
+      setState(() => total = v);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final FThemeData theme = FTheme.of(context);
+    return GestureDetector(
+      child: Container(
+        margin: EdgeInsets.only(bottom: 8),
+        padding: EdgeInsets.all(8),
+        child: FCard.raw(
+          child: Padding(
+            padding: EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Text("Total Value", style: theme.typography.base,)
+              ]
+            )
+          )
+        )
+      )
+    );
+  }
+}

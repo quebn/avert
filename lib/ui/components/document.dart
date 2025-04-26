@@ -71,18 +71,20 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
     final Widget contentHeading = Row(
       children: [
         SizedBox(child: enablePrefix || prefix != null ? prfx : null),
-        Padding(
-          padding: EdgeInsets.only(left: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: header,
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: header,
+            ),
           ),
         ),
       ]
     );
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
+      onPopInvokedWithResult: (didPop, object) {
         if (didPop) return;
         Navigator.of(context).pop();
       },
