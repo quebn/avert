@@ -221,7 +221,11 @@ class _FormState extends State<CreateProfileForm> {
         required: true,
         hint: "Ex. John Doe",
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        onChange: onChangeProfileName,
+        onChange: (value) {
+          if (userErrMsg != null) {
+            setState(() => userErrMsg = null);
+          }
+        },
         controller: controllers["name"]!,
         forceErrMsg: userErrMsg,
       ),
@@ -248,12 +252,6 @@ class _FormState extends State<CreateProfileForm> {
     );
   }
 
-  void onChangeProfileName(String? value) {
-    if (userErrMsg != null) {
-      setState(() => userErrMsg = null);
-    }
-  }
-
   Future<void> createProfile() async {
     final bool isValid = key.currentState?.validate() ?? false;
 
@@ -268,7 +266,7 @@ class _FormState extends State<CreateProfileForm> {
       return;
     }
     final String? error = await p.insert();
-    if (error != null && p.action == DocAction.insert) {
+    if (error == null && p.action == DocAction.insert) {
       genTestDocs(p);
       widget.onCreate(p);
     }
