@@ -141,7 +141,7 @@ Future<List<T>> insertDocuments<T extends Document>(List<T> documents) async {
 List<Account> defaultAccounts(Profile profile) => [
     Account.asset(
       profile: profile,
-      name: "Assets",
+      name: "Asset",
       children: [
         Account.asset(
           profile: profile,
@@ -157,7 +157,7 @@ List<Account> defaultAccounts(Profile profile) => [
     ),
     Account.liability(
       profile: profile,
-      name: "Liabilities",
+      name: "Liability",
       children: [
         Account.liability(
           profile: profile,
@@ -166,11 +166,27 @@ List<Account> defaultAccounts(Profile profile) => [
         )
       ]
     ),
+    Account.equity(
+      profile: profile,
+      name: "Equity",
+      children: []
+    ),
+    Account.income(
+      profile: profile,
+      name: "Income",
+      children: []
+    ),
+    Account.expense(
+      profile: profile,
+      name: "Expense",
+      children: []
+    ),
 ];
 
 Future<void> genTestDocs(Profile profile) async {
   final List<Account> accounts = defaultAccounts(profile);
   for (Account account in accounts) {
-    await account.insert();
+    final String? err = await account.insert();
+    printAssert(err != null, err ?? "Test Account insert failed");
   }
 }
