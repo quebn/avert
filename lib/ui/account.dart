@@ -340,23 +340,13 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     final FCardContentStyle contentStyle = theme.cardStyle.contentStyle;
 
     final SvgAsset icon = document.isGroup ? FAssets.icons.folder : FAssets.icons.file;
-    final FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
-    final Widget? parent = document.parentID == 0 ? null : Column(children: [
-      Text("Parent:", style: textStyle.enabledStyle.labelTextStyle),
-      SizedBox(height: 4),
-      Row( children: [
-        FIcon(FAssets.icons.folder),
-        SizedBox(width: 8),
-        Text("Parent Name", style: theme.typography.sm),
-      ]),
-    ]);
 
     final List<Widget> header = [
       Row(
         mainAxisSize: MainAxisSize.max,
+        spacing: 8,
         children: [
           FIcon(icon, size: 48),
-          SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -366,10 +356,15 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
           ),
         ],
       ),
-      SizedBox(height: 8),
+      SizedBox(
+        child: document.isGroup ? FBadge(
+          label: Text("Group"),
+          style: FBadgeStyle.primary,
+        ) : null,
+      ),
       Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         spacing: 8,
         children: [
           // Column(children: [
@@ -379,15 +374,9 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
           //     label: Text(document.type.displayName),
           //     style: document.type == AccountType.none ?  FBadgeStyle.secondary : FBadgeStyle.primary ),
           // ]),
-          // Column(children: [
-          //   Text("Group:", style: textStyle.enabledStyle.labelTextStyle),
-          //   SizedBox(height: 4),
-          //   FBadge(
-          //     label: Text(document.isGroup?"Yes":"No"),
-          //     style: document.isGroup ? FBadgeStyle.primary :FBadgeStyle.destructive
-          //   ),
-          // ]),
-          Container(child: parent),
+          AccountParent(
+            account: document
+          ),
         ]
       ),
     ];
@@ -563,6 +552,71 @@ class _TotalBalanceState extends State<AccountTotalBalance> {
             )
           )
         )
+      )
+    );
+  }
+}
+
+class AccountParent extends StatefulWidget {
+  const AccountParent({
+    super.key,
+    required this.account,
+  });
+
+  final Account account;
+
+  @override
+  State<StatefulWidget> createState() => _ParentState();
+}
+
+class _ParentState extends State<AccountParent> {
+  Account get document => widget.account;
+  bool get hasParent => document.parentID > 0 && parent != null;
+  Account? parent;
+
+  @override
+  void initState() {
+    super.initState();
+    initParent();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final FThemeData theme = FTheme.of(context);
+    final FLabelStateStyles textStyle = theme.textFieldStyle.labelStyle.state;
+
+    return Container(
+      child: hasParent ?
+      Column(
+        spacing:4,
+        children: [
+          Text("Parent:", style: textStyle.enabledStyle.labelTextStyle),
+          GestureDetector(
+            onTap: hasParent ? viewParent : null,
+            child: Row(
+              spacing:8,
+              children: [
+                FIcon(FAssets.icons.folder),
+                Text(parent!.name, style: theme.typography.sm),
+              ]
+            ),
+          ),
+        ]
+      ) : null,
+    );
+  }
+
+  void initParent() async {
+    final Account? p = await document.fetchParent();
+    if (p == null) return;
+    setState(() => parent = p);
+  }
+
+  void viewParent() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => AccountView(
+          document: parent!,
+        ),
       )
     );
   }

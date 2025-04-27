@@ -364,10 +364,34 @@ class Account implements Document {
     return entries.isNotEmpty;
   }
 
+  Future<Account?> fetchParent() async {
+    if (parentID == 0) return null;
+    final List<Map<String, Object?>> result = await Core.database!.query(
+      Account.tableName,
+      where: "id = ?",
+      whereArgs: [parentID],
+    );
+    printAssert(result.isNotEmpty, "Account:$name expected result to be not empty got empty instead");
+    printAssert(result.length == 1, "Account:$name expected length of 1 of fetchParent result got ${result.length} instead");
+    var value = result.first;
+    final Account parent = Account.map(
+      id: value["id"]!,
+      name: value["name"]!,
+      parentID: value["parent_id"]!,
+      profile: profile,
+      root: value["root"]!,
+      type: value["type"]!,
+      createdAt: value["createdAt"]!,
+      isGroup: value["is_group"]!,
+    );
+    return parent;
+  }
+
   // TODO: implement
   Future<double> getTotalBalance() async {
     return 8008135;
   }
+
 }
 
 enum EntryType {

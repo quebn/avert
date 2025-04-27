@@ -75,6 +75,7 @@ class AvertDocumentView<T extends Document> extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             child: Column(
+              spacing: 8,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: header,
             ),
