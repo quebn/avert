@@ -17,6 +17,7 @@ class AvertInput extends StatefulWidget {
     required this.inputType,
     this.xMargin = 0,
     this.yMargin = 4,
+    this.onTap,
     this.hint,
     this.required = false,
     this.validator,
@@ -37,6 +38,7 @@ class AvertInput extends StatefulWidget {
   const AvertInput.text({super.key,
     required this.label,
     required this.controller,
+    this.onTap,
     this.hint,
     this.required = false,
     this.validator,
@@ -59,6 +61,7 @@ class AvertInput extends StatefulWidget {
   const AvertInput.number({super.key,
     required this.label,
     required this.controller,
+    this.onTap,
     this.isDecimal = false,
     this.hint,
     this.required = false,
@@ -82,6 +85,7 @@ class AvertInput extends StatefulWidget {
   const AvertInput.alphanumeric({super.key,
     required this.label,
     required this.controller,
+    this.onTap,
     this.hint,
     this.xMargin = 0,
     this.yMargin = 4,
@@ -103,6 +107,7 @@ class AvertInput extends StatefulWidget {
 
   const AvertInput.password({super.key,
     required this.controller,
+    this.onTap,
     this.hint,
     this.validator,
     this.label = "Password",
@@ -124,6 +129,7 @@ class AvertInput extends StatefulWidget {
     super.key,
     required this.label,
     required this.controller,
+    this.onTap,
     this.hint,
     this.required = false,
     this.validator,
@@ -151,6 +157,7 @@ class AvertInput extends StatefulWidget {
   final bool required, readOnly, autofocus, enabled;
   final String? Function(String? value)? validator;
   final void Function(String? value)? onChange;
+  final void Function()? onTap;
   final TextStyle? labelStyle;
   final Widget? description;
   final TextInputAction? textInputAction;
@@ -233,6 +240,7 @@ class _InputState extends State<AvertInput> {
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     keyboardType: TextInputType.text,
     forceErrorText: widget.forceErrMsg,
+    onTap: widget.onTap,
   );
 
   Widget get numberField => FTextField(
@@ -242,9 +250,6 @@ class _InputState extends State<AvertInput> {
     readOnly: widget.readOnly,
     textInputAction: widget.textInputAction ?? TextInputAction.done,
     hint: widget.hint,
-    // inputFormatters: [
-    //   FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z_]")),
-    // ],
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     autofocus: widget.autofocus,
     validator: validate,
@@ -256,6 +261,7 @@ class _InputState extends State<AvertInput> {
     ),
     maxLines: 1,
     forceErrorText: widget.forceErrMsg,
+    onTap: widget.onTap,
   );
 
   Widget get alphanumericField => FTextField(
@@ -277,6 +283,7 @@ class _InputState extends State<AvertInput> {
     keyboardType: TextInputType.text,
     maxLines: 1,
     forceErrorText: widget.forceErrMsg,
+    onTap: widget.onTap,
   );
 
   Widget get passwordField => FTextField.password(
@@ -292,6 +299,7 @@ class _InputState extends State<AvertInput> {
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     keyboardType: TextInputType.visiblePassword,
     suffixBuilder: (context, state, widget) => showButton(),
+    onTap: widget.onTap,
   );
 
   Widget get multilineField => FTextField.multiline(
@@ -308,6 +316,7 @@ class _InputState extends State<AvertInput> {
     enabled: widget.enabled,
     autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
     forceErrorText: widget.forceErrMsg,
+    onTap: widget.onTap,
   );
 
 

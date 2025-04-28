@@ -71,7 +71,8 @@ Future<List<Account>> fetchAccounts(Profile profile, {String? where, List<Object
   if (values.isEmpty) return list;
 
   for (var value in values ) {
-    printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
+    final int profId = value["profile_id"] as int;
+    printAssert(profId == profile.id, "Account:${value["name"]! as String} expects profile_id with: [${profile.id}], got [$profId]");
     list.add(Account.map(
       profile: profile,
       id: value["id"]!,

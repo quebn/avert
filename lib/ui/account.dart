@@ -247,11 +247,13 @@ class AccountTile extends StatefulWidget {
     required this.document,
     required this.profile,
     required this.removeDocument,
+    this.showBalance = false,
   });
 
   final Account document;
   final Profile profile;
   final void Function(Account) removeDocument;
+  final bool showBalance;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -270,6 +272,11 @@ class _TileState extends State<AccountTile> {
       leading: FIcon(icon),
       subtitle: Text(document.root.toString(), style: theme.typography.sm),
       title: Text(document.name, style: theme.typography.base),
+      trailing: widget.showBalance ? AccountTotalBalance(
+        account: document,
+        fontSize: 16,
+        hideLabel: true
+      ) : null,
       onTap: view,
     );
   }
@@ -387,11 +394,14 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
       editDocument: editDocument,
       deleteDocument: deleteDocument,
       content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // TODO: display the ff.
           // - [ ] total debit or credit valus of entries of this account.
           // - [ ] when click should display a popup to list all the entry tiles.
-          AccountTotalBalance(account: document),
+          FCard.raw(
+            child: AccountTotalBalance(account: document),
+          ),
           SizedBox(child: document.isGroup ? childrenDetails() : null),
         ]
       ),
@@ -485,6 +495,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
                 key: ObjectKey(doc),
                 document: doc,
                 profile: doc.profile,
+                showBalance: true,
                 removeDocument: (account) {
                   if (document.children!.contains(account)) {
                     setState(() => document.children!.remove(doc));
@@ -514,9 +525,13 @@ class AccountTotalBalance extends StatefulWidget {
   const AccountTotalBalance({
     super.key,
     required this.account,
+    this.fontSize = 20,
+    this.hideLabel = false,
   });
 
   final Account account;
+  final double fontSize;
+  final bool hideLabel;
 
   @override
   State<StatefulWidget> createState() => _TotalBalanceState();
@@ -524,32 +539,45 @@ class AccountTotalBalance extends StatefulWidget {
 
 class _TotalBalanceState extends State<AccountTotalBalance> {
   Account get document => widget.account;
+  EntryType type = EntryType.none;
   double total = 0;
 
   @override
   void initState() {
     super.initState();
     document.getTotalBalance().then((v) {
-      if (v == total) return;
-      setState(() => total = v);
+      if (v[1] == total) return;
+      setState(() {
+        type = v[0];
+        total = v[1];
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final FThemeData theme = FTheme.of(context);
+    final TextStyle valueStyle = theme.typography.xl.copyWith(
+      fontSize: widget.fontSize,
+      fontWeight: FontWeight.bold,
+      color: type == EntryType.debit ? Colors.blue : type == EntryType.credit ? Colors.red : Colors.grey,
+    );
+    final Widget label = SizedBox(
+      child: widget.hideLabel ? null : Text(
+        "Total Balance",
+        style: theme.typography.base
+      )
+    );
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(bottom: 8),
-        padding: EdgeInsets.all(8),
-        child: FCard.raw(
-          child: Padding(
-            padding: EdgeInsets.all(8),
-            child: Column(
-              children: [
-                Text("Total Value", style: theme.typography.base,)
-              ]
-            )
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            children: [
+              label,
+              Text("$total ${type.abbrev}", style: valueStyle),
+            ]
           )
         )
       )

@@ -6,6 +6,7 @@ import "package:avert/utils/common.dart";
 import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
 
+// TODO: the default entry type of these roots
 enum AccountRoot {
   asset,
   liability,
@@ -16,6 +17,17 @@ enum AccountRoot {
   @override
   String toString() {
     return titleCase(name);
+  }
+
+  EntryType get defaultType {
+    switch(name) {
+      case "asset":
+      case "expense": return EntryType.debit;
+      case "liability":
+      case "equity":
+      case "income": return EntryType.credit;
+      default: return EntryType.none;
+    }
   }
 }
 
@@ -197,6 +209,8 @@ class Account implements Document {
     type TEXT NOT NULL,
     FOREIGN KEY(profile_id) REFERENCES ${Profile.tableName}(id) ON DELETE CASCADE
   ) """;
+  // FOREIGN KEY(parent_id) REFERENCES $tableName(id) ON DELETE CASCADE,
+
 
   @override
   Future<String?> delete() async {
@@ -232,9 +246,7 @@ class Account implements Document {
       "is_group": isGroup ? 1 : 0,
     };
 
-    printWarn("creating profile with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
-    printSuccess("profile created with id of $id");
     final bool success = id > 0;
     if (success) {
       action = DocAction.insert;
@@ -264,7 +276,7 @@ class Account implements Document {
       "is_group": isGroup ? 1 : 0,
     };
 
-    printWarn("update with values of: ${values.toString()} on account with id of: $id!");
+    printSuccess("Account:$id as id, updated with values of: ${values.toString()}");
 
     final bool success = await Core.database!.update(tableName, values,
       where: "id = ?",
@@ -302,7 +314,8 @@ class Account implements Document {
     if (values.isEmpty) return false;
 
     for (var value in values ) {
-      printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
+      final int profId = value["profile_id"] as int;
+      printAssert(profId == profile.id, "Account:$name expects profile_id with: ${profile.id}, got $profId");
       list.add(Account.map(
         profile: profile,
         id: value["id"]!,
@@ -338,7 +351,8 @@ class Account implements Document {
     if (values.isEmpty) return list;
 
     for (var value in values ) {
-      printAssert(value["profile_id"] as int == profile.id, "Account belongs to a different profile.");
+      final int profId = value["profile_id"] as int;
+      printAssert(profId == profile.id, "Account:${value["name"]! as String} expects profile_id with: ${profile.id}, got $profId");
       list.add(Account.map(
         profile: profile,
         id: value["id"]!,
@@ -349,7 +363,6 @@ class Account implements Document {
         parentID: value["parent_id"]!,
         isGroup: value["is_group"]!,
       ));
-      // printInfo("fetch with value of: ${value.toString()}");
     }
     return list;
   }
@@ -387,9 +400,75 @@ class Account implements Document {
     return parent;
   }
 
-  // TODO: implement
-  Future<double> getTotalBalance() async {
-    return 8008135;
+  Future<List<int>> getChildrenLeafIDs() async {
+    final List<int> ids = [];
+    if (!isGroup) return ids;
+    final String query = """
+    with recursive tree as (
+      select id, parent_id, is_group
+      from $tableName
+      where id = $id
+
+      union all
+
+      select a.id, a.parent_id, a.is_group
+      from $tableName a
+      inner join tree t on a.parent_id = t.id
+    )
+
+    select t.id
+    from tree t
+    where t.is_group = 0;
+    """;
+    final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
+    for (final Map<String, Object?> value in values) {
+      ids.add(value["id"]! as int);
+    }
+    // printInfo("Children Leaf IDs");
+    // printInfo(values.toString());
+    // printInfo("-----------------");
+    return ids;
+  }
+
+  Future<List<dynamic>> getTotalBalance() async {
+    double total = 0;
+    EntryType type = root.defaultType;
+    // TODO: when parent, query all the leaf children values
+    String ids = "$id";
+    if (isGroup) {
+      final List<int> cIds = await getChildrenLeafIDs();
+      ids = cIds.join(",");
+    }
+    final String query = """
+    select sum(value) as value, type
+    from ${AccountingEntry.tableName}
+    where account_id in ($ids)
+    group by type
+    """;
+    final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
+    printAssert(values.length <= 2, "Account:$name expect query values length to be <= 2, got ${values.length} instead");
+    printTrack("Values: ${values.toString()}");
+    for (final Map<String, Object?> value in values) {
+      printAssert(total >= 0, "Total should not be less than 0");
+      final double vValue = value["value"]! as double;
+      final EntryType vType = EntryType.values[value["type"]! as int];
+      if (total == 0) {
+        total = vValue;
+        type = vType;
+      } else {
+        if (type != vType) {
+          if (total < vValue) {
+            total = vValue - total;
+            type = vType;
+          } else {
+            total -= vValue;
+          }
+        } else {
+          total += vValue;
+        }
+      }
+    }
+    return [type, total];
   }
 
 }
@@ -527,9 +606,7 @@ class AccountingEntry implements Document {
       "type": type.value,
       "value": value,
     };
-    printWarn("creating entry with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
-    printSuccess("entry created with id of $id");
     final success = id > 0;
     if (success) action = DocAction.insert;
     return success ? null : "Accounting Entry:$name failed to insert to database";
@@ -641,9 +718,7 @@ class JournalEntry implements Document {
       "createdAt": now,
       "postedAt": postedAt.millisecondsSinceEpoch,
     };
-    printWarn("creating entry with values of: ${values.toString()}");
     id = await Core.database!.insert(tableName, values);
-    printSuccess("entry created with id of $id");
     final List<AccountingEntry> fails = await insertDocuments(entries);
     final success = id > 0 && fails.isEmpty;
     if (success) {
@@ -679,7 +754,7 @@ class JournalEntry implements Document {
   Future<void> fetchEntries() async {
     if (id == 0 || entries.isNotEmpty) return;
     final String query = """
-    SELECT ae.*,
+    select ae.*,
       a.name as a_name,
       a.createdAt as a_createdAt,
       a.profile_id as a_profile_id,
@@ -687,9 +762,9 @@ class JournalEntry implements Document {
       a.parent_id as a_parent_id,
       a.root as a_root,
       a.type as a_type
-    FROM ${AccountingEntry.tableName} ae
-    JOIN ${Account.tableName} a ON ae.account_id = a.id
-    WHERE ae.journal_entry_id = $id
+    from ${AccountingEntry.tableName} ae
+    join ${Account.tableName} a ON ae.account_id = a.id
+    where ae.journal_entry_id = $id
     """;
     final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
     final List<AccountingEntry> list = [];

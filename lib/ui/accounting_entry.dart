@@ -112,6 +112,7 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
         controller: controllers["value"]!,
         required: true,
         isDecimal: true,
+        onTap: () => clearNumberField(controllers["value"]!),
       ),
     ];
 
@@ -258,6 +259,7 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
         controller: controllers["value"]!,
         required: true,
         isDecimal: true,
+        onTap: () => clearNumberField(controllers["value"]!),
       ),
     ];
 
@@ -427,4 +429,9 @@ class _TileState extends State<AccountingEntryTile> {
       default:return;
     }
   }
+}
+
+void clearNumberField(TextEditingController? controller) {
+  if (controller == null || controller.text != "0.0") return;
+  controller.value = TextEditingValue();
 }

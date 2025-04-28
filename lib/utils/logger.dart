@@ -50,4 +50,5 @@ void printAssert(bool assertCondition, String errMsg) {
   // Red:     \x1B[31m
   if (kReleaseMode) return;
   assert(assertCondition, "\x1B[33m[ASSERTION FAILED]: $errMsg\x1B[0m");
+  if (!assertCondition) throw ErrorHint("Assertion Failed with message: $errMsg");
 }
