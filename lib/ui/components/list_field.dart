@@ -233,13 +233,14 @@ class AvertListFieldController<T extends Object> {
   final Function(T)? _onAdd;
   final Function(T)? _onRemove;
   final List<Function> _listeners = [];
+  final List<T> _removed = [];
 
-  List<T> get values => this._values;
+  List<T> get values => _values;
+  List<T> get cachedRemoved => _removed;
+  List<T> get valuesWithCachedRemoved => _values + _removed;
 
   bool add(T value) {
-    if (_values.contains(value)) {
-      return false;
-    }
+    if (_values.contains(value)) return false;
     _values.add(value);
     _onAdd?.call(value);
     for (Function listener in _listeners) {
@@ -248,12 +249,13 @@ class AvertListFieldController<T extends Object> {
     return true;
   }
 
-  bool remove(T value) {
+  bool remove(T value, {bool hardRemove = false}) {
     if (!_values.contains(value)) {
-      // throw StateError("value already exist in the list");
+      printAssert(!hardRemove && _removed.contains(value), "Error ListField Controller remove error value:${value.toString()} was not cached when removed");
       return false;
     }
     _values.remove(value);
+    if (!hardRemove) _removed.add(value);
     _onRemove?.call(value);
     for (Function listener in _listeners) {
       listener.call(_values, value);

@@ -50,7 +50,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
   late final AvertSelectController<Account> accountController;
   late final AvertSelectController<EntryType> typeController;
   late final Map<String, TextEditingController> controllers = {
-    "desc": TextEditingController(),
+    "desc": TextEditingController(text: document.description),
     "value": TextEditingController(text: widget.document.value.toString()),
   };
 
@@ -69,7 +69,9 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     typeController = AvertSelectController<EntryType>(
       value: document.type,
     );
-    accountController = AvertSelectController<Account>();
+    accountController = AvertSelectController<Account>(
+      value: widget.document.account,
+    );
   }
 
   @override
@@ -82,6 +84,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.accounts.isEmpty) printWarn("Entry Accounts options is empty!");
     final FThemeData theme = FTheme.of(context);
     final TextStyle selectValueStyle = theme.textFieldStyle.disabledStyle.labelTextStyle;
     final List<Widget> contents = [
@@ -144,10 +147,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
           prefix: FIcon(FAssets.icons.x),
           label: Text(isAdd ? "Cancel" : "Remove"),
           style: theme.buttonStyles.destructive,
-          onPress: () {
-            // for cancel
-            Navigator.of(context).pop<AccountingEntry>(null);
-          }
+          onPress: closeDocument,
         ),
         SizedBox(
           child: FButton(
@@ -209,21 +209,12 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     if (isAdd) {
       document.action = DocAction.none;
     } else {
-      shouldClose = await removeDocument();
+      shouldClose = await confirmRemove() ?? false;
+      if (shouldClose) document.action = DocAction.delete;
+      // should make controller update here;
     }
     if (!mounted || !shouldClose) return;
     Navigator.of(context).pop<AccountingEntry>(document);
-}
-
-  Future<bool> removeDocument() async {
-    final bool shouldClose = await confirmRemove() ?? false;
-
-    if (shouldClose) {
-      printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");
-      document.action = DocAction.delete;
-      // if (mounted) Navigator.of(context).pop<AccountingEntry>(document);
-    }
-    return shouldClose;
   }
 }
 
@@ -252,7 +243,7 @@ class AccountingEntryTile extends StatefulWidget {
   final AccountingEntry document;
   final List<Account> accounts;
   final Function()? onDelete;
-  final Function()? onUpdate;
+  final Function(AccountingEntry)? onUpdate;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -280,7 +271,6 @@ class _TileState extends State<AccountingEntryTile> {
       key: widget.key,
       onPress: onPress,
       value: document,
-      // TODO: format to currency formatting with monofonts
       details: Text(
         document.value.toString(),
         style: theme.typography.base.copyWith(
@@ -302,17 +292,18 @@ class _TileState extends State<AccountingEntryTile> {
         document: document,
         accounts: widget.accounts,
         title: "Edit Document #${document.name}",
-        // onDestructiveAction: (doc) {},
-        // onSubmitAction: (doc) {},
       ),
     );
+    printInfo("On press");
     if (doc == null) return;
+
     switch(doc.action) {
       case DocAction.delete: {
         widget.onDelete?.call();
+        printInfo("Deleted ${doc.id}");
       } break;
       case DocAction.update: {
-        widget.onUpdate?.call();
+        widget.onUpdate?.call(doc);
         setState(() => updateCount++);
       } break;
       default:return;

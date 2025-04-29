@@ -329,7 +329,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     if (document.isGroup) {
       document.fetchChildren().then((success) {
         if (!success) return;
-        setState(() => updateCount++);
+        if (mounted) setState(() => updateCount++);
       });
     }
   }
@@ -402,7 +402,10 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
           FCard.raw(
             child: AccountTotalBalance(account: document),
           ),
-          SizedBox(child: document.isGroup ? childrenDetails() : null),
+          Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: document.isGroup ? childrenDetails() : null
+          ),
         ]
       ),
     );
@@ -547,7 +550,7 @@ class _TotalBalanceState extends State<AccountTotalBalance> {
   void initState() {
     super.initState();
     document.getTotalBalance().then((v) {
-      if (v[1] == total) return;
+      if (v[1] == total || !mounted) return;
       setState(() {
         type = v[0];
         total = v[1];
@@ -570,16 +573,13 @@ class _TotalBalanceState extends State<AccountTotalBalance> {
       )
     );
     return GestureDetector(
-      child: Container(
-        margin: EdgeInsets.only(bottom: 8),
-        child: Padding(
-          padding: EdgeInsets.all(8),
-          child: Column(
-            children: [
-              label,
-              Text("$total ${type.abbrev}", style: valueStyle),
-            ]
-          )
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(
+          children: [
+            label,
+            Text("$total ${type.abbrev}", style: valueStyle),
+          ]
         )
       )
     );
@@ -637,7 +637,7 @@ class _ParentState extends State<AccountParent> {
 
   void initParent() async {
     final Account? p = await document.fetchParent();
-    if (p == null) return;
+    if (p == null || !mounted) return;
     setState(() => parent = p);
   }
 

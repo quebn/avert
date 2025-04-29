@@ -139,6 +139,15 @@ Future<List<T>> insertDocuments<T extends Document>(List<T> documents) async {
   return failed;
 }
 
+Future<List<T>> updateDocuments<T extends Document>(List<T> documents) async {
+  final List<T> failed = [];
+  for (T documents in documents) {
+    final String? error = await documents.update();
+    if (error != null) failed.add(documents);
+  }
+  return failed;
+}
+
 List<Account> defaultAccounts(Profile profile) => [
     Account.asset(
       profile: profile,

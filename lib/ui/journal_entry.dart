@@ -63,10 +63,14 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     dateController = FDateFieldController(vsync: this, initialDate: c);
     timeController = FTimeFieldController(vsync: this, initialTime: FTime(c.hour, c.minute));
     aeController = AvertListFieldController<AccountingEntry>(values:document.entries);
-    final Profile p = document.profile;
-    fetchAccounts(p, where: "profile_id = ? and is_group = ?", whereArgs: [p.id, 0]).then((result) {
-      if (result.isNotEmpty) accounts = result;
-    });
+    final Profile profile = document.profile;
+    fetchAccounts(
+      profile,
+      where: "profile_id = ? and is_group = ?",
+      whereArgs: [profile.id, 0]).then((result) {
+        if (result.isNotEmpty && mounted) setState(() => accounts = result);
+      }
+    );
   }
 
   @override
@@ -159,16 +163,21 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           required: true,
           list: document.entries,
           onChange: (value) => onValueChange(setState, this, () {
+            printInfo(value.account?.name ?? "Na");
+            if (value.action == DocAction.update) return true;
             return !document.entries.contains(value);
           }),
           tileBuilder: (context, value, index) {
             value.name = index.toString();
             return AccountingEntryTile(
-              index: index+1,
               key: ObjectKey(value),
-              onDelete: () => aeController.remove(value),
+              index: index+1,
               document: value,
               accounts: accounts,
+              onUpdate: (value) => onValueChange(setState, this, () {
+                return value.action == DocAction.update;
+              }),
+              onDelete: () => aeController.remove(value, hardRemove: isNew(value)),
             );
           },
           description: JournalEntryTotal(
@@ -215,7 +224,8 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       hour: timeController.value!.hour,
       minute: timeController.value!.minute,
     );
-    document.entries = aeController.values;
+    // handle
+    document.entries = aeController.valuesWithCachedRemoved;
 
     final bool success = await widget.onSubmit(document);
 
@@ -364,8 +374,12 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
 
     if (document.action == DocAction.none) return;
     if (document.action == DocAction.update) {
-      setState(() => updateCount++);
-      throw UnimplementedError("Should update the View");
+      final String? error = await document.update();
+      if (error == null) {
+        setState(() => updateCount++);
+      } else {
+        if (mounted) notify(context, error);
+      }
     }
   }
 

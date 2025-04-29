@@ -6,7 +6,6 @@ import "package:avert/utils/common.dart";
 import "package:avert/utils/database.dart";
 import "package:avert/utils/logger.dart";
 
-// TODO: the default entry type of these roots
 enum AccountRoot {
   asset,
   liability,
@@ -586,7 +585,6 @@ class AccountingEntry implements Document {
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
-    if (success) action = DocAction.delete;
     return success ? null : "Accounting Entry:$name failed to delete from database";
   }
 
@@ -611,7 +609,6 @@ class AccountingEntry implements Document {
     };
     id = await Core.database!.insert(tableName, values);
     final success = id > 0;
-    if (success) action = DocAction.insert;
     return success ? null : "Accounting Entry:$name failed to insert to database";
   }
 
@@ -635,7 +632,6 @@ class AccountingEntry implements Document {
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
-    if (success) action = DocAction.update;
     return success ? null : "Accounting Entry:$name failed to update values in the database";
   }
 
@@ -750,8 +746,30 @@ class JournalEntry implements Document {
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
-    if (success) action = DocAction.update;
+    if (success) {
+      action = DocAction.update;
+      final List<AccountingEntry> fails = await processEntries();
+      final success = id > 0 && fails.isEmpty;
+      if (!success) {
+        return "Journal Entry:$name failed to update in ${fails.length} entries:(${fails.join(",")}) in the database";
+      }
+    }
     return success ? null : "Journal Entry:$name failed to update in database";
+  }
+
+  Future<List<AccountingEntry>> processEntries() async {
+    final List<AccountingEntry> failed = [];
+    for (AccountingEntry entry in entries) {
+      String? error;
+      switch (entry.action) {
+        case DocAction.insert: { error = await entry.insert(); } break;
+        case DocAction.update: { error = await entry.update(); } break;
+        case DocAction.delete: { error = await entry.delete(); } break;
+        default: break;
+      }
+      printAssert(error == null, "TODO: $error");
+    }
+    return failed;
   }
 
   Future<void> fetchEntries() async {
