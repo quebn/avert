@@ -138,10 +138,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               onChange: (time) => onValueChange(setState, this, () {
                 if (time == null) return false;
                 final DateTime pa = document.postedAt;
-                return (
-                  time.hour != pa.hour ||
-                  time.minute != pa.minute
-                );
+                return ( time.hour != pa.hour || time.minute != pa.minute);
               }),
             )),
           ],
@@ -190,15 +187,15 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               ),
             ],
           ),
-          addDialogFormBuilder: (context, index) => AccountingEntryForm(
+          addDialogFormBuilder: (context, index) => AccountingEntryForm.add(
             document: AccountingEntry(
               name: index,
               journalEntry: document,
               type: EntryType.none,
-              createdAt: DateTime.now().millisecondsSinceEpoch
+              createdAt: DateTime.now().millisecondsSinceEpoch,
             ),
             accounts: accounts,
-            index: index,
+            title: "New Accounting Entry #$index",
           ),
         ),
       ],

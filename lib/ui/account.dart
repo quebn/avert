@@ -521,6 +521,7 @@ class _ViewState extends State<AccountView> with TickerProviderStateMixin implem
     );
 }
 
+// TODO: Onclick should show all the entries of this account.
 class AccountTotalBalance extends StatefulWidget {
   const AccountTotalBalance({
     super.key,

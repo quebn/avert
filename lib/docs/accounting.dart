@@ -595,6 +595,9 @@ class AccountingEntry implements Document {
     if (!isNew(this) || await valuesNotValid()) {
       return "Accounting Entry:$name is already be in database with id of '$id'";
     }
+    // TODO: Check if account allows
+    // if () {
+    // }
     final int now = DateTime.now().millisecondsSinceEpoch;
 
     final Map<String, Object?> values = {

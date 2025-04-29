@@ -15,18 +15,36 @@ class AccountingEntryForm extends StatefulWidget {
     super.key,
     required this.document,
     required this.accounts,
-    required this.index
+    required this.title,
+    required this.isAdd,
   });
+
+  const AccountingEntryForm.update({
+    super.key,
+    required this.document,
+    required this.accounts,
+    required this.title,
+  }): isAdd = false;
+
+  const AccountingEntryForm.add({
+    super.key,
+    required this.document,
+    required this.accounts,
+    required this.title,
+  }): isAdd = true;
 
   final AccountingEntry document;
   final List<Account> accounts;
-  final int index;
+  final String title;
+  final bool isAdd;
+  // final int index;
 
   @override
-  State<StatefulWidget> createState() => _FormState();
+  State<StatefulWidget> createState() => _NewFormState();
 }
 
-class _FormState extends State<AccountingEntryForm> implements DocumentForm {
+class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
+  bool get isAdd => widget.isAdd;
 
   AccountingEntry get document => widget.document;
   late final AvertSelectController<Account> accountController;
@@ -118,23 +136,23 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
 
     return AvertDocumentForm<AccountingEntry>.dialog(
       formKey: formKey,
-      title: Text("New Accounting Entry #${widget.index}"),
+      title: Text(widget.title),
       isDirty: isDirty,
       contents: contents,
       actions: [
         FButton(
           prefix: FIcon(FAssets.icons.x),
-          label: const Text("Cancel"),
+          label: Text(isAdd ? "Cancel" : "Remove"),
           style: theme.buttonStyles.destructive,
           onPress: () {
-            document.action = DocAction.none;
+            // for cancel
             Navigator.of(context).pop<AccountingEntry>(null);
           }
         ),
         SizedBox(
           child: FButton(
             prefix: FIcon(FAssets.icons.plus),
-            label: const Text("Add"),
+            label: Text(isAdd ? "Add" : "Update"),
             style: theme.buttonStyles.primary,
             onPress: submitDocument,
           ),
@@ -155,171 +173,17 @@ class _FormState extends State<AccountingEntryForm> implements DocumentForm {
     document.type = typeController.value!;
     document.value = double.parse(controllers["value"]?.value.text ?? "0");
 
-    document.action = DocAction.insert;
-    Navigator.of(context).pop<AccountingEntry>(document);
-  }
-}
-
-class AccountingEntryView extends StatefulWidget {
-  const AccountingEntryView({
-    super.key,
-    required this.document,
-    required this.accounts,
-  });
-
-  final AccountingEntry document;
-  final List<Account> accounts;
-
-  @override
-  State<StatefulWidget> createState() => _ViewState();
-}
-
-class _ViewState extends State<AccountingEntryView> implements DocumentView<AccountingEntry>{
-
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  late final AvertSelectController<Account> accountController;
-  late final AvertSelectController<EntryType> typeController;
-  late final Map<String, TextEditingController> controllers = {
-    "desc": TextEditingController(text: document.description),
-    "value": TextEditingController(text: document.value.toString()),
-  };
-
-  bool isDirty = false;
-
-  @override
-  late AccountingEntry document = widget.document;
-
-  @override
-  void initState() {
-    super.initState();
-    typeController = AvertSelectController<EntryType>(
-      value: document.type,
-    );
-    accountController = AvertSelectController<Account>(
-      value: widget.document.account
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    for (TextEditingController controller in controllers.values) {
-      controller.dispose();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final FThemeData theme = FTheme.of(context);
-    final TextStyle selectValueStyle = theme.textFieldStyle.disabledStyle.labelTextStyle;
-    final List<Widget> contents = [
-      AvertSelect<Account>(
-        required: true,
-        label: "value",
-        valueBuilder: (context, account) {
-          return (account != null)
-          ? Text(account.name)
-          : Text("None", style: selectValueStyle);
-        },
-        tileSelectBuilder: (context, value) => AvertSelectTile<Account>(
-          selected: accountController.value == value,
-          value: value,
-          prefix: FIcon(
-            value.isGroup ? FAssets.icons.folder : FAssets.icons.file
-          ),
-          title: Text(value.name, style: theme.typography.base),
-          subtitle: Text(value.type.toString(), style: theme.typography.sm),
-        ),
-        options: widget.accounts,
-        controller: accountController,
-      ),
-      AvertInput.multiline(
-        minLines: 2,
-        label: "Description",
-        controller: controllers["desc"]!,
-      ),
-      AvertSelect<EntryType>(
-        options: const [EntryType.debit, EntryType.credit],
-        label: "Entry Type",
-        prefix: FIcon(FAssets.icons.type),
-        required: true,
-        valueBuilder: (context, type) => Text(type.toString()),
-        controller: typeController,
-        validator: validateType,
-        tileSelectBuilder: (context, value) => AvertSelectTile<EntryType>(
-          selected: typeController.value == value,
-          value: value,
-          prefix: FIcon(FAssets.icons.folderRoot),
-          title: Text(value.toString(), style: theme.typography.base),
-        ),
-      ),
-      AvertInput.number(
-        validator: validateValue,
-        label: "Value",
-        controller: controllers["value"]!,
-        required: true,
-        isDecimal: true,
-        onTap: () => clearNumberField(controllers["value"]!),
-      ),
-    ];
-
-    return AvertDocumentForm<AccountingEntry>.dialog(
-      formKey: formKey,
-      title: Text("Edit Accounting Entry ${document.name}"),
-      isDirty: isDirty,
-      contents: contents,
-      actions: [
-        FButton(
-          prefix: FIcon(FAssets.icons.x),
-          label: const Text("Delete"),
-          style: theme.buttonStyles.destructive,
-          onPress: deleteDocument,
-        ),
-        SizedBox(
-          child: FButton(
-            prefix: FIcon(FAssets.icons.save),
-            label: const Text("Update"),
-            style: theme.buttonStyles.primary,
-            onPress: editDocument,
-          ),
-        ),
-      ]
-    );
-  }
-
-  @override
-  Future<void> deleteDocument() async {
-    final bool shouldDelete = await confirmDelete() ?? false;
-
-    if (shouldDelete) {
-      printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");
-      document.action = DocAction.delete;
-      if (mounted) Navigator.of(context).pop<AccountingEntry>(document);
-    }
-  }
-
-  @override
-  void editDocument() async {
-    final bool isValid = formKey.currentState?.validate() ?? false;
-
-    if (!isValid) return;
-
-    document.action = DocAction.update;
-    document.account =  accountController.value;
-    document.description = controllers["desc"]!.value.text;
-    
-    document.value = double.parse(controllers["value"]!.value.text);
-
+    document.action = isAdd ? DocAction.insert : DocAction.update;
     Navigator.of(context).pop<AccountingEntry>(document);
   }
 
-  Future<bool?> confirmDelete() async {
+  Future<bool?> confirmRemove() async {
     return showAdaptiveDialog<bool>(
       context: context,
       builder: (BuildContext context) => FDialog(
         direction: Axis.horizontal,
-        title: Text("Delete Accounting Entry?"),
-        body: const Text("Are you sure you want to delete this entry?"),
+        title: Text("Remove Accounting Entry?"),
+        body: const Text("Are you sure you want to remove this entry?"),
         actions: <Widget>[
           FButton(
             label: const Text("No"),
@@ -338,6 +202,28 @@ class _ViewState extends State<AccountingEntryView> implements DocumentView<Acco
         ],
       ),
     );
+  }
+
+  Future<void> closeDocument() async {
+    bool shouldClose = true;
+    if (isAdd) {
+      document.action = DocAction.none;
+    } else {
+      shouldClose = await removeDocument();
+    }
+    if (!mounted || !shouldClose) return;
+    Navigator.of(context).pop<AccountingEntry>(document);
+}
+
+  Future<bool> removeDocument() async {
+    final bool shouldClose = await confirmRemove() ?? false;
+
+    if (shouldClose) {
+      printWarn("Deleting Account:${document.name} with id of: ${widget.document.id}");
+      document.action = DocAction.delete;
+      // if (mounted) Navigator.of(context).pop<AccountingEntry>(document);
+    }
+    return shouldClose;
   }
 }
 
@@ -412,9 +298,12 @@ class _TileState extends State<AccountingEntryTile> {
   void onPress() async {
     AccountingEntry? doc = await showAdaptiveDialog(
       context: context,
-      builder: (context) => AccountingEntryView(
+      builder: (context) => AccountingEntryForm.update(
         document: document,
         accounts: widget.accounts,
+        title: "Edit Document #${document.name}",
+        // onDestructiveAction: (doc) {},
+        // onSubmitAction: (doc) {},
       ),
     );
     if (doc == null) return;

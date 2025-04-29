@@ -227,11 +227,11 @@ class AvertListFieldController<T extends Object> {
     required List<T> values,
     Function(T)? onAdd,
     Function(T)? onRemove,
-  }):_values = values, _onAdd = onAdd;
+  }):_values = values, _onAdd = onAdd, _onRemove = onRemove;
 
   final List<T> _values;
-  Function(T)? _onAdd;
-  Function(T)? _onRemove;
+  final Function(T)? _onAdd;
+  final Function(T)? _onRemove;
   final List<Function> _listeners = [];
 
   List<T> get values => this._values;
