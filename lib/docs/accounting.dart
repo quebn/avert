@@ -767,7 +767,7 @@ class JournalEntry implements Document {
         case DocAction.delete: { error = await entry.delete(); } break;
         default: break;
       }
-      printAssert(error == null, "TODO: $error");
+      printAssert(error == null, "Journal Entry:$name expected error msg to be nil, got '$error' instead");
     }
     return failed;
   }

@@ -5,6 +5,7 @@ import "package:avert/ui/components/input.dart";
 import "package:avert/ui/components/list_field.dart";
 import "package:avert/ui/components/select.dart";
 import "package:avert/ui/core.dart";
+import "package:avert/utils/common.dart";
 import "package:avert/utils/logger.dart";
 import "package:flutter/material.dart";
 
@@ -127,7 +128,6 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
         ),
       ),
       AvertInput.number(
-        // autovalidateMode: AutovalidateMode.always,
         validator: validateValue,
         label: "Value",
         controller: controllers["value"]!,
@@ -173,7 +173,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     document.type = typeController.value!;
     document.value = double.parse(controllers["value"]?.value.text ?? "0");
 
-    document.action = isAdd ? DocAction.insert : DocAction.update;
+    document.action = isNew(document) ? DocAction.insert : DocAction.update;
     Navigator.of(context).pop<AccountingEntry>(document);
   }
 
