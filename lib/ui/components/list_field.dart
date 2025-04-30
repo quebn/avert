@@ -222,13 +222,11 @@ class AvertListFieldTile<T extends Object> extends StatelessWidget {
 class AvertListFieldController<T extends Object> {
   AvertListFieldController({
     required List<T> values,
-    Function(T)? onAdd,
-    Function(T)? onRemove,
-  }):_values = values, _onAdd = onAdd, _onRemove = onRemove;
+  }):_values = values;
 
   final List<T> _values;
-  final Function(T)? _onAdd;
-  final Function(T)? _onRemove;
+  // final Function(T)? _onAdd;
+  // final Function(T)? _onRemove;
   final List<Function> _listeners = [];
   final List<T> _removed = [];
 
@@ -239,7 +237,6 @@ class AvertListFieldController<T extends Object> {
   bool add(T value) {
     if (_values.contains(value)) return false;
     _values.add(value);
-    _onAdd?.call(value);
     for (Function listener in _listeners) {
       listener.call(_values, value);
     }
@@ -253,7 +250,6 @@ class AvertListFieldController<T extends Object> {
     }
     _values.remove(value);
     if (!hardRemove) _removed.add(value);
-    _onRemove?.call(value);
     for (Function listener in _listeners) {
       listener.call(_values, value);
     }
