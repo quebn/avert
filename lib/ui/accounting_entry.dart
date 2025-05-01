@@ -174,7 +174,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     document.value = double.parse(controllers["value"]?.value.text ?? "0");
 
     document.action = isNew(document) ? DocAction.insert : DocAction.update;
-    Navigator.of(context).pop<AccountingEntry>(document);
+    Navigator.of(context).pop<bool>(true);
   }
 
   Future<bool?> confirmRemove() async {
@@ -210,11 +210,13 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
       document.action = DocAction.none;
     } else {
       shouldClose = await confirmRemove() ?? false;
-      if (shouldClose) document.action = DocAction.delete;
+      if (shouldClose) {
+        document.action = DocAction.delete;
+      }
       // should make controller update here;
     }
     if (!mounted || !shouldClose) return;
-    Navigator.of(context).pop<AccountingEntry>(document);
+    Navigator.of(context).pop<bool>(false);
   }
 }
 
@@ -235,15 +237,13 @@ class AccountingEntryTile extends StatefulWidget {
     required this.document,
     required this.accounts,
     required this.index,
-    this.onDelete,
-    this.onUpdate,
+    this.onChange,
   });
 
   final int index;
   final AccountingEntry document;
   final List<Account> accounts;
-  final Function()? onDelete;
-  final Function(AccountingEntry)? onUpdate;
+  final void Function()? onChange;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -286,28 +286,19 @@ class _TileState extends State<AccountingEntryTile> {
   }
 
   void onPress() async {
-    AccountingEntry? doc = await showAdaptiveDialog(
+    final bool? success = await showAdaptiveDialog<bool>(
       context: context,
       builder: (context) => AccountingEntryForm.update(
         document: document,
         accounts: widget.accounts,
-        title: "Edit Document #${document.name}",
+        title: "Edit Document #${widget.index}",
       ),
     );
-    printInfo("On press");
-    if (doc == null) return;
 
-    switch(doc.action) {
-      case DocAction.delete: {
-        widget.onDelete?.call();
-        printInfo("Deleted ${doc.id}");
-      } break;
-      case DocAction.update: {
-        widget.onUpdate?.call(doc);
-        setState(() => updateCount++);
-      } break;
-      default:return;
-    }
+    if (success == null) return;
+    // TODO: handle delete here maybe
+    widget.onChange?.call();
+    setState(() => updateCount++);
   }
 }
 

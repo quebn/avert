@@ -9,7 +9,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
     required this.tileBuilder,
     required this.controller,
     required this.list,
-    required this.addDialogFormBuilder,
+    this.onNewItem,
     this.description,
     this.onChange,
     this.error,
@@ -29,7 +29,7 @@ class AvertListField<T extends Document> extends StatefulWidget {
   final String? forceErrorText;
   final Function(T)? onChange;
   final List<T> list;
-  final Widget Function(BuildContext, int index) addDialogFormBuilder;
+  final void Function()? onNewItem;
   final double yMargin;
   final AvertListFieldController<T> controller;
   final List<T>? initialValues;
@@ -93,7 +93,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       SizedBox(
         child: FButton.raw(
           style: ghostStyle,
-          onPress: addToList,
+          onPress: widget.onNewItem,
           child: FIcon(FAssets.icons.listPlus),
         ),
       ),
@@ -140,17 +140,6 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     );
   }
 
-  void addToList() async {
-    final T? entry = await showAdaptiveDialog<T>(
-      context: context,
-      builder: (context) => widget.addDialogFormBuilder(context, widget.controller.values.length+1),
-    );
-    if (entry == null || entry.action != DocAction.insert) return;
-    if (entry.action == DocAction.insert) {
-      widget.controller.add(entry);
-    }
-  }
-
   Widget newItemButton(BuildContext context) {
     final FThemeData theme = context.theme;
     final TextStyle textStyle = theme.buttonStyles.ghost.contentStyle.enabledTextStyle;
@@ -158,7 +147,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       child: FButton(
         prefix: FIcon(FAssets.icons.plus),
         style: FButtonStyle.ghost,
-        onPress: addToList,
+        onPress: widget.onNewItem,
         label: Text("Add New Item", style: textStyle.copyWith(
           fontSize: theme.typography.sm.fontSize,
         )),
@@ -225,8 +214,6 @@ class AvertListFieldController<T extends Object> {
   }):_values = values;
 
   final List<T> _values;
-  // final Function(T)? _onAdd;
-  // final Function(T)? _onRemove;
   final List<Function> _listeners = [];
   final List<T> _removed = [];
 

@@ -162,10 +162,10 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
           initialValues: aeController.values,
           required: true,
           list: document.entries,
+          onNewItem: newEntryItem,
           onChange: (value) => onValueChange(setState, this, () {
-            printInfo(value.account?.name ?? "Na");
             if (value.action == DocAction.update) return true;
-            return !document.entries.contains(value);
+            return true;
           }),
           tileBuilder: (context, value, index) {
             value.name = index.toString();
@@ -174,10 +174,9 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               index: index+1,
               document: value,
               accounts: accounts,
-              onUpdate: (value) => onValueChange(setState, this, () {
+              onChange: () => onValueChange(setState, this, () {
                 return value.action == DocAction.update;
               }),
-              onDelete: () => aeController.remove(value, hardRemove: isNew(value)),
             );
           },
           description: JournalEntryTotal(
@@ -196,19 +195,28 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               ),
             ],
           ),
-          addDialogFormBuilder: (context, index) => AccountingEntryForm.add(
-            document: AccountingEntry(
-              name: index,
-              journalEntry: document,
-              type: EntryType.none,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-            ),
-            accounts: accounts,
-            title: "New Accounting Entry #$index",
-          ),
         ),
       ],
     );
+  }
+
+  void newEntryItem() async {
+    final int index = aeController.values.length + 1;
+    final AccountingEntry entry = AccountingEntry(
+      journalEntry: document,
+      type: EntryType.none,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+    );
+    final bool? success = await showAdaptiveDialog(
+      context: context,
+      builder: (context) => AccountingEntryForm.add(
+        document: entry,
+        accounts: accounts,
+        title: "New Accounting Entry #$index",
+      ),
+    );
+    if (success == null || !success || entry.action != DocAction.insert) return;
+    aeController.add(entry);
   }
 
   @override
@@ -224,8 +232,13 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       hour: timeController.value!.hour,
       minute: timeController.value!.minute,
     );
-    // handle
-    document.entries = aeController.valuesWithCachedRemoved;
+
+    document.entries = aeController.values;
+    printInfo("---submintDocument---");
+    for (var entry in aeController.valuesWithCachedRemoved) {
+      printInfo("${entry.name} -> ${entry.account?.name} -> ${entry.action.toString()}");
+    }
+    // document.entries = aeController.valuesWithCachedRemoved;
 
     final bool success = await widget.onSubmit(document);
 
@@ -371,7 +384,6 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
         onSubmit: onEdit,
       ),
     ));
-
     if (document.action == DocAction.none) return;
     if (document.action == DocAction.update) {
       final String? error = await document.update();
@@ -434,6 +446,7 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
   }
 
   void buildEntryWidgets() {
+    printInfo("Building Entries");
     List<Widget> list = [];
     int index = 0;
     for (AccountingEntry entry in document.entries) {

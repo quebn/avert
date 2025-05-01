@@ -494,7 +494,6 @@ enum EntryType {
 
 class AccountingEntry implements Document {
   AccountingEntry({
-    required int name,
     required this.journalEntry,
     this.type = EntryType.none,
     this.value = 0,
@@ -504,8 +503,8 @@ class AccountingEntry implements Document {
     this.action = DocAction.none,
   }):
   id = 0,
-  name = name.toString(),
-  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
+  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
+  name = "${journalEntry.id}-${createdAt.toString()}";
 
   AccountingEntry.map({
     required this.name,
@@ -520,7 +519,6 @@ class AccountingEntry implements Document {
   });
 
   AccountingEntry.debit({
-    required int name,
     required this.journalEntry,
     this.id = 0,
     this.value = 0,
@@ -530,11 +528,10 @@ class AccountingEntry implements Document {
     this.action = DocAction.none,
   }):
   type = EntryType.debit,
-  name = name.toString(),
-  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
+  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
+  name = "${journalEntry.id}-${createdAt.toString()}";
 
   AccountingEntry.credit({
-    required int name,
     required this.journalEntry,
     this.id = 0,
     this.value = 0,
@@ -544,8 +541,8 @@ class AccountingEntry implements Document {
     this.action = DocAction.none,
   }):
   type = EntryType.credit,
-  name = name.toString(),
-  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
+  createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
+  name = "${journalEntry.id}-${createdAt.toString()}";
 
 
   @override
@@ -581,6 +578,7 @@ class AccountingEntry implements Document {
 
   @override
   Future<String?> delete() async {
+    if (isNew(this)) return "Accounting Entry:$name delete failed because file is new";
     final bool success =  await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
@@ -598,6 +596,7 @@ class AccountingEntry implements Document {
     // }
     final int now = DateTime.now().millisecondsSinceEpoch;
 
+    printInfo("inserting entry with name:$name");
     final Map<String, Object?> values = {
       "name": name,
       "account_id": account!.id,
@@ -759,15 +758,26 @@ class JournalEntry implements Document {
 
   Future<List<AccountingEntry>> processEntries() async {
     final List<AccountingEntry> failed = [];
+    printInfo("---processEntries---");
     for (AccountingEntry entry in entries) {
+      printInfo("${entry.name} -> ${entry.account?.name} -> ${entry.action.toString()}");
       String? error;
       switch (entry.action) {
-        case DocAction.insert: { error = await entry.insert(); } break;
-        case DocAction.update: { error = await entry.update(); } break;
-        case DocAction.delete: { error = await entry.delete(); } break;
+        case DocAction.insert: {
+          final String? err = await entry.insert();
+          error = err == null ? null : "Insert Error: $err";
+        } break;
+        case DocAction.update: {
+          final String? err = await entry.update();
+          error = err == null ? null : "Update Error: $err";
+        } break;
+        case DocAction.delete: {
+          final String? err = await entry.delete();
+          error = err == null ? null : "Delete Error: $err";
+        } break;
         default: break;
       }
-      printAssert(error == null, "Journal Entry:$name expected error msg to be nil, got '$error' instead");
+      printAssert(error == null, "Journal Entry:$name expected error msg to be nil, instead got:\n'$error");
     }
     return failed;
   }
