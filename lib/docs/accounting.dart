@@ -219,7 +219,7 @@ class Account implements Document {
     if (await hasEntries()) {
       return "Account:$name has entries available and cannot be deleted!";
     }
-    final bool success =  await Core.database!.delete(tableName,
+    final bool success = await Core.database!.delete(tableName,
       where: "id = ?",
       whereArgs: [id],
     ) == 1;
@@ -504,7 +504,7 @@ class AccountingEntry implements Document {
   }):
   id = 0,
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
-  name = "${journalEntry.id}-${createdAt.toString()}";
+  name = DateTime.now.hashCode.toString();
 
   AccountingEntry.map({
     required this.name,
@@ -529,7 +529,7 @@ class AccountingEntry implements Document {
   }):
   type = EntryType.debit,
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
-  name = "${journalEntry.id}-${createdAt.toString()}";
+  name = DateTime.now.hashCode.toString();
 
   AccountingEntry.credit({
     required this.journalEntry,
@@ -542,7 +542,7 @@ class AccountingEntry implements Document {
   }):
   type = EntryType.credit,
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
-  name = "${journalEntry.id}-${createdAt.toString()}";
+  name = DateTime.now.hashCode.toString();
 
 
   @override
@@ -578,22 +578,24 @@ class AccountingEntry implements Document {
 
   @override
   Future<String?> delete() async {
-    if (isNew(this)) return "Accounting Entry:$name delete failed because file is new";
-    final bool success =  await Core.database!.delete(tableName,
-      where: "id = ?",
-      whereArgs: [id],
-    ) == 1;
-    return success ? null : "Accounting Entry:$name failed to delete from database";
+    if (isNew(this)) return "Accounting Entry:$id delete failed because file is new";
+    final bool e = await exist(this, tableName);
+    if (!e) return "Accounting Entry:$id delete failed because file does not exist in database";
+    final int count = await Core.database!.delete(
+      tableName,
+      where: "id = ? and journal_entry_id = ?",
+      whereArgs: [id, journalEntry.id],
+    );
+    final bool success = count == 1;
+    return success ? null : "Accounting Entry:$name failed to delete from database count:$count";
   }
 
   @override
   Future<String?> insert() async {
-    if (!isNew(this) || await valuesNotValid()) {
-      return "Accounting Entry:$name is already be in database with id of '$id'";
-    }
+    if (!isNew(this)) return "Accounting Entry:$name is not new with id of $id";
+    if (await exist(this, tableName)) return "Accounting Entry:$name already exist in the database with id of $id";
+    if (await valuesNotValid()) return "Accounting Entry:$name values not valid";
     // TODO: Check if account allows
-    // if () {
-    // }
     final int now = DateTime.now().millisecondsSinceEpoch;
 
     printInfo("inserting entry with name:$name");
@@ -613,9 +615,9 @@ class AccountingEntry implements Document {
 
   @override
   Future<String?> update() async {
-    if (await valuesNotValid() || isNew(this)) {
-      return "Accounting Entry:$name values is not valid or new!";
-    }
+    if (isNew(this)) return "Accounting Entry:$name is new with id of $id";
+    if (await valuesNotValid() ) return "Accounting Entry:$name values is not valid";
+    if (!await exist(this, tableName)) return "Accounting Entry:$name does not exist in the database with id of $id";
 
     final Map<String, Object?> values = {
       "name": name,
@@ -628,14 +630,18 @@ class AccountingEntry implements Document {
     printWarn("update with values of: ${values.toString()} on entry with id of: $id!");
 
     final bool success = await Core.database!.update(tableName, values,
-      where: "id = ?",
-      whereArgs: [id],
+      where: "id = ? and journal_entry_id = ?",
+      whereArgs: [id, journalEntry.id],
     ) == 1;
     return success ? null : "Accounting Entry:$name failed to update values in the database";
   }
 
   Future<bool> valuesNotValid() async {
-    return account == null || type == EntryType.none || value == 0;
+    return (
+      account == null ||
+      type == EntryType.none ||
+      value == 0
+    );
   }
 }
 
@@ -748,6 +754,9 @@ class JournalEntry implements Document {
     if (success) {
       action = DocAction.update;
       final List<AccountingEntry> fails = await processEntries();
+      for (final AccountingEntry fail in fails) {
+        printError("failed to process the entry with id of ${fail.id} with action of ${fail.action.toString()}");
+      }
       final success = id > 0 && fails.isEmpty;
       if (!success) {
         return "Journal Entry:$name failed to update in ${fails.length} entries:(${fails.join(",")}) in the database";
@@ -758,27 +767,28 @@ class JournalEntry implements Document {
 
   Future<List<AccountingEntry>> processEntries() async {
     final List<AccountingEntry> failed = [];
-    printInfo("---processEntries---");
-    for (AccountingEntry entry in entries) {
-      printInfo("${entry.name} -> ${entry.account?.name} -> ${entry.action.toString()}");
+    printInfo("---processing entries---");
+    for (final AccountingEntry entry in entries) {
+      printInfo("id:${entry.id}: ${entry.account?.name} -> ${entry.action.toString()}");
       String? error;
       switch (entry.action) {
+        case DocAction.delete: {
+          error = await entry.delete();
+          if (error != null) printError(error);
+        } break;
         case DocAction.insert: {
-          final String? err = await entry.insert();
-          error = err == null ? null : "Insert Error: $err";
+          error = await entry.insert();
+          if (error != null) printError(error);
         } break;
         case DocAction.update: {
-          final String? err = await entry.update();
-          error = err == null ? null : "Update Error: $err";
-        } break;
-        case DocAction.delete: {
-          final String? err = await entry.delete();
-          error = err == null ? null : "Delete Error: $err";
+          error = await entry.update();
+          if (error != null) printError(error);
         } break;
         default: break;
       }
-      printAssert(error == null, "Journal Entry:$name expected error msg to be nil, instead got:\n'$error");
+      if (error != null) failed.add(entry);
     }
+    entries.removeWhere((doc) => doc.action == DocAction.delete);
     return failed;
   }
 

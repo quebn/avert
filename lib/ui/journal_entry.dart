@@ -27,7 +27,7 @@ class JournalEntryForm extends StatefulWidget {
   });
 
   final JournalEntry document;
-  final Future<bool> Function(JournalEntry) onSubmit;
+  final Future<bool> Function() onSubmit;
 
   @override
   State<StatefulWidget> createState() => _FormState();
@@ -167,16 +167,17 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
             if (value.action == DocAction.update) return true;
             return true;
           }),
-          tileBuilder: (context, value, index) {
-            value.name = index.toString();
+          tileBuilder: (context, doc, index) {
+            doc.name = index.toString();
             return AccountingEntryTile(
-              key: ObjectKey(value),
+              key: ObjectKey(doc),
               index: index+1,
-              document: value,
+              document: doc,
               accounts: accounts,
               onChange: () => onValueChange(setState, this, () {
-                return value.action == DocAction.update;
+                return true;
               }),
+              onRemove: () => aeController.remove(doc, hardRemove: isNew(doc)),
             );
           },
           description: JournalEntryTotal(
@@ -232,18 +233,11 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       hour: timeController.value!.hour,
       minute: timeController.value!.minute,
     );
-
-    document.entries = aeController.values;
-    printInfo("---submintDocument---");
-    for (var entry in aeController.valuesWithCachedRemoved) {
-      printInfo("${entry.name} -> ${entry.account?.name} -> ${entry.action.toString()}");
-    }
-    // document.entries = aeController.valuesWithCachedRemoved;
-
-    final bool success = await widget.onSubmit(document);
+    document.entries = aeController.valuesWithCachedRemoved;
+    final bool success = await widget.onSubmit();
 
     if (success && mounted) {
-      Navigator.of(context).pop<JournalEntry>(document);
+      Navigator.of(context).pop<bool>(true);
     }
   }
 
@@ -386,18 +380,14 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
     ));
     if (document.action == DocAction.none) return;
     if (document.action == DocAction.update) {
-      final String? error = await document.update();
-      if (error == null) {
-        setState(() => updateCount++);
-      } else {
-        if (mounted) notify(context, error);
-      }
+      // printInfo("entries");
+      setState(() => updateCount++);
     }
   }
 
-  Future<bool> onEdit(JournalEntry document) async  {
+  Future<bool> onEdit() async  {
     final String? error = await document.update();
-    String msg = error ?? "Successfully changed Journal Entry details";
+    String msg = error ?? "Journal Entry updated!";
     if (mounted) notify(context, msg);
     return error == null;
   }

@@ -210,10 +210,9 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
       document.action = DocAction.none;
     } else {
       shouldClose = await confirmRemove() ?? false;
-      if (shouldClose) {
+      if (shouldClose &&  !isNew(document)) {
         document.action = DocAction.delete;
       }
-      // should make controller update here;
     }
     if (!mounted || !shouldClose) return;
     Navigator.of(context).pop<bool>(false);
@@ -237,6 +236,7 @@ class AccountingEntryTile extends StatefulWidget {
     required this.document,
     required this.accounts,
     required this.index,
+    required this.onRemove,
     this.onChange,
   });
 
@@ -244,6 +244,7 @@ class AccountingEntryTile extends StatefulWidget {
   final AccountingEntry document;
   final List<Account> accounts;
   final void Function()? onChange;
+  final void Function()? onRemove;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -286,6 +287,7 @@ class _TileState extends State<AccountingEntryTile> {
   }
 
   void onPress() async {
+    // INFO: success means should update else should remove.
     final bool? success = await showAdaptiveDialog<bool>(
       context: context,
       builder: (context) => AccountingEntryForm.update(
@@ -296,9 +298,12 @@ class _TileState extends State<AccountingEntryTile> {
     );
 
     if (success == null) return;
-    // TODO: handle delete here maybe
-    widget.onChange?.call();
-    setState(() => updateCount++);
+    if (success) {
+      widget.onChange?.call();
+      setState(() => updateCount++);
+    } else {
+      widget.onRemove?.call();
+    }
   }
 }
 

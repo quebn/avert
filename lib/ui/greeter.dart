@@ -259,7 +259,7 @@ class _FormState extends State<CreateProfileForm> {
 
     Profile p = Profile(name: controllers["name"]!.value.text,);
 
-    if (await exist(p, Profile.tableName)) {
+    if (await nameExist(p, Profile.tableName)) {
       setState(() {
          userErrMsg = "Profile Name: '${p.name}' already exists!";
       });

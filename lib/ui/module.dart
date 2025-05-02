@@ -202,12 +202,13 @@ class Accounting implements Module {
   }
 
   Future<JournalEntry?> createJE(BuildContext context, Profile profile) async {
+    final JournalEntry je = JournalEntry(profile, entries: []);
     return await Navigator.of(context).push<JournalEntry>(
       MaterialPageRoute(builder: (context) => JournalEntryForm(
-        document: JournalEntry(profile, entries: []),
-        onSubmit: (d) async {
-          final String? error = await d.insert();
-          String msg = error ?? "Account '${d.name}' created!";
+        document: je,
+        onSubmit: () async {
+          final String? error = await je.insert();
+          String msg = error ?? "Journal Entry '${je.name}' created!";
           if (context.mounted) notify(context, msg);
           return error == null;
         },

@@ -37,6 +37,16 @@ Future<List<Profile>> fetchAllProfile({Database? database}) async {
 }
 
 Future<bool> exist(Document document, String table) async {
+  final List<Map<String, Object?>> values = await Core.database!.query(
+    table,
+    columns: ["id"],
+    where: "id = ?",
+    whereArgs: [document.id],
+  );
+  return values.isNotEmpty;
+}
+
+Future<bool> nameExist(Document document, String table) async {
   final List<Map<String, Object?>> values = await Core.database!.query(table,
     columns: ["id"],
     where: "name = ?",

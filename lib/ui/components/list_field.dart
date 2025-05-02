@@ -46,6 +46,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
     super.initState();
     widget.controller.addValueListener((values, value) {
       widget.onChange?.call(value);
+      printWarn("Tracking: changed detected! rebuilding");
       setState(() => updateCount++);
     });
   }
@@ -219,7 +220,7 @@ class AvertListFieldController<T extends Object> {
 
   List<T> get values => _values;
   List<T> get cachedRemoved => _removed;
-  List<T> get valuesWithCachedRemoved => _values + _removed;
+  List<T> get valuesWithCachedRemoved => [..._values ,..._removed];
 
   bool add(T value) {
     if (_values.contains(value)) return false;
@@ -236,7 +237,7 @@ class AvertListFieldController<T extends Object> {
       return false;
     }
     _values.remove(value);
-    if (!hardRemove) _removed.add(value);
+    if (!hardRemove && !_removed.contains(value)) _removed.add(value);
     for (Function listener in _listeners) {
       listener.call(_values, value);
     }
