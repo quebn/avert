@@ -167,7 +167,6 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
 
     if (!isValid) return;
 
-    // FocusScope.of(context).requestFocus(FocusNode());
     document.account = accountController.value!;
     document.description = controllers["desc"]?.value.text ?? "";
     document.type = typeController.value!;
@@ -287,7 +286,7 @@ class _TileState extends State<AccountingEntryTile> {
   }
 
   void onPress() async {
-    // INFO: success means should update else should remove.
+    FocusScope.of(context).requestFocus(FocusNode());
     final bool? success = await showAdaptiveDialog<bool>(
       context: context,
       builder: (context) => AccountingEntryForm.update(

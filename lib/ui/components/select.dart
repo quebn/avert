@@ -134,10 +134,8 @@ class _SelectState<T extends Object> extends State<AvertSelect<T>> {
   }
 
   Future<void> select(BuildContext context) async {
-    if (options.isEmpty) {
-      notify(context, "${widget.label}: No available selections!");
-      return;
-    }
+    if (options.isEmpty) return;
+    FocusScope.of(context).requestFocus(FocusNode());
     T? value = await openSelectionDialog(context);
     if (value != null) widget.controller.update(value);
   }

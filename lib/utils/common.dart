@@ -79,5 +79,7 @@ const Map<int, String> months = {
 
 String formatDT(DateTime dt) {
   final String month = months[dt.month]!;
-  return "${dt.year}, $month ${dt.day}, ${dt.hour.toString()}:${dt.minute}";
+  final String hour = dt.hour.toString().padLeft(1,"0");
+  final String minute = dt.minute.toString().padLeft(1,"0");
+  return "${dt.year}, $month ${dt.day}, $hour:$minute";
 }

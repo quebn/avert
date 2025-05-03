@@ -9,7 +9,6 @@ void createCoreTables(Batch batch) {
   final List<String> queries = [
     Profile.tableQuery,
   ];
-
   for (String query in queries) {
     batch.execute(query);
   }
@@ -80,20 +79,7 @@ Future<List<Account>> fetchAccounts(Profile profile, {String? where, List<Object
 
   if (values.isEmpty) return list;
 
-  for (var value in values ) {
-    final int profId = value["profile_id"] as int;
-    printAssert(profId == profile.id, "Account:${value["name"]! as String} expects profile_id with: [${profile.id}], got [$profId]");
-    list.add(Account.map(
-      profile: profile,
-      id: value["id"]!,
-      name: value["name"]!,
-      createdAt: value["createdAt"]!,
-      root: value["root"]!,
-      type: value["type"]!,
-      parentID: value["parent_id"]!,
-      isGroup: value["is_group"]!,
-    ));
-  }
+  profile.mapAccountsToList(list, values);
   return list;
 }
 
@@ -166,12 +152,14 @@ List<Account> defaultAccounts(Profile profile) => [
         Account.asset(
           profile: profile,
           name: "Bank",
-          type: AccountType.bank
+          type: AccountType.bank,
+          onlyPositive: true,
         ),
         Account.asset(
           profile: profile,
           name: "Cash on Hand",
-          type: AccountType.cash
+          type: AccountType.cash,
+          onlyPositive: true,
         ),
       ]
     ),
@@ -182,24 +170,55 @@ List<Account> defaultAccounts(Profile profile) => [
         Account.liability(
           profile: profile,
           name: "Accounts Payable",
-          type: AccountType.payable
+          type: AccountType.payable,
+          onlyPositive: true,
         )
       ]
     ),
     Account.equity(
       profile: profile,
       name: "Equity",
-      children: []
+      children: [
+        Account.equity(
+          profile: profile,
+          name: "Common Stock",
+          onlyPositive: true,
+        ),
+        Account.equity(
+          profile: profile,
+          name: "Retained Earnings",
+        ),
+      ]
     ),
     Account.income(
       profile: profile,
       name: "Income",
-      children: []
+      children: [
+        Account.income(
+          profile: profile,
+          name: "Sales",
+        ),
+        Account.income(
+          profile: profile,
+          name: "Discount",
+          defaultValueType: EntryType.debit
+        ),
+      ]
     ),
     Account.expense(
       profile: profile,
       name: "Expense",
-      children: []
+      children: [
+        Account.expense(
+          profile: profile,
+          name: "Maintenance Expense",
+        ),
+        Account.expense(
+          profile: profile,
+          name: "Cost of Goods Sold",
+          type: AccountType.cogs
+        ),
+      ]
     ),
 ];
 
@@ -207,6 +226,6 @@ Future<void> genTestDocs(Profile profile) async {
   final List<Account> accounts = defaultAccounts(profile);
   for (Account account in accounts) {
     final String? err = await account.insert();
-    printAssert(err != null, err ?? "Test Account insert failed");
+    printAssert(err == null, err ?? "Test Account insert failed");
   }
 }

@@ -195,13 +195,6 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
     );
   }
 
-  // @override
-  // void onValueChange(bool Function() isDirtyCallback) {
-  //   final bool isReallyDirty = isDirtyCallback();
-  //   if (isReallyDirty == isDirty) return;
-  //   setState(() => isDirty = isReallyDirty );
-  // }
-
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
@@ -543,7 +536,7 @@ class AccountTotalBalance extends StatefulWidget {
 
 class _TotalBalanceState extends State<AccountTotalBalance> {
   Account get document => widget.account;
-  EntryType type = EntryType.none;
+  late EntryType type = widget.account.defaultValueType;
   double total = 0;
 
   @override

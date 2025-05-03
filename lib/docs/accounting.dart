@@ -61,100 +61,92 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.isGroup = false,
+    this.defaultValueType = EntryType.none,
+    this.onlyPositive = false,
     int createdAt = 0,
     this.action = DocAction.none,
     this.children,
   }) : createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.asset({
-    required Profile profile,
-    required String name,
-    int id = 0,
-    int parentID = 0,
-    AccountType type = AccountType.none,
-    List<Account>? children,
-  }) : this(
-    profile,
-    id: id,
-    name: name,
-    parentID: parentID,
-    children: children,
-    type: type,
-    isGroup: children != null,
-    root: AccountRoot.asset
-  );
+    required this.profile,
+    required this.name,
+    this.id = 0,
+    this.parentID = 0,
+    this.type = AccountType.none,
+    this.children,
+    this.onlyPositive = false,
+    this.defaultValueType = EntryType.debit,
+    int createdAt = 0,
+  }) :
+    isGroup = children != null,
+    action = DocAction.none,
+    root = AccountRoot.asset,
+    createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.liability({
-    required Profile profile,
-    required String name,
-    int id = 0,
-    int parentID = 0,
-    AccountType type =  AccountType.none,
-    List<Account>? children,
-  }) : this(
-    profile,
-    id: id,
-    name: name,
-    parentID: parentID,
-    children: children,
-    type: type,
-    isGroup: children != null,
-    root: AccountRoot.liability
-  );
+    required this.profile,
+    required this.name,
+    this.id = 0,
+    this.parentID = 0,
+    this.type = AccountType.none,
+    this.children,
+    this.onlyPositive = false,
+    this.defaultValueType = EntryType.credit,
+    int createdAt = 0,
+  }) :
+    isGroup = children != null,
+    action = DocAction.none,
+    root = AccountRoot.liability,
+    createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.equity({
-    required Profile profile,
-    required String name,
-    int id = 0,
-    int parentID = 0,
-    AccountType type =  AccountType.none,
-    List<Account>? children,
-  }) : this(
-    profile,
-    id: id,
-    name: name,
-    parentID: parentID,
-    children: children,
-    type: type,
-    isGroup: children != null,
-    root: AccountRoot.equity
-  );
+    required this.profile,
+    required this.name,
+    this.id = 0,
+    this.parentID = 0,
+    this.type = AccountType.none,
+    this.children,
+    this.onlyPositive = false,
+    this.defaultValueType = EntryType.credit,
+    int createdAt = 0,
+  }) :
+    isGroup = children != null,
+    action = DocAction.none,
+    root = AccountRoot.equity,
+    createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.income({
-    required Profile profile,
-    required String name,
-    int id = 0,
-    int parentID = 0,
-    AccountType type =  AccountType.none,
-    List<Account>? children,
-  }) : this(
-    profile,
-    id: id,
-    name: name,
-    parentID: parentID,
-    children: children,
-    type: type,
-    isGroup: children != null,
-    root: AccountRoot.income
-  );
+    required this.profile,
+    required this.name,
+    this.id = 0,
+    this.parentID = 0,
+    this.type = AccountType.none,
+    this.children,
+    this.onlyPositive = false,
+    this.defaultValueType = EntryType.credit,
+    int createdAt = 0,
+  }) :
+    isGroup = children != null,
+    action = DocAction.none,
+    root = AccountRoot.income,
+    createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.expense({
-    required Profile profile,
-    required String name,
-    int id = 0,
-    int parentID = 0,
-    AccountType type =  AccountType.none,
-    List<Account>? children,
-  }) : this(
-    profile,
-    id: id,
-    name: name,
-    parentID: parentID,
-    children: children,
-    type: type,
-    isGroup: children != null,
-    root: AccountRoot.expense
-  );
+    required this.profile,
+    required this.name,
+    this.id = 0,
+    this.parentID = 0,
+    this.type = AccountType.none,
+    this.children,
+    this.onlyPositive = false,
+    this.defaultValueType = EntryType.debit,
+    int createdAt = 0,
+  }) :
+    isGroup = children != null,
+    action = DocAction.none,
+    root = AccountRoot.expense,
+    createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Account.map({
     required Profile profile,
@@ -165,12 +157,16 @@ class Account implements Document {
     required Object type,
     required Object createdAt,
     required Object isGroup,
+    required Object onlyPositive,
+    required Object defaultValueType,
   }): this(
     profile,
     id: id as int,
     name: name as String,
     createdAt: createdAt as int,
     isGroup: isGroup as int == 1,
+    onlyPositive: onlyPositive as int == 1,
+    defaultValueType: EntryType.values[defaultValueType as int],
     root: AccountRoot.values[root as int],
     type: AccountType.values.byName(type as String),
     parentID: parentID as int,
@@ -192,6 +188,8 @@ class Account implements Document {
 
   AccountRoot root;
   AccountType type;
+  EntryType defaultValueType;
+  bool onlyPositive;
   bool isGroup;
   int parentID;
   List<Account>? children;
@@ -204,12 +202,12 @@ class Account implements Document {
     profile_id INTEGER NOT NULL,
     is_group INTEGER NOT NULL,
     parent_id INTEGER,
+    default_value_type INTEGER NOT NULL,
+    only_positive INTEGER NOT NULL,
     root INTEGER NOT NULL,
     type TEXT NOT NULL,
     FOREIGN KEY(profile_id) REFERENCES ${Profile.tableName}(id) ON DELETE CASCADE
   ) """;
-  // FOREIGN KEY(parent_id) REFERENCES $tableName(id) ON DELETE CASCADE,
-
 
   @override
   Future<String?> delete() async {
@@ -239,6 +237,8 @@ class Account implements Document {
       "name": name,
       "createdAt": now,
       "profile_id": profile.id,
+      "only_positive": onlyPositive ? 1: 0,
+      "default_value_type": defaultValueType.index,
       "root": root.index,
       "type": type.toString(),
       "parent_id": parentID,
@@ -271,6 +271,8 @@ class Account implements Document {
       "name": name,
       "root": root.index,
       "type": type.toString(),
+      "only_positive": onlyPositive ? 1: 0,
+      "default_value_type": defaultValueType.index,
       "parent_id": parentID,
       "is_group": isGroup ? 1 : 0,
     };
@@ -312,20 +314,7 @@ class Account implements Document {
 
     if (values.isEmpty) return false;
 
-    for (var value in values ) {
-      final int profId = value["profile_id"] as int;
-      printAssert(profId == profile.id, "Account:$name expects profile_id with: ${profile.id}, got $profId");
-      list.add(Account.map(
-        profile: profile,
-        id: value["id"]!,
-        name: value["name"]!,
-        createdAt: value["createdAt"]!,
-        root: value["root"]!,
-        type: value["type"]!,
-        parentID: value["parent_id"]!,
-        isGroup: value["is_group"]!,
-      ));
-    }
+    profile.mapAccountsToList(list, values);
     children = list;
     return true;
   }
@@ -349,20 +338,7 @@ class Account implements Document {
 
     if (values.isEmpty) return list;
 
-    for (var value in values ) {
-      final int profId = value["profile_id"] as int;
-      printAssert(profId == profile.id, "Account:${value["name"]! as String} expects profile_id with: ${profile.id}, got $profId");
-      list.add(Account.map(
-        profile: profile,
-        id: value["id"]!,
-        name: value["name"]!,
-        createdAt: value["createdAt"]!,
-        root: value["root"]!,
-        type: value["type"]!,
-        parentID: value["parent_id"]!,
-        isGroup: value["is_group"]!,
-      ));
-    }
+    profile.mapAccountsToList(list, values);
     return list;
   }
 
@@ -390,6 +366,8 @@ class Account implements Document {
       id: value["id"]!,
       name: value["name"]!,
       parentID: value["parent_id"]!,
+      defaultValueType: value["default_value_type"]!,
+      onlyPositive: value["only_positive"]!,
       profile: profile,
       root: value["root"]!,
       type: value["type"]!,
@@ -423,53 +401,65 @@ class Account implements Document {
     for (final Map<String, Object?> value in values) {
       ids.add(value["id"]! as int);
     }
-    // printInfo("Children Leaf IDs");
-    // printInfo(values.toString());
-    // printInfo("-----------------");
     return ids;
   }
 
-  Future<List<dynamic>> getTotalBalance() async {
-    double total = 0;
-    EntryType type = root.defaultType;
-    // TODO: when parent, query all the leaf children values
-    String ids = "$id";
-    if (isGroup) {
-      final List<int> cIds = await getChildrenLeafIDs();
-      ids = cIds.join(",");
-    }
+  Future<List<dynamic>> getBalance(DateTime at) async {
+    final int atMs = at.millisecondsSinceEpoch;
+    final String ids = isGroup ? (await getChildrenLeafIDs()).join(",") : "$id";
     final String query = """
-    select sum(value) as value, type
-    from ${AccountingEntry.tableName}
-    where account_id in ($ids)
-    group by type
+      select sum(ae.value) as value, ae.type
+      from ${AccountingEntry.tableName} ae
+        left outer join ${JournalEntry.tableName} je
+        on je.id = ae.journal_entry_id
+      where ae.account_id in ($ids) and je.postedAt <= $atMs
+      group by type
     """;
     final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
     printAssert(values.length <= 2, "Account:$name expect query values length to be <= 2, got ${values.length} instead");
     printTrack("Values: ${values.toString()}");
-    for (final Map<String, Object?> value in values) {
-      printAssert(total >= 0, "Total should not be less than 0");
-      final double vValue = value["value"]! as double;
-      final EntryType vType = EntryType.values[value["type"]! as int];
-      if (total == 0) {
-        total = vValue;
-        type = vType;
-      } else {
-        if (type != vType) {
-          if (total < vValue) {
-            total = vValue - total;
-            type = vType;
-          } else {
-            total -= vValue;
-          }
-        } else {
-          total += vValue;
-        }
-      }
-    }
-    return [type, total];
+    return calculateBalance(values, defaultValueType);
   }
 
+  Future<List<dynamic>> getTotalBalance() async {
+    final String ids = isGroup ? (await getChildrenLeafIDs()).join(",") : "$id";
+    final String query = """
+      select sum(value) as value, type
+      from ${AccountingEntry.tableName}
+      where account_id in ($ids)
+      group by type
+    """;
+    final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
+    printAssert(values.length <= 2, "Account:$name expect query values length to be <= 2, got ${values.length} instead");
+    printTrack("Values: ${values.toString()}");
+    return calculateBalance(values, defaultValueType);
+  }
+}
+
+List<dynamic> calculateBalance(List<Map<String, Object?>> values, EntryType initialType) {
+  double total = 0;
+  EntryType type = initialType;
+  for (final Map<String, Object?> value in values) {
+    printAssert(total >= 0, "Total should not be less than 0");
+    final double vValue = value["value"]! as double;
+    final EntryType vType = EntryType.values[value["type"]! as int];
+    if (total == 0) {
+      total = vValue;
+      type = vType;
+    } else {
+      if (type != vType) {
+        if (total < vValue) {
+          total = vValue - total;
+          type = vType;
+        } else {
+          total -= vValue;
+        }
+      } else {
+        total += vValue;
+      }
+    }
+  }
+  return [type, total];
 }
 
 enum EntryType {
@@ -515,8 +505,7 @@ class AccountingEntry implements Document {
     required this.account,
     required this.description,
     required this.createdAt,
-    this.action = DocAction.none,
-  });
+  }): action = DocAction.none;
 
   AccountingEntry.debit({
     required this.journalEntry,
@@ -815,7 +804,6 @@ class JournalEntry implements Document {
       assert(value["a_profile_id"]! as int == profile.id);
       list.add(AccountingEntry.map(
         name: value["name"]! as String,
-        action: DocAction.none,
         description: value["description"]! as String,
         id: value["id"]! as int,
         type: EntryType.values[(value["type"]! as int)],
@@ -827,6 +815,8 @@ class JournalEntry implements Document {
           id: value["account_id"]!,
           name: value["a_name"]!,
           parentID: value["a_parent_id"]!,
+          defaultValueType: value["default_value_type"]!,
+          onlyPositive: value["only_positive"]!,
           root: value["a_root"]!,
           type: value["a_type"]!,
           isGroup: value["a_is_group"]!,

@@ -94,7 +94,7 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       SizedBox(
         child: FButton.raw(
           style: ghostStyle,
-          onPress: widget.onNewItem,
+          onPress: newItem,
           child: FIcon(FAssets.icons.listPlus),
         ),
       ),
@@ -148,12 +148,17 @@ class _ListFieldState<T extends Document> extends State<AvertListField<T>> {
       child: FButton(
         prefix: FIcon(FAssets.icons.plus),
         style: FButtonStyle.ghost,
-        onPress: widget.onNewItem,
+        onPress: newItem,
         label: Text("Add New Item", style: textStyle.copyWith(
           fontSize: theme.typography.sm.fontSize,
         )),
       ),
     );
+  }
+
+  void newItem() {
+    FocusScope.of(context).requestFocus(FocusNode());
+    widget.onNewItem?.call();
   }
 
   String? validate(List<T>? values) {

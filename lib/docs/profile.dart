@@ -1,3 +1,4 @@
+import 'package:avert/docs/accounting.dart';
 import 'package:avert/docs/document.dart';
 import 'package:avert/ui/module.dart';
 import 'package:avert/utils/common.dart';
@@ -103,5 +104,22 @@ class Profile implements Document {
       whereArgs: [document.name, id],
     );
     return values.isNotEmpty;
+  }
+
+  void mapAccountsToList(List<Account> list, List<Map<String, Object?>> values) {
+    for (var value in values) {
+      list.add(Account.map(
+        profile: this,
+        id: value["id"]!,
+        name: value["name"]!,
+        createdAt: value["createdAt"]!,
+        defaultValueType: value["default_value_type"]!,
+        onlyPositive: value["only_positive"]!,
+        root: value["root"]!,
+        type: value["type"]!,
+        parentID: value["parent_id"]!,
+        isGroup: value["is_group"]!,
+      ));
+    }
   }
 }
