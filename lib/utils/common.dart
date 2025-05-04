@@ -57,17 +57,12 @@ String titleCase(String string) {
   return "${string[0].toUpperCase()}${string.substring(1)}";
 }
 
-double getAccountingEntriesDiff(List<AccountingEntry> entries) {
-  if (entries.isEmpty) return 0;
-  double debit = 0, credit = 0, diff = 0;
+AccountValue getAccountingEntriesDiff(List<AccountingEntry> entries) {
+  AccountValue diff = AccountValue.zero();
+  if (entries.isEmpty) return diff;
   for (AccountingEntry entry in entries) {
-    if (entry.type == EntryType.debit) {
-      debit += entry.value;
-    } else if (entry.type == EntryType.credit){
-      credit += entry.value;
-    }
+    diff += entry.value;
   }
-  diff = (debit - credit).abs();
   return diff;
 }
 

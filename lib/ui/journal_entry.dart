@@ -35,10 +35,11 @@ class JournalEntryForm extends StatefulWidget {
 
 class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin implements DocumentForm {
 
+  // TODO: add some sort of variable where e
   JournalEntry get document => widget.document;
   late final FDateFieldController dateController;
   late final FTimeFieldController timeController;
-  late final AvertSelectController accountController;
+  late final AvertSelectController<Account> accountController;
   late final AvertListFieldController<AccountingEntry> aeController;
   List<Account> accounts = [];
 
@@ -224,6 +225,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
     printInfo("Pressed Submit Button");
+    // TODO: check the balance of account
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
@@ -243,8 +245,8 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
 
   String? validateEntries(List<AccountingEntry>? entries) {
     if (entries == null) return "Debit and Credit entries should be present";
-    final double diff = getAccountingEntriesDiff(entries);
-    if (diff == 0) return null;
+    final AccountValue diff = getAccountingEntriesDiff(entries);
+    if (diff.amount == 0) return null;
     return "Debit and Credit in Accounting Entries should be balance";
   }
 }
@@ -448,7 +450,7 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
   Widget entryTileBuilder(AccountingEntry entry, int index) {
     printTrack("Building Entry Tile with index of: ${entry.name}");
     final FThemeData theme = FTheme.of(context);
-    final FBadgeStyle badgeStyle = entry.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
+    final FBadgeStyle badgeStyle = entry.value.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
       backgroundColor: Colors.teal,
       borderColor: Colors.teal,
       contentStyle: theme.badgeStyles.primary.contentStyle.copyWith(
@@ -470,7 +472,7 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
         ),
       ),
       suffix: FBadge(
-        label: Text(entry.type.abbrev),
+        label: Text(entry.value.type.abbrev),
         style: badgeStyle,
       ),
       title: Text("${index+1}. ${entry.account!.name}"),

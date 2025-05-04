@@ -53,6 +53,51 @@ enum AccountType {
   String get displayName => titleCase(name);
 }
 
+class AccountValue {
+  AccountValue(
+    this.type,
+    this.amount,
+  );
+
+  AccountValue.zero():type = EntryType.none, amount = 0;
+
+  AccountValue.debit(
+    this.amount,
+  ): type = EntryType.debit;
+
+  AccountValue.credit(
+    this.amount,
+  ): type = EntryType.credit;
+
+  EntryType type;
+  double amount;
+
+  @override
+  String toString() => "${amount.toString()} ${type.abbrev}";
+
+  bool equals(AccountValue value) => amount == value.amount && type == value.type;
+
+  AccountValue operator +(AccountValue value) {
+    printAssert(amount >= 0, "Total should not be less than 0");
+    if (amount == 0 || type == EntryType.none) {
+      amount = value.amount;
+      type = value.type;
+    } else {
+      if (type != type) {
+        if (amount < value.amount) {
+          amount = value.amount - amount;
+          type = value.type;
+        } else {
+          amount -= value.amount;
+        }
+      } else {
+        amount += value.amount;
+      }
+    }
+    return this;
+  }
+}
+
 class Account implements Document {
   Account(this.profile, {
     this.root = AccountRoot.asset,
@@ -404,7 +449,7 @@ class Account implements Document {
     return ids;
   }
 
-  Future<List<dynamic>> getBalance(DateTime at) async {
+  Future<AccountValue> getBalance(DateTime at) async {
     final int atMs = at.millisecondsSinceEpoch;
     final String ids = isGroup ? (await getChildrenLeafIDs()).join(",") : "$id";
     final String query = """
@@ -421,7 +466,7 @@ class Account implements Document {
     return calculateBalance(values, defaultValueType);
   }
 
-  Future<List<dynamic>> getTotalBalance() async {
+  Future<AccountValue> getTotalBalance() async {
     final String ids = isGroup ? (await getChildrenLeafIDs()).join(",") : "$id";
     final String query = """
       select sum(value) as value, type
@@ -436,30 +481,16 @@ class Account implements Document {
   }
 }
 
-List<dynamic> calculateBalance(List<Map<String, Object?>> values, EntryType initialType) {
-  double total = 0;
-  EntryType type = initialType;
+AccountValue calculateBalance(List<Map<String, Object?>> values, EntryType initialType) {
+  AccountValue total = AccountValue(initialType, 0);
   for (final Map<String, Object?> value in values) {
-    printAssert(total >= 0, "Total should not be less than 0");
-    final double vValue = value["value"]! as double;
-    final EntryType vType = EntryType.values[value["type"]! as int];
-    if (total == 0) {
-      total = vValue;
-      type = vType;
-    } else {
-      if (type != vType) {
-        if (total < vValue) {
-          total = vValue - total;
-          type = vType;
-        } else {
-          total -= vValue;
-        }
-      } else {
-        total += vValue;
-      }
-    }
+    final AccountValue av = AccountValue(
+      EntryType.values[value["type"]! as int],
+      value["value"]! as double,
+    );
+    total += av;
   }
-  return [type, total];
+  return total;
 }
 
 enum EntryType {
@@ -485,14 +516,15 @@ enum EntryType {
 class AccountingEntry implements Document {
   AccountingEntry({
     required this.journalEntry,
-    this.type = EntryType.none,
-    this.value = 0,
+    EntryType type = EntryType.none,
+    double value = 0,
     this.account,
     this.description = "",
     int createdAt = 0,
     this.action = DocAction.none,
   }):
   id = 0,
+  value = AccountValue(type, value),
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
   name = DateTime.now.hashCode.toString();
 
@@ -500,36 +532,36 @@ class AccountingEntry implements Document {
     required this.name,
     required this.journalEntry,
     required this.id,
-    required this.value,
-    required this.type,
+    required double value,
+    required EntryType type,
     required this.account,
     required this.description,
     required this.createdAt,
-  }): action = DocAction.none;
+  }): action = DocAction.none, value = AccountValue(type, value);
 
   AccountingEntry.debit({
     required this.journalEntry,
     this.id = 0,
-    this.value = 0,
+    double value = 0,
     this.account,
     this.description = "",
     int createdAt = 0,
     this.action = DocAction.none,
   }):
-  type = EntryType.debit,
+  value = AccountValue(EntryType.debit, value),
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
   name = DateTime.now.hashCode.toString();
 
   AccountingEntry.credit({
     required this.journalEntry,
     this.id = 0,
-    this.value = 0,
+    double value = 0,
     this.account,
     this.description = "",
     int createdAt = 0,
     this.action = DocAction.none,
   }):
-  type = EntryType.credit,
+  value = AccountValue(EntryType.credit, value),
   createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt),
   name = DateTime.now.hashCode.toString();
 
@@ -543,17 +575,19 @@ class AccountingEntry implements Document {
   @override
   String name;
 
-  Account? account;
-  EntryType type;
-  double value;
   final JournalEntry journalEntry;
+  Account? account;
+  AccountValue value;
+  // EntryType type;
+  // double value;
   String description;
 
   @override
   final DateTime createdAt;
 
   static String get tableName => "accounting_entries";
-  static String get tableQuery => """CREATE TABLE $tableName(
+  static String get tableQuery => """
+  CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     createdAt INTEGER NOT NULL,
@@ -594,7 +628,7 @@ class AccountingEntry implements Document {
       "journal_entry_id": journalEntry.id,
       "createdAt": now,
       "description": description,
-      "type": type.value,
+      "type": value.type.value,
       "value": value,
     };
     id = await Core.database!.insert(tableName, values);
@@ -612,7 +646,7 @@ class AccountingEntry implements Document {
       "name": name,
       "account_id": account!.id,
       "description": description,
-      "type": type.value,
+      "type": value.type.value,
       "value": value,
     };
 
@@ -628,8 +662,8 @@ class AccountingEntry implements Document {
   Future<bool> valuesNotValid() async {
     return (
       account == null ||
-      type == EntryType.none ||
-      value == 0
+      value.type == EntryType.none ||
+      value.amount == 0
     );
   }
 }

@@ -536,18 +536,15 @@ class AccountTotalBalance extends StatefulWidget {
 
 class _TotalBalanceState extends State<AccountTotalBalance> {
   Account get document => widget.account;
-  late EntryType type = widget.account.defaultValueType;
-  double total = 0;
+  late AccountValue total = AccountValue(document.defaultValueType, 0);
+  EntryType get type => total.type;
 
   @override
   void initState() {
     super.initState();
     document.getTotalBalance().then((v) {
-      if (v[1] == total || !mounted) return;
-      setState(() {
-        type = v[0];
-        total = v[1];
-      });
+      if (v == total || !mounted) return;
+      setState(() => total = v );
     });
   }
 
@@ -571,7 +568,7 @@ class _TotalBalanceState extends State<AccountTotalBalance> {
         child: Column(
           children: [
             label,
-            Text("$total ${type.abbrev}", style: valueStyle),
+            Text(total.toString(), style: valueStyle),
           ]
         )
       )

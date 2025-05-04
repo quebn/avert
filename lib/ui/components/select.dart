@@ -1,5 +1,4 @@
 import "package:avert/utils/logger.dart";
-import "package:avert/utils/ui.dart";
 import "package:flutter/material.dart";
 import "package:forui/forui.dart";
 

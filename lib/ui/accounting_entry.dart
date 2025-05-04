@@ -38,7 +38,6 @@ class AccountingEntryForm extends StatefulWidget {
   final List<Account> accounts;
   final String title;
   final bool isAdd;
-  // final int index;
 
   @override
   State<StatefulWidget> createState() => _NewFormState();
@@ -46,6 +45,7 @@ class AccountingEntryForm extends StatefulWidget {
 
 class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
   bool get isAdd => widget.isAdd;
+  double balance = 0;
 
   AccountingEntry get document => widget.document;
   late final AvertSelectController<Account> accountController;
@@ -68,7 +68,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
   void initState() {
     super.initState();
     typeController = AvertSelectController<EntryType>(
-      value: document.type,
+      value: document.value.type,
     );
     accountController = AvertSelectController<Account>(
       value: widget.document.account,
@@ -92,6 +92,9 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
       AvertSelect<Account>(
         required: true,
         label: "Account",
+        onChange: onAccountChange,
+        options: widget.accounts,
+        controller: accountController,
         valueBuilder: (context, account) {
           return (account != null)
           ? Text(account.name)
@@ -104,8 +107,6 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
           title: Text(value.name, style: theme.typography.base),
           subtitle: Text(value.type.toString(), style: theme.typography.sm),
         ),
-        options: widget.accounts,
-        controller: accountController,
       ),
       AvertInput.multiline(
         minLines: 2,
@@ -169,8 +170,10 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
 
     document.account = accountController.value!;
     document.description = controllers["desc"]?.value.text ?? "";
-    document.type = typeController.value!;
-    document.value = double.parse(controllers["value"]?.value.text ?? "0");
+    document.value = AccountValue(
+      typeController.value!,
+      double.parse(controllers["value"]?.value.text ?? "0")
+    );
 
     document.action = isNew(document) ? DocAction.insert : DocAction.update;
     Navigator.of(context).pop<bool>(true);
@@ -201,6 +204,11 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
         ],
       ),
     );
+  }
+
+  void onAccountChange(Account? account) async {
+    if (account == null) return;
+    final AccountValue balance = await account.getBalance(document.journalEntry.postedAt);
   }
 
   Future<void> closeDocument() async {
@@ -257,7 +265,7 @@ class _TileState extends State<AccountingEntryTile> {
   Widget build(BuildContext context) {
     printTrack("Building Accounting Entry tile with index of: ${document.name}");
     final FThemeData theme = FTheme.of(context);
-    final FBadgeStyle badgeStyle = document.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
+    final FBadgeStyle badgeStyle = document.value.type == EntryType.debit ? theme.badgeStyles.primary.copyWith(
       backgroundColor: Colors.teal,
       borderColor: Colors.teal,
       contentStyle: theme.badgeStyles.primary.contentStyle.copyWith(
@@ -278,7 +286,7 @@ class _TileState extends State<AccountingEntryTile> {
         ),
       ),
       suffix: FBadge(
-        label: Text(document.type.abbrev),
+        label: Text(document.value.type.abbrev),
         style: badgeStyle,
       ),
       title: Text("${widget.index}. ${document.account!.name}"),
