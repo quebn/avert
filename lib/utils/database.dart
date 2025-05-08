@@ -17,7 +17,7 @@ void createCoreTables(Batch batch) {
 Future<List<Profile>> fetchAllProfile({Database? database}) async {
   final List<Map<String, Object?>> values = await (database ?? Core.database!).query(
     Profile.tableName,
-    columns: ["id", "name", "createdAt"],
+    columns: ["id", "name", "created_at"],
   );
 
   final List<Profile> list = [];
@@ -28,7 +28,7 @@ Future<List<Profile>> fetchAllProfile({Database? database}) async {
     list.add(Profile.map(
       id: v["id"]!,
       name: v["name"]!,
-      createdAt: v["createdAt"]!,
+      createdAt: v["created_at"]!,
     ));
   }
 
@@ -98,8 +98,8 @@ Future<List<JournalEntry>> fetchJournalEntries(Profile profile, {bool sorted = f
 
   for (var value in values) {
     printAssert(value["profile_id"] as int == profile.id, "Journal Entry belongs to a different profile.");
-    final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["createdAt"]! as int);
-    final DateTime postedAt = DateTime.fromMillisecondsSinceEpoch(value["postedAt"]! as int);
+    final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["created_at"]! as int);
+    final DateTime postedAt = DateTime.fromMillisecondsSinceEpoch(value["posted_at"]! as int);
     list.add(JournalEntry.map(
       profile,
       action: DocAction.none,
@@ -153,13 +153,11 @@ List<Account> defaultAccounts(Profile profile) => [
           profile: profile,
           name: "Bank",
           type: AccountType.bank,
-          onlyPositive: true,
         ),
         Account.asset(
           profile: profile,
           name: "Cash on Hand",
           type: AccountType.cash,
-          onlyPositive: true,
         ),
       ]
     ),
@@ -171,7 +169,6 @@ List<Account> defaultAccounts(Profile profile) => [
           profile: profile,
           name: "Accounts Payable",
           type: AccountType.payable,
-          onlyPositive: true,
         )
       ]
     ),
@@ -182,7 +179,6 @@ List<Account> defaultAccounts(Profile profile) => [
         Account.equity(
           profile: profile,
           name: "Common Stock",
-          onlyPositive: true,
         ),
         Account.equity(
           profile: profile,
@@ -201,7 +197,7 @@ List<Account> defaultAccounts(Profile profile) => [
         Account.income(
           profile: profile,
           name: "Discount",
-          defaultValueType: EntryType.debit
+          positive: EntryType.debit
         ),
       ]
     ),
@@ -212,11 +208,13 @@ List<Account> defaultAccounts(Profile profile) => [
         Account.expense(
           profile: profile,
           name: "Maintenance Expense",
+          positive: EntryType.none,
         ),
         Account.expense(
           profile: profile,
           name: "Cost of Goods Sold",
-          type: AccountType.cogs
+          type: AccountType.cogs,
+          positive: EntryType.none,
         ),
       ]
     ),

@@ -45,7 +45,6 @@ class AccountingEntryForm extends StatefulWidget {
 
 class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
   bool get isAdd => widget.isAdd;
-  double balance = 0;
 
   AccountingEntry get document => widget.document;
   late final AvertSelectController<Account> accountController;
@@ -92,7 +91,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
       AvertSelect<Account>(
         required: true,
         label: "Account",
-        onChange: onAccountChange,
+        // onChange: onAccountChange,
         options: widget.accounts,
         controller: accountController,
         valueBuilder: (context, account) {
@@ -206,10 +205,10 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     );
   }
 
-  void onAccountChange(Account? account) async {
-    if (account == null) return;
-    final AccountValue balance = await account.getBalance(document.journalEntry.postedAt);
-  }
+  // void onAccountChange(Account? account) async {
+  //   if (account == null) return;
+  //   final AccountValue balance = await account.getBalance(document.journalEntry.postedAt);
+  // }
 
   Future<void> closeDocument() async {
     bool shouldClose = true;

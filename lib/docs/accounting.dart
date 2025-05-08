@@ -106,8 +106,7 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.isGroup = false,
-    this.defaultValueType = EntryType.none,
-    this.onlyPositive = false,
+    this.positive = EntryType.none,
     int createdAt = 0,
     this.action = DocAction.none,
     this.children,
@@ -120,8 +119,7 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.children,
-    this.onlyPositive = false,
-    this.defaultValueType = EntryType.debit,
+    this.positive = EntryType.debit,
     int createdAt = 0,
   }) :
     isGroup = children != null,
@@ -136,8 +134,7 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.children,
-    this.onlyPositive = false,
-    this.defaultValueType = EntryType.credit,
+    this.positive = EntryType.credit,
     int createdAt = 0,
   }) :
     isGroup = children != null,
@@ -152,8 +149,7 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.children,
-    this.onlyPositive = false,
-    this.defaultValueType = EntryType.credit,
+    this.positive = EntryType.credit,
     int createdAt = 0,
   }) :
     isGroup = children != null,
@@ -168,8 +164,7 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.children,
-    this.onlyPositive = false,
-    this.defaultValueType = EntryType.credit,
+    this.positive = EntryType.credit,
     int createdAt = 0,
   }) :
     isGroup = children != null,
@@ -184,8 +179,7 @@ class Account implements Document {
     this.parentID = 0,
     this.type = AccountType.none,
     this.children,
-    this.onlyPositive = false,
-    this.defaultValueType = EntryType.debit,
+    this.positive = EntryType.debit,
     int createdAt = 0,
   }) :
     isGroup = children != null,
@@ -202,16 +196,14 @@ class Account implements Document {
     required Object type,
     required Object createdAt,
     required Object isGroup,
-    required Object onlyPositive,
-    required Object defaultValueType,
+    required Object positive,
   }): this(
     profile,
     id: id as int,
     name: name as String,
     createdAt: createdAt as int,
     isGroup: isGroup as int == 1,
-    onlyPositive: onlyPositive as int == 1,
-    defaultValueType: EntryType.values[defaultValueType as int],
+    positive: EntryType.values[positive as int],
     root: AccountRoot.values[root as int],
     type: AccountType.values.byName(type as String),
     parentID: parentID as int,
@@ -233,8 +225,7 @@ class Account implements Document {
 
   AccountRoot root;
   AccountType type;
-  EntryType defaultValueType;
-  bool onlyPositive;
+  EntryType positive;
   bool isGroup;
   int parentID;
   List<Account>? children;
@@ -243,12 +234,11 @@ class Account implements Document {
   static String get tableQuery => """ CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    createdAt INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
     profile_id INTEGER NOT NULL,
     is_group INTEGER NOT NULL,
     parent_id INTEGER,
-    default_value_type INTEGER NOT NULL,
-    only_positive INTEGER NOT NULL,
+    positive INTEGER NOT NULL,
     root INTEGER NOT NULL,
     type TEXT NOT NULL,
     FOREIGN KEY(profile_id) REFERENCES ${Profile.tableName}(id) ON DELETE CASCADE
@@ -280,10 +270,9 @@ class Account implements Document {
 
     final Map<String, Object?> values = {
       "name": name,
-      "createdAt": now,
+      "created_at": now,
       "profile_id": profile.id,
-      "only_positive": onlyPositive ? 1: 0,
-      "default_value_type": defaultValueType.index,
+      "positive": positive.index,
       "root": root.index,
       "type": type.toString(),
       "parent_id": parentID,
@@ -316,8 +305,7 @@ class Account implements Document {
       "name": name,
       "root": root.index,
       "type": type.toString(),
-      "only_positive": onlyPositive ? 1: 0,
-      "default_value_type": defaultValueType.index,
+      "positive": positive.index,
       "parent_id": parentID,
       "is_group": isGroup ? 1 : 0,
     };
@@ -411,12 +399,11 @@ class Account implements Document {
       id: value["id"]!,
       name: value["name"]!,
       parentID: value["parent_id"]!,
-      defaultValueType: value["default_value_type"]!,
-      onlyPositive: value["only_positive"]!,
+      positive: value["postive"]!,
       profile: profile,
       root: value["root"]!,
       type: value["type"]!,
-      createdAt: value["createdAt"]!,
+      createdAt: value["created_at"]!,
       isGroup: value["is_group"]!,
     );
     return parent;
@@ -457,13 +444,14 @@ class Account implements Document {
       from ${AccountingEntry.tableName} ae
         left outer join ${JournalEntry.tableName} je
         on je.id = ae.journal_entry_id
-      where ae.account_id in ($ids) and je.postedAt <= $atMs
+      where ae.account_id in ($ids) and je.posted_at <= $atMs
       group by type
     """;
     final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
     printAssert(values.length <= 2, "Account:$name expect query values length to be <= 2, got ${values.length} instead");
     printTrack("Values: ${values.toString()}");
-    return calculateBalance(values, defaultValueType);
+    final EntryType def = positive.isNone ? root.defaultType : positive;
+    return calculateBalance(values, def);
   }
 
   Future<AccountValue> getTotalBalance() async {
@@ -477,7 +465,26 @@ class Account implements Document {
     final List<Map<String, Object?>> values = await Core.database!.rawQuery(query);
     printAssert(values.length <= 2, "Account:$name expect query values length to be <= 2, got ${values.length} instead");
     printTrack("Values: ${values.toString()}");
-    return calculateBalance(values, defaultValueType);
+    final EntryType def = positive.isNone ? root.defaultType : positive;
+    return calculateBalance(values, def);
+  }
+
+  // TODO: Test this function
+  Future<bool> checkBalance(AccountValue value, DateTime at) async {
+    final AccountValue balance = await getBalance(at);
+    if (positive.isNone) return true;
+    if (positive == EntryType.debit) {
+      if (value.type == EntryType.credit) {
+        if (balance.amount < value.amount) return false;
+        return true;
+      }
+    } else {
+      if (value.type == EntryType.debit) {
+        if (balance.amount < value.amount) return false;
+        return true;
+      }
+    }
+    return true;
   }
 }
 
@@ -511,6 +518,8 @@ enum EntryType {
 
   @override
   String toString() => titleCase(name);
+
+  bool get isNone => this == EntryType.none;
 }
 
 class AccountingEntry implements Document {
@@ -590,7 +599,7 @@ class AccountingEntry implements Document {
   CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    createdAt INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
     account_id INTEGER,
     journal_entry_id INTEGER,
     description TEXT,
@@ -615,10 +624,9 @@ class AccountingEntry implements Document {
 
   @override
   Future<String?> insert() async {
+    if (await valuesNotValid()) return "Accounting Entry:$name values not valid";
     if (!isNew(this)) return "Accounting Entry:$name is not new with id of $id";
     if (await exist(this, tableName)) return "Accounting Entry:$name already exist in the database with id of $id";
-    if (await valuesNotValid()) return "Accounting Entry:$name values not valid";
-    // TODO: Check if account allows
     final int now = DateTime.now().millisecondsSinceEpoch;
 
     printInfo("inserting entry with name:$name");
@@ -626,7 +634,7 @@ class AccountingEntry implements Document {
       "name": name,
       "account_id": account!.id,
       "journal_entry_id": journalEntry.id,
-      "createdAt": now,
+      "created_at": now,
       "description": description,
       "type": value.type.value,
       "value": value,
@@ -710,9 +718,9 @@ class JournalEntry implements Document {
   static String get tableQuery => """ CREATE TABLE $tableName(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    createdAt INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
     profile_id INTEGER NOT NULL,
-    postedAt INTEGER,
+    posted_at INTEGER,
     note TEXT,
     FOREIGN KEY(profile_id) REFERENCES ${Profile.tableName}(id) ON DELETE CASCADE
   ) """;
@@ -742,8 +750,8 @@ class JournalEntry implements Document {
       "name": name,
       "profile_id": profile.id,
       "note": note,
-      "createdAt": now,
-      "postedAt": postedAt.millisecondsSinceEpoch,
+      "created_at": now,
+      "posted_at": postedAt.millisecondsSinceEpoch,
     };
     id = await Core.database!.insert(tableName, values);
     final List<AccountingEntry> fails = await insertDocuments(entries);
@@ -765,7 +773,7 @@ class JournalEntry implements Document {
     final Map<String, Object?> values = {
       "name": name,
       "note": note,
-      "postedAt": postedAt.millisecondsSinceEpoch,
+      "posted_at": postedAt.millisecondsSinceEpoch,
     };
 
     printWarn("update with values of: ${values.toString()} on journal entry with id of: $id!");
@@ -820,7 +828,7 @@ class JournalEntry implements Document {
     final String query = """
     select ae.*,
       a.name as a_name,
-      a.createdAt as a_createdAt,
+      a.created_at as a_created_at,
       a.profile_id as a_profile_id,
       a.is_group as a_is_group,
       a.parent_id as a_parent_id,
@@ -834,7 +842,7 @@ class JournalEntry implements Document {
     final List<AccountingEntry> list = [];
 
     for (var value in values) {
-      final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["createdAt"]! as int);
+      final DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(value["created_at"]! as int);
       assert(value["a_profile_id"]! as int == profile.id);
       list.add(AccountingEntry.map(
         name: value["name"]! as String,
@@ -849,12 +857,11 @@ class JournalEntry implements Document {
           id: value["account_id"]!,
           name: value["a_name"]!,
           parentID: value["a_parent_id"]!,
-          defaultValueType: value["default_value_type"]!,
-          onlyPositive: value["only_positive"]!,
+          positive: value["positive"]!,
           root: value["a_root"]!,
           type: value["a_type"]!,
           isGroup: value["a_is_group"]!,
-          createdAt: value["a_createdAt"]!,
+          createdAt: value["created_at"]!,
         ),
       ));
     }

@@ -41,7 +41,7 @@ class Profile implements Document {
     CREATE TABLE $tableName(
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
-      createdAt INTEGER NOT NULL
+      created_at INTEGER NOT NULL
     )
   """;
 
@@ -75,7 +75,7 @@ class Profile implements Document {
     final int now = DateTime.now().millisecondsSinceEpoch;
     final Map<String, Object?> values = {
       "name": name,
-      "createdAt": now,
+      "created_at": now,
     };
 
     id = await Core.database!.insert(tableName, values);
@@ -112,9 +112,8 @@ class Profile implements Document {
         profile: this,
         id: value["id"]!,
         name: value["name"]!,
-        createdAt: value["createdAt"]!,
-        defaultValueType: value["default_value_type"]!,
-        onlyPositive: value["only_positive"]!,
+        createdAt: value["created_at"]!,
+        positive: value["positive"]!,
         root: value["root"]!,
         type: value["type"]!,
         parentID: value["parent_id"]!,

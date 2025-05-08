@@ -6,6 +6,7 @@ import "package:forui/forui.dart";
 void notify(BuildContext context, String msg) {
   final SnackBar snackBar = SnackBar(
     showCloseIcon: true,
+    duration: Duration(seconds: 2),
     content: Center(
       child: Text(msg),
     ),

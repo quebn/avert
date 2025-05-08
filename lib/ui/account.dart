@@ -536,7 +536,7 @@ class AccountTotalBalance extends StatefulWidget {
 
 class _TotalBalanceState extends State<AccountTotalBalance> {
   Account get document => widget.account;
-  late AccountValue total = AccountValue(document.defaultValueType, 0);
+  late AccountValue total = AccountValue(document.positive, 0);
   EntryType get type => total.type;
 
   @override

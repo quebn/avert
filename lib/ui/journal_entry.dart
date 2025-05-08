@@ -225,7 +225,6 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
     printInfo("Pressed Submit Button");
-    // TODO: check the balance of account
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
