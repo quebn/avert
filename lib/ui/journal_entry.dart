@@ -457,7 +457,7 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
           color: theme.colorScheme.foreground
         ),
       ),
-    ):theme.badgeStyles.destructive;
+    ) : theme.badgeStyles.destructive;
 
     return AvertListFieldTile<AccountingEntry>(
       key: widget.key,

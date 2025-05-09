@@ -51,7 +51,7 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
   late final AvertSelectController<EntryType> typeController;
   late final Map<String, TextEditingController> controllers = {
     "desc": TextEditingController(text: document.description),
-    "value": TextEditingController(text: widget.document.value.toString()),
+    "value": TextEditingController(text: document.value.amount.toString()),
   };
 
   @override
@@ -279,7 +279,7 @@ class _TileState extends State<AccountingEntryTile> {
       onPress: onPress,
       value: document,
       details: Text(
-        document.value.toString(),
+        document.value.amount.toString(),
         style: theme.typography.base.copyWith(
           fontWeight: FontWeight.bold
         ),
@@ -314,6 +314,8 @@ class _TileState extends State<AccountingEntryTile> {
 }
 
 void clearNumberField(TextEditingController? controller) {
-  if (controller == null || controller.text != "0.0") return;
+  final double value = double.tryParse(controller?.value.text ?? "0") ?? 0;
+  printInfo("$value -> ${controller?.value.text}");
+  if (controller == null || value != 0) return;
   controller.value = TextEditingValue();
 }

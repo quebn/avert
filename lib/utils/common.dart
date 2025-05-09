@@ -1,6 +1,7 @@
 import "dart:convert";
 import "package:avert/docs/accounting.dart";
 import "package:avert/docs/document.dart";
+import "package:avert/utils/logger.dart";
 import "package:crypto/crypto.dart";
 
 bool isNew(Document document) {
@@ -61,7 +62,9 @@ AccountValue getAccountingEntriesDiff(List<AccountingEntry> entries) {
   AccountValue diff = AccountValue.zero();
   if (entries.isEmpty) return diff;
   for (AccountingEntry entry in entries) {
+    printInfo("Entry value: ${entry.value.toString()} ");
     diff += entry.value;
+    // printInfo("Diff value: ${diff.toString()} ");
   }
   return diff;
 }

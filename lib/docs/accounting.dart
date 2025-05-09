@@ -75,6 +75,8 @@ class AccountValue {
   @override
   String toString() => "${amount.toString()} ${type.abbrev}";
 
+  bool get isDebit => type == EntryType.debit;
+  bool get isCredit => type == EntryType.credit;
   bool equals(AccountValue value) => amount == value.amount && type == value.type;
 
   AccountValue operator +(AccountValue value) {
