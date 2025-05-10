@@ -85,7 +85,7 @@ class AccountValue {
       amount = value.amount;
       type = value.type;
     } else {
-      if (type != type) {
+      if (type != value.type) {
         if (amount < value.amount) {
           amount = value.amount - amount;
           type = value.type;

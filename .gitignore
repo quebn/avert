@@ -45,7 +45,6 @@ app.*.map.json
 #files
 flutter_jank_metrics_*.json
 gradlew
-test.dart
 
 #folders
 /linux/
@@ -54,4 +53,4 @@ test.dart
 /macos/
 /windows/
 /web/
-/test/
+# /test/
