@@ -203,7 +203,7 @@ class Accounting implements Module {
 
   Future<JournalEntry?> createJE(BuildContext context, Profile profile) async {
     final JournalEntry je = JournalEntry(profile, entries: []);
-    return await Navigator.of(context).push<JournalEntry>(
+    final bool success = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (context) => JournalEntryForm(
         document: je,
         onSubmit: () async {
@@ -213,6 +213,7 @@ class Accounting implements Module {
           return error == null;
         },
       )),
-    );
+    ) ?? false;
+    return success ? je : null;
   }
 }

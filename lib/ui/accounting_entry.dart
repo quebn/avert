@@ -18,6 +18,7 @@ class AccountingEntryForm extends StatefulWidget {
     required this.accounts,
     required this.title,
     required this.isAdd,
+    required this.onSubmit,
   });
 
   const AccountingEntryForm.update({
@@ -25,6 +26,7 @@ class AccountingEntryForm extends StatefulWidget {
     required this.document,
     required this.accounts,
     required this.title,
+    required this.onSubmit,
   }): isAdd = false;
 
   const AccountingEntryForm.add({
@@ -32,10 +34,12 @@ class AccountingEntryForm extends StatefulWidget {
     required this.document,
     required this.accounts,
     required this.title,
+    required this.onSubmit,
   }): isAdd = true;
 
   final AccountingEntry document;
   final List<Account> accounts;
+  final Future<bool> Function(AccountingEntry)? onSubmit;
   final String title;
   final bool isAdd;
 
@@ -71,6 +75,15 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     );
     accountController = AvertSelectController<Account>(
       value: widget.document.account,
+      onUpdate: (value, didChange) {
+        if (didChange) {
+          final EntryType type = value?.positive ?? EntryType.none;
+          if (typeController.value != type) {
+            setState(() => typeController.update(type));
+          }
+        }
+      },
+
     );
   }
 
@@ -164,7 +177,6 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
-
     if (!isValid) return;
 
     document.account = accountController.value!;
@@ -173,8 +185,9 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
       typeController.value!,
       double.parse(controllers["value"]?.value.text ?? "0")
     );
-
     document.action = isNew(document) ? DocAction.insert : DocAction.update;
+    final bool success = await widget.onSubmit?.call(document) ?? true;
+    if (!success && !mounted) return;
     Navigator.of(context).pop<bool>(true);
   }
 
@@ -204,11 +217,6 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
       ),
     );
   }
-
-  // void onAccountChange(Account? account) async {
-  //   if (account == null) return;
-  //   final AccountValue balance = await account.getBalance(document.journalEntry.postedAt);
-  // }
 
   Future<void> closeDocument() async {
     bool shouldClose = true;
@@ -243,6 +251,7 @@ class AccountingEntryTile extends StatefulWidget {
     required this.accounts,
     required this.index,
     required this.onRemove,
+    required this.formBuilder,
     this.onChange,
   });
 
@@ -251,6 +260,7 @@ class AccountingEntryTile extends StatefulWidget {
   final List<Account> accounts;
   final void Function()? onChange;
   final void Function()? onRemove;
+  final Widget Function(BuildContext)? formBuilder;
 
   @override
   State<StatefulWidget> createState() => _TileState();
@@ -276,11 +286,12 @@ class _TileState extends State<AccountingEntryTile> {
 
     return AvertListFieldTile<AccountingEntry>(
       key: widget.key,
-      onPress: onPress,
+      onPress: widget.formBuilder == null ? null : onPress,
       value: document,
       details: Text(
         document.value.amount.toString(),
         style: theme.typography.base.copyWith(
+          fontSize: theme.typography.sm.fontSize,
           fontWeight: FontWeight.bold
         ),
       ),
@@ -296,11 +307,7 @@ class _TileState extends State<AccountingEntryTile> {
     FocusScope.of(context).requestFocus(FocusNode());
     final bool? success = await showAdaptiveDialog<bool>(
       context: context,
-      builder: (context) => AccountingEntryForm.update(
-        document: document,
-        accounts: widget.accounts,
-        title: "Edit Document #${widget.index}",
-      ),
+      builder: widget.formBuilder!,
     );
 
     if (success == null) return;

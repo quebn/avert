@@ -72,8 +72,8 @@ class AccountValue {
   EntryType type;
   double amount;
 
-  @override
-  String toString() => "${amount.toString()} ${type.abbrev}";
+  @override // TODO: replace toStringAsFixed with currency format.
+  String toString() => "${amount.toStringAsFixed(2)} ${type.abbrev}";
 
   bool get isDebit => type == EntryType.debit;
   bool get isCredit => type == EntryType.credit;
@@ -354,7 +354,7 @@ class Account implements Document {
     return true;
   }
 
-  static Future<List<Account>> fetchParents(Profile profile, AccountRoot? root, AccountType? type) async {
+  static Future<List<Account>> fetchParents(Profile profile, {AccountRoot? root, AccountType? type}) async {
     final List<Account> list = [];
     final List<Object> whereArgs = [profile.id, 1];
     String where = "profile_id = ? and is_group = ?";
@@ -401,7 +401,7 @@ class Account implements Document {
       id: value["id"]!,
       name: value["name"]!,
       parentID: value["parent_id"]!,
-      positive: value["postive"]!,
+      positive: value["positive"]!,
       profile: profile,
       root: value["root"]!,
       type: value["type"]!,
@@ -639,7 +639,7 @@ class AccountingEntry implements Document {
       "created_at": now,
       "description": description,
       "type": value.type.value,
-      "value": value,
+      "value": value.amount.toString(),
     };
     id = await Core.database!.insert(tableName, values);
     final success = id > 0;
@@ -657,7 +657,7 @@ class AccountingEntry implements Document {
       "account_id": account!.id,
       "description": description,
       "type": value.type.value,
-      "value": value,
+      "value": value.amount.toString(),
     };
 
     printWarn("update with values of: ${values.toString()} on entry with id of: $id!");
@@ -835,7 +835,8 @@ class JournalEntry implements Document {
       a.is_group as a_is_group,
       a.parent_id as a_parent_id,
       a.root as a_root,
-      a.type as a_type
+      a.type as a_type,
+      a.positive as a_positive
     from ${AccountingEntry.tableName} ae
     join ${Account.tableName} a ON ae.account_id = a.id
     where ae.journal_entry_id = $id
@@ -859,7 +860,7 @@ class JournalEntry implements Document {
           id: value["account_id"]!,
           name: value["a_name"]!,
           parentID: value["a_parent_id"]!,
-          positive: value["positive"]!,
+          positive: value["a_positive"]!,
           root: value["a_root"]!,
           type: value["a_type"]!,
           isGroup: value["a_is_group"]!,

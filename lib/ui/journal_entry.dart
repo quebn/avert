@@ -35,7 +35,6 @@ class JournalEntryForm extends StatefulWidget {
 
 class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin implements DocumentForm {
 
-  // TODO: add some sort of variable where e
   JournalEntry get document => widget.document;
   late final FDateFieldController dateController;
   late final FTimeFieldController timeController;
@@ -175,10 +174,16 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
               index: index+1,
               document: doc,
               accounts: accounts,
+              onRemove: () => aeController.remove(doc, hardRemove: isNew(doc)),
               onChange: () => onValueChange(setState, this, () {
                 return true;
               }),
-              onRemove: () => aeController.remove(doc, hardRemove: isNew(doc)),
+              formBuilder: (context) => AccountingEntryForm.update(
+                onSubmit: validateAccountBalance,
+                document: doc,
+                accounts: accounts,
+                title: "Edit Document #$index",
+              ),
             );
           },
           description: JournalEntryTotal(
@@ -212,6 +217,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     final bool? success = await showAdaptiveDialog(
       context: context,
       builder: (context) => AccountingEntryForm.add(
+        onSubmit: validateAccountBalance,
         document: entry,
         accounts: accounts,
         title: "New Accounting Entry #$index",
@@ -221,9 +227,31 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
     aeController.add(entry);
   }
 
+  Future<bool> validateAccountBalance(AccountingEntry currentEntry) async {
+    if (currentEntry.account == null) return false;
+    final List<AccountingEntry> entries = aeController.values;
+    final Account account = currentEntry.account!;
+    AccountValue balance = await account.getBalance(DateTime.now());
+    printInfo("${account.name} Balance: ${balance.toString()}");
+    printInfo("${account.name} Positive: ${account.positive.toString()}");
+    printInfo("Balance: ${balance.toString()}");
+    for (final AccountingEntry entry in entries) {
+      balance += entry.value;
+      if (balance.type != account.positive) {
+        printInfo("New Balance: ${balance.toString()}");
+        if (mounted) notify(context, "Unable to create accounting entry not enough balance");
+        return false;
+      }
+    }
+    balance += currentEntry.value;
+    return balance.type != account.positive;
+  }
+
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
+    // TODO: check each entry of account has enough balance for the account.
+    // checkEntries();
     printInfo("Pressed Submit Button");
     if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
@@ -463,10 +491,10 @@ class _ViewState extends State<JournalEntryView> with TickerProviderStateMixin i
       key: widget.key,
       onPress: null,
       value: entry,
-      // TODO: format to currency formatting with monofonts
       details: Text(
         entry.value.toString(),
         style: theme.typography.base.copyWith(
+          fontSize: theme.typography.sm.fontSize,
           fontWeight: FontWeight.bold
         ),
       ),

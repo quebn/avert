@@ -37,6 +37,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
   late final AvertSelectController<AccountRoot> rootController;
   late final AvertSelectController<AccountType> typeController;
   late final AvertSelectController<Account> parentController;
+  late final AvertSelectController<EntryType> positiveController;
 
   final Map<String, TextEditingController> controllers = {
     "name": TextEditingController(),
@@ -59,11 +60,11 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
     );
     typeController = AvertSelectController<AccountType>(
       value: document.type,
-      onUpdate: (value, didChange) {
-        if (didChange) updateParentsOptions();
-      },
     );
     parentController = AvertSelectController<Account>();
+    positiveController = AvertSelectController<EntryType>(
+      value: isNew(document) ? EntryType.none : document.positive,
+    );
     updateParentsOptions();
   }
 
@@ -175,6 +176,23 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
             ),
           ]
         ),
+        AvertSelect<EntryType>(
+          label: "Positive Entry Type",
+          controller: positiveController,
+          options: EntryType.values.toList(),
+          prefix: FIcon(FAssets.icons.creditCard),
+          tileSelectBuilder: (context, value) => AvertSelectTile<EntryType>(
+            selected: positiveController.value == value,
+            value: value,
+            prefix: FIcon(FAssets.icons.creditCard),
+            title: Text(value.toString(), style: theme.typography.base),
+          ),
+          valueBuilder: (context, selected) {
+            return (selected != null)
+            ? Text(selected.toString())
+            : Text("None", style: selectValueStyle);
+          },
+        ),
       ],
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null : FButton.icon(
@@ -213,8 +231,7 @@ class _FormState extends State<AccountForm> with TickerProviderStateMixin implem
   void updateParentsOptions() {
     Account.fetchParents(
       document.profile,
-      rootController.value,
-      typeController.value,
+      root: rootController.value,
     ).then((accounts) {
       setState(() {
         parentController.update(null);

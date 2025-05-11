@@ -29,6 +29,7 @@ Future<List<Profile>> fetchAllProfile({Database? database}) async {
       id: v["id"]!,
       name: v["name"]!,
       createdAt: v["created_at"]!,
+      currency: v["currency"]!,
     ));
   }
 
@@ -151,13 +152,30 @@ List<Account> defaultAccounts(Profile profile) => [
       children: [
         Account.asset(
           profile: profile,
-          name: "Bank",
-          type: AccountType.bank,
+          name: "Cash and Cash Equivalent",
+          children: [
+            Account.asset(
+              profile: profile,
+              name: "Bank",
+              type: AccountType.bank,
+            ),
+            Account.asset(
+              profile: profile,
+              name: "Cash on Hand",
+              type: AccountType.cash,
+            ),
+          ],
         ),
         Account.asset(
           profile: profile,
-          name: "Cash on Hand",
-          type: AccountType.cash,
+          name: "Receivables",
+          children: [
+            Account.asset(
+              profile: profile,
+              name: "Accounts Receivable",
+              type: AccountType.receivable,
+            ),
+          ],
         ),
       ]
     ),
