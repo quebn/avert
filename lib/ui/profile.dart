@@ -1,4 +1,5 @@
 import "package:avert/docs/document.dart";
+import "package:avert/ui/components/select.dart";
 import "package:avert/ui/module.dart";
 import "package:avert/docs/profile.dart";
 import "package:avert/ui/components/document.dart";
@@ -15,17 +16,24 @@ class ProfileForm extends StatefulWidget {
   const ProfileForm({super.key,
     required this.document,
     required this.onSubmit,
-  });
+  }): isDialog = false;
+
+  const ProfileForm.dialog({super.key,
+    required this.document,
+    required this.onSubmit,
+  }): isDialog = true;
 
   final Profile document;
-  final Future<bool> Function() onSubmit;
+  final Future<String?> Function() onSubmit;
+  final bool isDialog;
 
   @override
   State<StatefulWidget> createState() => _NewState();
 }
 
 class _NewState extends State<ProfileForm> with TickerProviderStateMixin implements DocumentForm {
-  late final FTabController _tabController;
+  late final FTabController tabController;
+  late final AvertSelectController<Currency> currencyController;
 
   @override
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -33,6 +41,8 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
   final Map<String, TextEditingController> controllers = {
     "name": TextEditingController(),
   };
+
+  Profile get document => widget.document;
 
   @override
   bool isDirty = false;
@@ -43,7 +53,10 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
   @override
   void initState() {
     super.initState();
-    _tabController = FTabController(length: Core.modules.length, vsync: this);
+    tabController = FTabController(length: Core.modules.length, vsync: this);
+    currencyController = AvertSelectController(
+      value: isNew(document) ? Currency.nil : document.currency
+    );
   }
 
   @override
@@ -52,31 +65,74 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
     for (TextEditingController c in controllers.values) {
       c.dispose();
     }
-    _tabController.dispose();
+    tabController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     printTrack("Building ProfileDocumentForm");
     FThemeData theme = FTheme.of(context);
-    return AvertDocumentForm(
-      formKey: formKey,
-      title: Text("${isNew(widget.document) ? "New" : "Edit"} Profile",),
-      contents: [
-        AvertInput.text(
-          label: "Name",
-          hint: "Ex. Acme Inc.",
-          controller: controllers["name"]!,
-          required: true,
-          forceErrMsg: errMsg,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          initialValue: widget.document.name,
-          onChange: (value) => onValueChange(setState, this, (){
-            return value != widget.document.name;
-          }),
+    final List<Widget> contents = [
+      AvertInput.text(
+        label: "Name",
+        hint: "Ex. Acme Inc.",
+        controller: controllers["name"]!,
+        required: true,
+        forceErrMsg: errMsg,
+        // autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: validateName,
+        initialValue: widget.document.name,
+        onChange: (value) => onValueChange(setState, this, (){
+          return value != widget.document.name;
+        }),
+      ),
+      AvertSelect<Currency>(
+        options: Currency.values.toList(),
+        label: "Currency",
+        prefix: FIcon(FAssets.icons.currency),
+        required: true,
+        valueBuilder: (context, currency) => Text(currency?.toString() ?? "None"),
+        controller: currencyController,
+        tileSelectBuilder: (context, value) => AvertSelectTile<Currency>(
+          selected: currencyController.value == value,
+          value: value,
+          prefix: FIcon(FAssets.icons.currency),
+          title: Text(value.toString(), style: theme.typography.base),
         ),
-        FDivider(),
+      ),
+    ];
+    return widget.isDialog
+    ? AvertDocumentForm<Profile>.dialog(
+      formKey: formKey,
+      title: const Text("Create New Profile"),
+      isDirty: isDirty,
+      contents: contents,
+      actions: [
+        FButton(
+          style: theme.buttonStyles.destructive,
+          label: const Text(
+            "Cancel",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onPress: () => Navigator.of(context).pop<bool>(false),
+        ),
+        FButton(
+          label: const Text(
+            "Create",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onPress: submitDocument,
+        ),
       ],
+    )
+    : AvertDocumentForm<Profile>(
+      formKey: formKey,
+      title: const Text("Edit Profile"),
+      contents: contents,
       isDirty: isDirty,
       floatingActionButton: !isDirty ? null : FButton.icon(
         style: theme.buttonStyles.primary.copyWith(
@@ -99,18 +155,25 @@ class _NewState extends State<ProfileForm> with TickerProviderStateMixin impleme
   @override
   void submitDocument() async {
     final bool isValid = formKey.currentState?.validate() ?? false;
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
     FocusScope.of(context).requestFocus(FocusNode());
 
-    widget.document.name = controllers["name"]!.value.text;
+    document.name = controllers["name"]!.value.text;
+    document.currency = currencyController.value!;
 
-    final bool success = await widget.onSubmit();
+    final String? error = await widget.onSubmit();
 
-    if (success && mounted) {
-      Navigator.of(context).pop();
+    if (!mounted) return;
+    if (error == null) {
+      Navigator.of(context).pop<bool>(true);
+    } else {
+      notify(context, error);
     }
+  }
+
+  String? validateName(String? value) {
+    if (value == null || value == "") return "Name should not be empty";
+    return null;
   }
 }
 
@@ -203,11 +266,11 @@ class _ViewState extends State<ProfileView> with TickerProviderStateMixin implem
     if (document.action == DocAction.update) setState(() => document = widget.document);
   }
 
-  Future<bool> _onEdit() async {
+  Future<String?> _onEdit() async {
     final String? error = await document.update();
     String msg = error ?? "Successfully changed profile details";
     if (mounted) notify(context, msg);
-    return error == null;
+    return error;
   }
 
   Future<bool?> confirmDelete() {

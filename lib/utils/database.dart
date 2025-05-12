@@ -17,7 +17,6 @@ void createCoreTables(Batch batch) {
 Future<List<Profile>> fetchAllProfile({Database? database}) async {
   final List<Map<String, Object?>> values = await (database ?? Core.database!).query(
     Profile.tableName,
-    columns: ["id", "name", "created_at"],
   );
 
   final List<Profile> list = [];

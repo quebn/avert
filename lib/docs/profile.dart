@@ -1,26 +1,51 @@
-import 'package:avert/docs/accounting.dart';
-import 'package:avert/docs/document.dart';
-import 'package:avert/ui/module.dart';
-import 'package:avert/utils/common.dart';
-import 'package:avert/utils/database.dart';
-import 'package:avert/utils/logger.dart';
+import "package:avert/docs/accounting.dart";
+import "package:avert/docs/document.dart";
+import "package:avert/ui/module.dart";
+import "package:avert/utils/common.dart";
+import "package:avert/utils/database.dart";
+import "package:avert/utils/logger.dart";
 
+enum Currency {
+  nil,
+  usd,
+  php;
+
+  @override
+  String toString() => name.toUpperCase();
+
+  String get symbol => _getSymbol();
+
+  String _getSymbol() {
+    switch (name) {
+      case "nil":  return "NA";
+      case "php":   return "₱";
+      case "usd":   return "\$";
+      default:      throw UnimplementedError();
+    }
+  }
+}
+
+
+// TODO: add Currency Symbol for the mean time
 class Profile implements Document {
   Profile({
     this.id = 0,
     this.name = "",
     int createdAt = 0,
     this.action = DocAction.none,
+    this.currency = Currency.nil,
   }): createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
 
   Profile.map({
     required Object id,
     required Object name,
     required Object createdAt,
+    required Object currency
   }): this(
     id: id as int,
     name: name as String,
-    createdAt: createdAt as int
+    createdAt: createdAt as int,
+    currency: Currency.values[currency as int]
   );
 
   @override
@@ -35,13 +60,16 @@ class Profile implements Document {
   @override
   DocAction action;
 
+  Currency currency;
+
   static String get tableName => "profiles";
 
   static String get tableQuery => """
     CREATE TABLE $tableName(
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
-      created_at INTEGER NOT NULL
+      created_at INTEGER NOT NULL,
+      currency INT NOT NULL
     )
   """;
 
@@ -57,6 +85,7 @@ class Profile implements Document {
     }
     final Map<String, Object?> values = {
       "name": name,
+      "currency": currency.index,
     };
     printWarn("update with values of: ${values.toString()} on profile with id of: $id!");
     final bool success = await Core.database!.update(tableName, values,
@@ -69,13 +98,13 @@ class Profile implements Document {
 
   @override
   Future<String?> insert() async {
-    if (!isNew(this) || await valuesNotValid()) {
-      return "Profile:$name values not valid or is not new";
-    }
+    if (!isNew(this)) return "Profile:$name is not a new document";
+    if (await valuesNotValid()) return "Profile:$name already exist!";
     final int now = DateTime.now().millisecondsSinceEpoch;
     final Map<String, Object?> values = {
       "name": name,
       "created_at": now,
+      "currency": currency.index
     };
 
     id = await Core.database!.insert(tableName, values);

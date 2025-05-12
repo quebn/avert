@@ -156,13 +156,12 @@ class AvertDocumentForm<T extends Document> extends StatelessWidget {
     super.key,
     required this.title,
     required this.contents,
-    this.floatingActionButton,
     this.leading,
     this.formKey,
     this.actions,
     this.isDirty = true,
     this.resizeToAvoidBottomInset = false,
-  }): isDialog = true;
+  }): isDialog = true, floatingActionButton = null;
 
   final Widget title;
   final Widget? floatingActionButton;

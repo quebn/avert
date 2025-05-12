@@ -81,3 +81,7 @@ String formatDT(DateTime dt) {
   final String minute = dt.minute.toString().padLeft(1,"0");
   return "${dt.year}, $month ${dt.day}, $hour:$minute";
 }
+
+String formatCurrency(double amount, String currency) {
+  return "$currency ${amount.toStringAsFixed(0)}";
+}

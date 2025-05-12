@@ -214,7 +214,7 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
       type: EntryType.none,
       createdAt: DateTime.now().millisecondsSinceEpoch,
     );
-    final bool? success = await showAdaptiveDialog(
+    final bool? success = await showAdaptiveDialog<bool>(
       context: context,
       builder: (context) => AccountingEntryForm.add(
         onSubmit: validateAccountBalance,
