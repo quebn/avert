@@ -228,23 +228,23 @@ class _FormState extends State<JournalEntryForm> with TickerProviderStateMixin i
   }
 
   Future<bool> validateAccountBalance(AccountingEntry currentEntry) async {
-    if (currentEntry.account == null) return false;
+    printAssert(!(await currentEntry.valuesNotValid()), "Error: validating account balance with invalid values");
     final List<AccountingEntry> entries = aeController.values;
     final Account account = currentEntry.account!;
     AccountValue balance = await account.getBalance(DateTime.now());
-    printInfo("${account.name} Balance: ${balance.toString()}");
-    printInfo("${account.name} Positive: ${account.positive.toString()}");
+    printInfo("'${account.name}' Balance: ${balance.toString()}");
+    printInfo("'${account.name}' Positive: ${account.positive.toString()}");
     printInfo("Balance: ${balance.toString()}");
     for (final AccountingEntry entry in entries) {
+      if (entry.account != account) continue;
       balance += entry.value;
-      if (balance.type != account.positive) {
-        printInfo("New Balance: ${balance.toString()}");
-        if (mounted) notify(context, "Unable to create accounting entry not enough balance");
-        return false;
-      }
+      printInfo("New Balance: ${balance.toString()}");
+      if (balance.type != account.positive) return false;
     }
     balance += currentEntry.value;
-    return balance.type != account.positive;
+    final result = balance.type == account.positive;
+    printInfo("validating account balance with result of $result and value of $balance");
+    return result;
   }
 
   @override

@@ -7,6 +7,7 @@ import "package:avert/ui/components/select.dart";
 import "package:avert/ui/core.dart";
 import "package:avert/utils/common.dart";
 import "package:avert/utils/logger.dart";
+import "package:avert/utils/ui.dart";
 import "package:flutter/material.dart";
 
 import "package:forui/forui.dart";
@@ -187,8 +188,13 @@ class _NewFormState extends State<AccountingEntryForm> implements DocumentForm {
     );
     document.action = isNew(document) ? DocAction.insert : DocAction.update;
     final bool success = await widget.onSubmit?.call(document) ?? true;
-    if (!success && !mounted) return;
-    Navigator.of(context).pop<bool>(true);
+    printInfo("Submitting Accounting Entry with success value of $success");
+    if (!mounted) return;
+    if (success) {
+      Navigator.of(context).pop<bool>(true);
+    } else {
+      notify(context, "Unable to ${isAdd ? "New" : "Update"} accounting entry not enough balance");
+    }
   }
 
   Future<bool?> confirmRemove() async {

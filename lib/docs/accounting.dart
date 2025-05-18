@@ -75,6 +75,7 @@ class AccountValue {
   @override // TODO: replace toStringAsFixed with currency format.
   String toString() => "${amount.toStringAsFixed(2)} ${type.abbrev}";
 
+  bool get isZero => amount == 0;
   bool get isDebit => type == EntryType.debit;
   bool get isCredit => type == EntryType.credit;
   bool equals(AccountValue value) => amount == value.amount && type == value.type;
